@@ -9,21 +9,25 @@ import Settings from './pages/Settings'
 import Widget from './pages/Widget'
 import TestimonialForm from './pages/TestimonialForm'
 import WallOfLove from './pages/WallOfLove'
+import AuthGuard from './components/AuthGuard'
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/testimonials" element={<Testimonials />} />
-        <Route path="/dashboard/links" element={<CollectionLinks />} />
-        <Route path="/dashboard/settings" element={<Settings />} />
-        <Route path="/dashboard/widget" element={<Widget />} />
         <Route path="/t/:slug" element={<TestimonialForm />} />
         <Route path="/wall/:slug" element={<WallOfLove />} />
+        
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+        <Route path="/dashboard/testimonials" element={<AuthGuard><Testimonials /></AuthGuard>} />
+        <Route path="/dashboard/links" element={<AuthGuard><CollectionLinks /></AuthGuard>} />
+        <Route path="/dashboard/settings" element={<AuthGuard><Settings /></AuthGuard>} />
+        <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
       </Routes>
     </Router>
   )
