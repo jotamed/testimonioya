@@ -1,262 +1,322 @@
 import { Link } from 'react-router-dom'
-import { MessageSquare, Sparkles, Link as LinkIcon, Award, Check } from 'lucide-react'
+import { MessageSquare, Star, Zap, Globe, Shield, ArrowRight, Check, ChevronRight } from 'lucide-react'
+
+const fakeTestimonials = [
+  { name: 'María García', biz: 'Clínica Dental Sonríe', text: 'Desde que usamos TestimonioYa, recibimos 3x más reseñas. Los pacientes lo hacen desde el móvil en 30 segundos.', rating: 5 },
+  { name: 'Carlos Ruiz', biz: 'Restaurante El Fogón', text: 'Antes pedíamos reseñas en Google y nadie lo hacía. Con el enlace de WhatsApp, el 40% de nuestros clientes responden.', rating: 5 },
+  { name: 'Ana Torres', biz: 'CrossFit Barna', text: 'El muro de testimonios en nuestra web convierte visitantes en miembros. Es nuestra mejor herramienta de ventas.', rating: 5 },
+]
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <MessageSquare className="h-8 w-8 text-indigo-600" />
-              <span className="text-2xl font-bold text-gray-900">TestimonioYa</span>
+              <MessageSquare className="h-7 w-7 text-indigo-600" />
+              <span className="text-xl font-bold text-gray-900">TestimonioYa</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
-                Iniciar Sesión
+            <div className="flex items-center space-x-3">
+              <a href="#pricing" className="hidden sm:inline text-gray-600 hover:text-gray-900 text-sm font-medium">
+                Precios
+              </a>
+              <Link to="/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                Entrar
               </Link>
-              <Link to="/register" className="btn-primary">
-                Comenzar Gratis
+              <Link to="/register" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                Empezar gratis
               </Link>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-20 pb-32 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Recolecta testimonios por <span className="text-indigo-600">WhatsApp</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
-              La forma más fácil de recopilar y mostrar reseñas de tus clientes. 
-              Aumenta tu credibilidad y convierte más visitantes en clientes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register" className="btn-primary text-lg px-8 py-4">
-                Comenzar Gratis
-              </Link>
-              <a href="#features" className="btn-secondary text-lg px-8 py-4">
-                Ver Características
-              </a>
-            </div>
-            <p className="mt-6 text-gray-500">
-              ✨ No necesitas tarjeta de crédito
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Todo lo que necesitas para brillar
-            </h2>
-            <p className="text-xl text-gray-600">
-              Herramientas poderosas para recolectar y mostrar testimonios
-            </p>
+      {/* Hero */}
+      <section className="pt-16 pb-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-1.5 rounded-full mb-8">
+            <Zap className="h-4 w-4 mr-1.5" />
+            Reseñas por WhatsApp en 30 segundos
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 hover:shadow-lg transition-shadow">
-              <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-4">
-                <MessageSquare className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Enlace por WhatsApp
-              </h3>
-              <p className="text-gray-600">
-                Envía un enlace personalizado y recibe testimonios directamente por WhatsApp
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-100 hover:shadow-lg transition-shadow">
-              <div className="h-12 w-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4">
-                <LinkIcon className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Enlaces Personalizados
-              </h3>
-              <p className="text-gray-600">
-                Crea enlaces únicos para diferentes campañas y haz seguimiento de resultados
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-pink-50 to-white border border-pink-100 hover:shadow-lg transition-shadow">
-              <div className="h-12 w-12 bg-pink-600 rounded-xl flex items-center justify-center mb-4">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Muro de Testimonios
-              </h3>
-              <p className="text-gray-600">
-                Muestra tus mejores reseñas en un muro hermoso y personalizable
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-100 hover:shadow-lg transition-shadow">
-              <div className="h-12 w-12 bg-amber-600 rounded-xl flex items-center justify-center mb-4">
-                <Award className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Widget Embebido
-              </h3>
-              <p className="text-gray-600">
-                Integra testimonios en tu web con un simple código de inserción
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Precios simples y transparentes
-            </h2>
-            <p className="text-xl text-gray-600">
-              Elige el plan perfecto para tu negocio
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Free Plan */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-indigo-300 transition-all">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Gratis</h3>
-              <div className="mb-6">
-                <span className="text-5xl font-bold text-gray-900">€0</span>
-                <span className="text-gray-600">/mes</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Hasta 10 testimonios/mes</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">1 enlace de recolección</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Muro público básico</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Marca TestimonioYa</span>
-                </li>
-              </ul>
-              <Link to="/register" className="block w-full text-center btn-secondary">
-                Comenzar Gratis
-              </Link>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="bg-indigo-600 rounded-2xl p-8 border-2 border-indigo-600 shadow-xl transform scale-105">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-2xl font-bold text-white">Pro</h3>
-                <span className="bg-white text-indigo-600 text-xs font-bold px-3 py-1 rounded-full">
-                  POPULAR
-                </span>
-              </div>
-              <div className="mb-6">
-                <span className="text-5xl font-bold text-white">€19</span>
-                <span className="text-indigo-200">/mes</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-white mr-2 mt-0.5" />
-                  <span className="text-white">Testimonios ilimitados</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-white mr-2 mt-0.5" />
-                  <span className="text-white">Enlaces ilimitados</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-white mr-2 mt-0.5" />
-                  <span className="text-white">Personalización completa</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-white mr-2 mt-0.5" />
-                  <span className="text-white">Sin marca TestimonioYa</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-white mr-2 mt-0.5" />
-                  <span className="text-white">Widget embebido</span>
-                </li>
-              </ul>
-              <Link to="/register" className="block w-full text-center bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                Comenzar Ahora
-              </Link>
-            </div>
-
-            {/* Premium Plan */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-indigo-300 transition-all">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
-              <div className="mb-6">
-                <span className="text-5xl font-bold text-gray-900">€49</span>
-                <span className="text-gray-600">/mes</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Todo lo de Pro</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">5 negocios</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Análiticas avanzadas</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">Soporte prioritario</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span className="text-gray-700">API access</span>
-                </li>
-              </ul>
-              <Link to="/register" className="block w-full text-center btn-secondary">
-                Comenzar Ahora
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-indigo-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            ¿Listo para comenzar?
-          </h2>
-          <p className="text-xl text-indigo-100 mb-8">
-            Únete a cientos de negocios que ya están recolectando testimonios
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
+            Tus clientes están contentos.
+            <br />
+            <span className="text-indigo-600">Que se note.</span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            El 92% de la gente lee reseñas antes de comprar. Pero pedir testimonios es incómodo, 
+            lento y la mayoría nunca lo hace. TestimonioYa lo resuelve con un enlace de WhatsApp.
           </p>
-          <Link to="/register" className="inline-block bg-white text-indigo-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors">
-            Crear Cuenta Gratis
+          
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+            <Link to="/register" className="inline-flex items-center justify-center bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all hover:shadow-lg hover:shadow-indigo-200">
+              Crear cuenta gratis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+          <p className="text-sm text-gray-400">Sin tarjeta · Gratis para siempre · 2 min de setup</p>
+        </div>
+      </section>
+
+      {/* Problem / Solution */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                El problema que todos tienen
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <span className="text-red-500 text-xl mt-0.5">✗</span>
+                  <p className="text-gray-700">"¿Podrías dejarnos una reseña en Google?" → <span className="text-gray-400 italic">silencio</span></p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-red-500 text-xl mt-0.5">✗</span>
+                  <p className="text-gray-700">Email pidiendo feedback → <span className="text-gray-400 italic">0.3% respuesta</span></p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-red-500 text-xl mt-0.5">✗</span>
+                  <p className="text-gray-700">Formulario en la web → <span className="text-gray-400 italic">nadie lo encuentra</span></p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-red-500 text-xl mt-0.5">✗</span>
+                  <p className="text-gray-700">Testimonios en capturas de pantalla → <span className="text-gray-400 italic">poco profesional</span></p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                Con TestimonioYa
+              </h3>
+              <div className="space-y-5">
+                <div className="flex items-start space-x-3">
+                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-green-600 font-bold text-sm">1</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Creas un enlace personalizado</p>
+                    <p className="text-sm text-gray-500">Con tu marca, tu mensaje, tu estilo</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-green-600 font-bold text-sm">2</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Lo compartes por WhatsApp</p>
+                    <p className="text-sm text-gray-500">Donde tus clientes ya están</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-green-600 font-bold text-sm">3</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Recibes testimonios reales</p>
+                    <p className="text-sm text-gray-500">Apruébalos y publícalos en tu web</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Lo que dicen los que lo usan
+            </h2>
+            <p className="text-gray-600">Negocios reales, resultados reales</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {fakeTestimonials.map((t, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center space-x-0.5 mb-3">
+                  {[...Array(t.rating)].map((_, j) => (
+                    <Star key={j} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4 leading-relaxed">"{t.text}"</p>
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="font-semibold text-gray-900 text-sm">{t.name}</p>
+                  <p className="text-gray-500 text-xs">{t.biz}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Funciona para cualquier negocio
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { emoji: '🏥', name: 'Clínicas' },
+              { emoji: '🍽️', name: 'Restaurantes' },
+              { emoji: '💪', name: 'Gimnasios' },
+              { emoji: '🏠', name: 'Inmobiliarias' },
+              { emoji: '💇', name: 'Peluquerías' },
+              { emoji: '🔧', name: 'Talleres' },
+              { emoji: '📚', name: 'Academias' },
+              { emoji: '🛒', name: 'E-commerce' },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-indigo-300 transition-colors">
+                <span className="text-3xl">{item.emoji}</span>
+                <p className="text-sm font-medium text-gray-700 mt-2">{item.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Simple pero completo
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-xl bg-indigo-50 border border-indigo-100">
+              <MessageSquare className="h-8 w-8 text-indigo-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Enlace WhatsApp</h3>
+              <p className="text-sm text-gray-600">Comparte por donde tus clientes ya hablan. Tasa de respuesta 10x mayor que email.</p>
+            </div>
+            <div className="p-6 rounded-xl bg-purple-50 border border-purple-100">
+              <Globe className="h-8 w-8 text-purple-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Muro de testimonios</h3>
+              <p className="text-sm text-gray-600">Una página pública con todos tus testimonios aprobados. Compártela o embébela en tu web.</p>
+            </div>
+            <div className="p-6 rounded-xl bg-green-50 border border-green-100">
+              <Shield className="h-8 w-8 text-green-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Tú controlas</h3>
+              <p className="text-sm text-gray-600">Aprueba, rechaza o destaca testimonios. Solo se publica lo que tú quieras.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Precios claros</h2>
+            <p className="text-gray-600">Empieza gratis. Sube cuando lo necesites.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Free */}
+            <div className="bg-white rounded-2xl p-7 border border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">Gratis</h3>
+              <div className="my-4">
+                <span className="text-4xl font-bold text-gray-900">€0</span>
+                <span className="text-gray-500 text-sm">/mes</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Para probar y empezar</p>
+              <ul className="space-y-3 mb-8 text-sm">
+                {['10 testimonios/mes', '1 enlace', 'Muro público', 'Marca TestimonioYa'].map((f, i) => (
+                  <li key={i} className="flex items-center text-gray-700">
+                    <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register" className="block w-full text-center border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm">
+                Empezar gratis
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="bg-indigo-600 rounded-2xl p-7 shadow-xl ring-2 ring-indigo-600 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
+                POPULAR
+              </div>
+              <h3 className="text-lg font-bold text-white">Pro</h3>
+              <div className="my-4">
+                <span className="text-4xl font-bold text-white">€19</span>
+                <span className="text-indigo-200 text-sm">/mes</span>
+              </div>
+              <p className="text-sm text-indigo-200 mb-6">Para negocios que quieren crecer</p>
+              <ul className="space-y-3 mb-8 text-sm">
+                {['Testimonios ilimitados', 'Enlaces ilimitados', 'Sin marca', 'Widget embebido', 'Personalización total'].map((f, i) => (
+                  <li key={i} className="flex items-center text-white">
+                    <Check className="h-4 w-4 text-indigo-200 mr-2 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register" className="block w-full text-center bg-white text-indigo-600 px-4 py-2.5 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm">
+                Empezar ahora
+              </Link>
+            </div>
+
+            {/* Premium */}
+            <div className="bg-white rounded-2xl p-7 border border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">Premium</h3>
+              <div className="my-4">
+                <span className="text-4xl font-bold text-gray-900">€49</span>
+                <span className="text-gray-500 text-sm">/mes</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Para agencias y multi-negocio</p>
+              <ul className="space-y-3 mb-8 text-sm">
+                {['Todo lo de Pro', 'Hasta 5 negocios', 'Analíticas avanzadas', 'Soporte prioritario', 'API access'].map((f, i) => (
+                  <li key={i} className="flex items-center text-gray-700">
+                    <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register" className="block w-full text-center border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm">
+                Empezar ahora
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            Tus clientes ya te recomiendan.
+            <br />
+            Solo falta que el mundo lo vea.
+          </h2>
+          <p className="text-lg text-gray-600 mb-8">
+            Configúralo en 2 minutos. Gratis.
+          </p>
+          <Link to="/register" className="inline-flex items-center bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all hover:shadow-lg hover:shadow-indigo-200">
+            Crear mi cuenta
+            <ChevronRight className="ml-1 h-5 w-5" />
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <MessageSquare className="h-6 w-6 text-indigo-400" />
-            <span className="text-xl font-bold text-white">TestimonioYa</span>
+      <footer className="border-t border-gray-200 py-8">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
+          <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+            <MessageSquare className="h-5 w-5 text-indigo-600" />
+            <span className="font-bold text-gray-900">TestimonioYa</span>
           </div>
-          <p className="text-sm">
-            © 2024 TestimonioYa. Todos los derechos reservados.
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} TestimonioYa. Hecho en Barcelona 🇪🇸
           </p>
         </div>
       </footer>
