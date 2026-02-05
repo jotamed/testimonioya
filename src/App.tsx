@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing'
+import VerticalLanding from './pages/VerticalLanding'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Landing />} />
+        <Route path="/para/:vertical" element={<VerticalLanding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/t/:slug" element={<TestimonialForm />} />
