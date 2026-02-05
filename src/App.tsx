@@ -7,6 +7,7 @@ import Testimonials from './pages/Testimonials'
 import CollectionLinks from './pages/CollectionLinks'
 import Settings from './pages/Settings'
 import Widget from './pages/Widget'
+import Analytics from './pages/Analytics'
 import TestimonialForm from './pages/TestimonialForm'
 import WallOfLove from './pages/WallOfLove'
 import AuthGuard from './components/AuthGuard'
@@ -28,6 +29,7 @@ function App() {
         <Route path="/dashboard/links" element={<AuthGuard><CollectionLinks /></AuthGuard>} />
         <Route path="/dashboard/settings" element={<AuthGuard><Settings /></AuthGuard>} />
         <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
+        <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
       </Routes>
     </Router>
   )
