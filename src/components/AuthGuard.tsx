@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
-export default function AuthGuard({ children }: { children: React.ReactNode }) {
+interface AuthGuardProps {
+  children: React.ReactNode
+  requireBusiness?: boolean
+}
+
+export default function AuthGuard({ children, requireBusiness = true }: AuthGuardProps) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
@@ -15,6 +20,21 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         navigate('/login')
         return
       }
+
+      // Check if user has a business (if required)
+      if (requireBusiness) {
+        const { data: business } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single()
+
+        if (!business) {
+          navigate('/onboarding')
+          return
+        }
+      }
+
       setAuthenticated(true)
       setLoading(false)
     }
@@ -27,7 +47,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     })
 
     return () => subscription.unsubscribe()
-  }, [navigate])
+  }, [navigate, requireBusiness])
 
   if (loading && !authenticated) {
     return (

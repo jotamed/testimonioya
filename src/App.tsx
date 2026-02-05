@@ -3,6 +3,7 @@ import Landing from './pages/Landing'
 import VerticalLanding from './pages/VerticalLanding'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
 import Testimonials from './pages/Testimonials'
 import CollectionLinks from './pages/CollectionLinks'
@@ -24,6 +25,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/t/:slug" element={<TestimonialForm />} />
         <Route path="/wall/:slug" element={<WallOfLove />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         
         {/* Protected routes */}
         <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
