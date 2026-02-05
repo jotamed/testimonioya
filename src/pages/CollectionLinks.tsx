@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Plus, Copy, QrCode, ExternalLink, Trash2, AlertTriangle } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { Plus, Copy, QrCode, ExternalLink, Trash2, AlertTriangle, Download, X } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, CollectionLink } from '../lib/supabase'
 import { canCreateCollectionLink, PlanType } from '../lib/plans'
@@ -8,9 +9,11 @@ export default function CollectionLinks() {
   const [business, setBusiness] = useState<Business | null>(null)
   const [links, setLinks] = useState<CollectionLink[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showQRModal, setShowQRModal] = useState<{ url: string; name: string } | null>(null)
   const [newLinkName, setNewLinkName] = useState('')
   const [loading, setLoading] = useState(true)
   const [linkLimit, setLinkLimit] = useState<{ allowed: boolean; current: number; limit: number } | null>(null)
+  const qrRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadData()
@@ -134,6 +137,33 @@ export default function CollectionLinks() {
     return `${window.location.origin}/t/${slug}`
   }
 
+  const downloadQR = () => {
+    if (!qrRef.current) return
+    const svg = qrRef.current.querySelector('svg')
+    if (!svg) return
+    
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    
+    img.onload = () => {
+      canvas.width = 512
+      canvas.height = 512
+      ctx?.fillStyle && (ctx.fillStyle = '#ffffff')
+      ctx?.fillRect(0, 0, 512, 512)
+      ctx?.drawImage(img, 0, 0, 512, 512)
+      
+      const pngFile = canvas.toDataURL('image/png')
+      const downloadLink = document.createElement('a')
+      downloadLink.download = `qr-${showQRModal?.name || 'testimonio'}.png`
+      downloadLink.href = pngFile
+      downloadLink.click()
+    }
+    
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -246,6 +276,14 @@ export default function CollectionLinks() {
                     </a>
                     
                     <button
+                      onClick={() => setShowQRModal({ url: getFullUrl(link.slug), name: link.name })}
+                      className="flex items-center space-x-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                    >
+                      <QrCode className="h-4 w-4" />
+                      <span>QR</span>
+                    </button>
+                    
+                    <button
                       onClick={() => toggleLinkStatus(link.id, link.is_active)}
                       className={`px-4 py-2 rounded-lg transition-colors ${
                         link.is_active
@@ -315,6 +353,61 @@ export default function CollectionLinks() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* QR Modal */}
+        {showQRModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-sm w-full p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Código QR
+                </h2>
+                <button
+                  onClick={() => setShowQRModal(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              
+              <p className="text-sm text-gray-600 mb-4">
+                {showQRModal.name}
+              </p>
+              
+              <div ref={qrRef} className="bg-white p-4 rounded-lg border border-gray-200 flex justify-center mb-4">
+                <QRCodeSVG 
+                  value={showQRModal.url} 
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              
+              <p className="text-xs text-gray-500 text-center mb-4 break-all">
+                {showQRModal.url}
+              </p>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    copyToClipboard(showQRModal.url)
+                  }}
+                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  <Copy className="h-4 w-4" />
+                  <span>Copiar URL</span>
+                </button>
+                <button
+                  onClick={downloadQR}
+                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Descargar</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
