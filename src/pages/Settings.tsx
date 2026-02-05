@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Save, Crown, Check } from 'lucide-react'
+import { Save, Crown, Check, Mic } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
@@ -12,6 +12,7 @@ export default function Settings() {
     website: '',
     brand_color: '#4f46e5',
     welcome_message: '',
+    allow_audio_testimonials: true,
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -40,6 +41,7 @@ export default function Settings() {
           website: businessData.website || '',
           brand_color: businessData.brand_color,
           welcome_message: businessData.welcome_message,
+          allow_audio_testimonials: businessData.allow_audio_testimonials ?? true,
         })
       }
     } catch (error) {
@@ -206,6 +208,34 @@ export default function Settings() {
                 </code>
               </div>
             )}
+
+            {/* Audio Testimonials Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <Mic className="h-5 w-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Testimonios en audio</p>
+                  <p className="text-sm text-gray-500">
+                    Permite que tus clientes graben testimonios de voz
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, allow_audio_testimonials: !formData.allow_audio_testimonials })}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  formData.allow_audio_testimonials ? 'bg-indigo-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    formData.allow_audio_testimonials ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
 
             <div className="flex justify-end pt-4 border-t border-gray-200">
               <button

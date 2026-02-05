@@ -60,6 +60,11 @@ export default function TestimonialForm() {
       setBusinessName(businessData.business_name)
       setBrandColor(businessData.brand_color)
       setWelcomeMessage(businessData.welcome_message)
+      
+      // If business doesn't allow audio, force text mode
+      if (!businessData.allow_audio_testimonials) {
+        setMode('text')
+      }
 
       // Check if business has reached testimonial limit
       const limitCheck = await canReceiveTestimonial(businessData.id, businessData.plan as PlanType)
@@ -336,40 +341,42 @@ export default function TestimonialForm() {
               </div>
             </div>
 
-            {/* Mode Selector */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                ¿Cómo quieres compartir tu testimonio?
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMode('text')}
-                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
-                    mode === 'text'
-                      ? 'border-transparent text-white'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
-                  }`}
-                  style={mode === 'text' ? { backgroundColor: brandColor } : {}}
-                >
-                  <Type className="h-5 w-5" />
-                  <span className="font-medium">Escribir</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('audio')}
-                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
-                    mode === 'audio'
-                      ? 'border-transparent text-white'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
-                  }`}
-                  style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
-                >
-                  <Mic className="h-5 w-5" />
-                  <span className="font-medium">Grabar audio</span>
-                </button>
+            {/* Mode Selector - Only show if business allows audio */}
+            {business?.allow_audio_testimonials !== false && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  ¿Cómo quieres compartir tu testimonio?
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMode('text')}
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                      mode === 'text'
+                        ? 'border-transparent text-white'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                    }`}
+                    style={mode === 'text' ? { backgroundColor: brandColor } : {}}
+                  >
+                    <Type className="h-5 w-5" />
+                    <span className="font-medium">Escribir</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode('audio')}
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                      mode === 'audio'
+                        ? 'border-transparent text-white'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                    }`}
+                    style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
+                  >
+                    <Mic className="h-5 w-5" />
+                    <span className="font-medium">Grabar audio</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Testimonial Content - Text or Audio */}
             {mode === 'text' ? (

@@ -17,6 +17,7 @@ export type Business = {
   welcome_message: string
   plan: 'free' | 'pro' | 'premium'
   testimonials_count: number
+  allow_audio_testimonials: boolean
   created_at: string
 }
 
