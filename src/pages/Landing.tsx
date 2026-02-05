@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { MessageSquare, Star, Zap, Globe, Shield, ArrowRight, Check, ChevronRight } from 'lucide-react'
+import { MessageSquare, Star, Zap, Globe, Shield, ArrowRight, Check, ChevronRight, Share2, QrCode, Mic } from 'lucide-react'
 
-const fakeTestimonials = [
-  { name: 'María García', biz: 'Clínica Dental Sonríe', text: 'Desde que usamos TestimonioYa, recibimos 3x más reseñas. Los pacientes lo hacen desde el móvil en 30 segundos.', rating: 5 },
-  { name: 'Carlos Ruiz', biz: 'Restaurante El Fogón', text: 'Antes pedíamos reseñas en Google y nadie lo hacía. Con el enlace de WhatsApp, el 40% de nuestros clientes responden.', rating: 5 },
-  { name: 'Ana Torres', biz: 'CrossFit Barna', text: 'El muro de testimonios en nuestra web convierte visitantes en miembros. Es nuestra mejor herramienta de ventas.', rating: 5 },
+const testimonials = [
+  { name: 'María García', biz: 'Clínica Dental Sonríe', text: 'Pasamos de tener 3 reseñas a más de 50 en dos meses. El muro de testimonios en nuestra web genera confianza desde el primer momento.', rating: 5 },
+  { name: 'Carlos Ruiz', biz: 'CrossFit Barna', text: 'Comparto el enlace después de cada clase y los alumnos lo rellenan en 30 segundos. Simple y efectivo.', rating: 5 },
+  { name: 'Ana Torres', biz: 'Consultoría AT', text: 'Mis casos de estudio ahora se escriben solos. Pido el testimonio, lo apruebo y ya tengo contenido para LinkedIn.', rating: 5 },
 ]
 
 export default function Landing() {
@@ -38,18 +38,19 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-1.5 rounded-full mb-8">
             <Zap className="h-4 w-4 mr-1.5" />
-            Reseñas por WhatsApp en 30 segundos
+            Testimonios reales en minutos
           </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
-            Tus clientes están contentos.
+            Convierte clientes felices
             <br />
-            <span className="text-indigo-600">Que se note.</span>
+            <span className="text-indigo-600">en tu mejor marketing</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            El 92% de la gente lee reseñas antes de comprar. Pero pedir testimonios es incómodo, 
-            lento y la mayoría nunca lo hace. TestimonioYa lo resuelve con un enlace de WhatsApp.
+            Un enlace simple. Testimonios reales. Un muro que vende por ti.
+            <br />
+            Sin complicaciones, sin apps, sin fricción.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
@@ -85,7 +86,7 @@ export default function Landing() {
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="text-red-500 text-xl mt-0.5">✗</span>
-                  <p className="text-gray-700">Testimonios en capturas de pantalla → <span className="text-gray-400 italic">poco profesional</span></p>
+                  <p className="text-gray-700">Capturas de WhatsApp → <span className="text-gray-400 italic">poco profesional</span></p>
                 </div>
               </div>
             </div>
@@ -99,7 +100,7 @@ export default function Landing() {
                     <span className="text-green-600 font-bold text-sm">1</span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Creas un enlace personalizado</p>
+                    <p className="font-medium text-gray-900">Creas tu enlace personalizado</p>
                     <p className="text-sm text-gray-500">Con tu marca, tu mensaje, tu estilo</p>
                   </div>
                 </div>
@@ -108,8 +109,8 @@ export default function Landing() {
                     <span className="text-green-600 font-bold text-sm">2</span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Lo compartes por WhatsApp</p>
-                    <p className="text-sm text-gray-500">Donde tus clientes ya están</p>
+                    <p className="font-medium text-gray-900">Lo compartes donde quieras</p>
+                    <p className="text-sm text-gray-500">WhatsApp, email, QR, redes sociales...</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -118,7 +119,7 @@ export default function Landing() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Recibes testimonios reales</p>
-                    <p className="text-sm text-gray-500">Apruébalos y publícalos en tu web</p>
+                    <p className="text-sm text-gray-500">Apruébalos y muéstralos al mundo</p>
                   </div>
                 </div>
               </div>
@@ -138,7 +139,7 @@ export default function Landing() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {fakeTestimonials.map((t, i) => (
+            {testimonials.map((t, i) => (
               <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center space-x-0.5 mb-3">
                   {[...Array(t.rating)].map((_, j) => (
@@ -166,13 +167,13 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
+              { emoji: '💼', name: 'Coaches' },
+              { emoji: '💪', name: 'Fitness' },
               { emoji: '🏥', name: 'Clínicas' },
               { emoji: '🍽️', name: 'Restaurantes' },
-              { emoji: '💪', name: 'Gimnasios' },
+              { emoji: '💇', name: 'Belleza' },
               { emoji: '🏠', name: 'Inmobiliarias' },
-              { emoji: '💇', name: 'Peluquerías' },
-              { emoji: '🔧', name: 'Talleres' },
-              { emoji: '📚', name: 'Academias' },
+              { emoji: '📚', name: 'Formación' },
               { emoji: '🛒', name: 'E-commerce' },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-indigo-300 transition-colors">
@@ -189,24 +190,39 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Simple pero completo
+              Simple pero poderoso
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="p-6 rounded-xl bg-indigo-50 border border-indigo-100">
-              <MessageSquare className="h-8 w-8 text-indigo-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Enlace WhatsApp</h3>
-              <p className="text-sm text-gray-600">Comparte por donde tus clientes ya hablan. Tasa de respuesta 10x mayor que email.</p>
+              <Share2 className="h-8 w-8 text-indigo-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Comparte donde quieras</h3>
+              <p className="text-sm text-gray-600">WhatsApp, email, redes, SMS... Un enlace que funciona en todas partes.</p>
             </div>
             <div className="p-6 rounded-xl bg-purple-50 border border-purple-100">
               <Globe className="h-8 w-8 text-purple-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Muro de testimonios</h3>
-              <p className="text-sm text-gray-600">Una página pública con todos tus testimonios aprobados. Compártela o embébela en tu web.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Tu muro de testimonios</h3>
+              <p className="text-sm text-gray-600">Una página pública con tus mejores reseñas. Embébela en tu web o compártela.</p>
             </div>
             <div className="p-6 rounded-xl bg-green-50 border border-green-100">
               <Shield className="h-8 w-8 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Tú controlas</h3>
-              <p className="text-sm text-gray-600">Aprueba, rechaza o destaca testimonios. Solo se publica lo que tú quieras.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Tú tienes el control</h3>
+              <p className="text-sm text-gray-600">Aprueba, rechaza o destaca. Solo publicas lo que quieras.</p>
+            </div>
+          </div>
+          
+          {/* Coming Soon Features */}
+          <div className="mt-8 p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+            <p className="text-sm font-medium text-amber-800 mb-3">🚀 Próximamente</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-3">
+                <QrCode className="h-5 w-5 text-amber-600" />
+                <span className="text-sm text-gray-700"><strong>QR físico</strong> - Imprime para mesas, mostrador, tarjetas</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Mic className="h-5 w-5 text-amber-600" />
+                <span className="text-sm text-gray-700"><strong>Audio testimonios</strong> - Notas de voz de tus clientes</span>
+              </div>
             </div>
           </div>
         </div>
@@ -217,7 +233,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Precios claros</h2>
-            <p className="text-gray-600">Empieza gratis. Sube cuando lo necesites.</p>
+            <p className="text-gray-600">Empieza gratis. Crece cuando lo necesites.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -275,7 +291,7 @@ export default function Landing() {
               </div>
               <p className="text-sm text-gray-500 mb-6">Para agencias y multi-negocio</p>
               <ul className="space-y-3 mb-8 text-sm">
-                {['Todo lo de Pro', 'Hasta 5 negocios', 'Analíticas avanzadas', 'Soporte prioritario', 'API access'].map((f, i) => (
+                {['Todo lo de Pro', 'Hasta 5 negocios', 'Analíticas avanzadas', 'Soporte prioritario'].map((f, i) => (
                   <li key={i} className="flex items-center text-gray-700">
                     <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                     {f}
@@ -299,7 +315,7 @@ export default function Landing() {
             Solo falta que el mundo lo vea.
           </h2>
           <p className="text-lg text-gray-600 mb-8">
-            Configúralo en 2 minutos. Gratis.
+            Configúralo en 2 minutos. Gratis para siempre.
           </p>
           <Link to="/register" className="inline-flex items-center bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all hover:shadow-lg hover:shadow-indigo-200">
             Crear mi cuenta
