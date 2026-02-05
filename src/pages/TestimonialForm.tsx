@@ -319,15 +319,17 @@ export default function TestimonialForm() {
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
-            Powered by{' '}
-            <a href="/" className="text-indigo-600 hover:text-indigo-700 font-medium">
-              TestimonioYa
-            </a>
-          </p>
-        </div>
+        {/* Footer - Only show branding for free plan */}
+        {business?.plan === 'free' && (
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-500">
+              Powered by{' '}
+              <a href="/" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                TestimonioYa
+              </a>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

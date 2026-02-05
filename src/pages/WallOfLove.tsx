@@ -185,8 +185,8 @@ export default function WallOfLove() {
         )}
       </div>
 
-      {/* Footer */}
-      {(business.plan === 'free' || isEmbed) && (
+      {/* Footer - Only show branding for free plan */}
+      {business.plan === 'free' && (
         <div className="py-6 text-center">
           <p className="text-sm text-gray-500">
             Powered by{' '}
