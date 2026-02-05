@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Star, Check, X, Filter } from 'lucide-react'
+import { Star, Check, X, Filter, Mic } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
+import AudioPlayer from '../components/AudioPlayer'
 
 export default function Testimonials() {
   const [_business, setBusiness] = useState<Business | null>(null)
@@ -157,7 +158,25 @@ export default function Testimonials() {
                       </div>
                     </div>
                     
-                    <p className="text-gray-700 mb-3">{testimonial.text_content}</p>
+                    {/* Text content */}
+                    {testimonial.text_content && (
+                      <p className="text-gray-700 mb-3">{testimonial.text_content}</p>
+                    )}
+                    
+                    {/* Audio player */}
+                    {testimonial.audio_url && (
+                      <div className="mb-3">
+                        <AudioPlayer src={testimonial.audio_url} compact />
+                      </div>
+                    )}
+
+                    {/* Show badge if audio-only */}
+                    {testimonial.audio_url && !testimonial.text_content && (
+                      <div className="flex items-center space-x-1 text-indigo-600 mb-3">
+                        <Mic className="h-4 w-4" />
+                        <span className="text-sm font-medium">Testimonio en audio</span>
+                      </div>
+                    )}
                     
                     <div className="flex items-center space-x-3 text-sm text-gray-500">
                       <span className="capitalize">Fuente: {testimonial.source}</span>

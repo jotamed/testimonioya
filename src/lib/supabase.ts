@@ -25,7 +25,8 @@ export type Testimonial = {
   business_id: string
   customer_name: string
   customer_email: string | null
-  text_content: string
+  text_content: string | null
+  audio_url: string | null
   rating: number
   status: 'pending' | 'approved' | 'rejected'
   is_featured: boolean

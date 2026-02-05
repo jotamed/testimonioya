@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Star, MessageSquare } from 'lucide-react'
+import { Star, MessageSquare, Mic } from 'lucide-react'
 import { supabase, Business, Testimonial } from '../lib/supabase'
+import AudioPlayer from '../components/AudioPlayer'
 
 export default function WallOfLove() {
   const { slug } = useParams()
@@ -163,9 +164,31 @@ export default function WallOfLove() {
                   ))}
                 </div>
 
-                <p className="text-gray-700 mb-4 leading-relaxed">
-                  "{testimonial.text_content}"
-                </p>
+                {/* Text content */}
+                {testimonial.text_content && (
+                  <p className="text-gray-700 mb-4 leading-relaxed">
+                    "{testimonial.text_content}"
+                  </p>
+                )}
+
+                {/* Audio player */}
+                {testimonial.audio_url && (
+                  <div className="mb-4">
+                    <AudioPlayer 
+                      src={testimonial.audio_url} 
+                      compact 
+                      brandColor={business.brand_color}
+                    />
+                  </div>
+                )}
+
+                {/* Audio-only badge */}
+                {testimonial.audio_url && !testimonial.text_content && (
+                  <div className="flex items-center space-x-1 text-indigo-600 mb-4">
+                    <Mic className="h-4 w-4" />
+                    <span className="text-sm font-medium">Testimonio en audio</span>
+                  </div>
+                )}
 
                 <div className="pt-4 border-t border-gray-200">
                   <p className="font-bold text-gray-900">
