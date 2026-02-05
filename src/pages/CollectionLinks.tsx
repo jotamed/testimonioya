@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Plus, Copy, QrCode, ExternalLink, Trash2 } from 'lucide-react'
+import { Plus, Copy, QrCode, ExternalLink, Trash2, AlertTriangle } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, CollectionLink } from '../lib/supabase'
+import { canCreateCollectionLink, PlanType } from '../lib/plans'
 
 export default function CollectionLinks() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -9,6 +10,7 @@ export default function CollectionLinks() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newLinkName, setNewLinkName] = useState('')
   const [loading, setLoading] = useState(true)
+  const [linkLimit, setLinkLimit] = useState<{ allowed: boolean; current: number; limit: number } | null>(null)
 
   useEffect(() => {
     loadData()
@@ -37,6 +39,10 @@ export default function CollectionLinks() {
           .order('created_at', { ascending: false })
 
         setLinks(linksData || [])
+
+        // Check link limit
+        const limitCheck = await canCreateCollectionLink(businessData.id, businessData.plan as PlanType)
+        setLinkLimit(limitCheck)
       }
     } catch (error) {
       console.error('Error loading links:', error)
@@ -58,6 +64,14 @@ export default function CollectionLinks() {
   const createLink = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!business) return
+
+    // Check limit before creating
+    const limitCheck = await canCreateCollectionLink(business.id, business.plan as PlanType)
+    if (!limitCheck.allowed) {
+      alert('Has alcanzado el límite de enlaces de tu plan. Actualiza a Pro para crear enlaces ilimitados.')
+      setShowCreateModal(false)
+      return
+    }
 
     try {
       const slug = generateSlug(newLinkName)
@@ -134,14 +148,31 @@ export default function CollectionLinks() {
     <DashboardLayout>
       <div>
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Enlaces de Recolección</h1>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Crear Enlace</span>
-          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Enlaces de Recolección</h1>
+            {linkLimit && linkLimit.limit !== Infinity && (
+              <p className="text-sm text-gray-500 mt-1">
+                {linkLimit.current} / {linkLimit.limit} enlaces usados
+              </p>
+            )}
+          </div>
+          {linkLimit && !linkLimit.allowed ? (
+            <a
+              href="/dashboard/settings"
+              className="btn-primary flex items-center space-x-2 bg-amber-600 hover:bg-amber-700"
+            >
+              <AlertTriangle className="h-5 w-5" />
+              <span>Upgrade para más enlaces</span>
+            </a>
+          ) : (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn-primary flex items-center space-x-2"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Crear Enlace</span>
+            </button>
+          )}
         </div>
 
         {links.length === 0 ? (

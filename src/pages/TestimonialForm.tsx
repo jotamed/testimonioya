@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Star, Send, MessageSquare } from 'lucide-react'
-import { supabase, CollectionLink } from '../lib/supabase'
+import { Star, Send, MessageSquare, AlertTriangle } from 'lucide-react'
+import { supabase, CollectionLink, Business } from '../lib/supabase'
+import { canReceiveTestimonial, PlanType } from '../lib/plans'
 
 export default function TestimonialForm() {
   const { slug } = useParams()
   const [link, setLink] = useState<CollectionLink | null>(null)
+  const [business, setBusiness] = useState<Business | null>(null)
   const [businessName, setBusinessName] = useState('')
   const [brandColor, setBrandColor] = useState('#4f46e5')
   const [welcomeMessage, setWelcomeMessage] = useState('')
+  const [limitReached, setLimitReached] = useState(false)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -46,10 +49,17 @@ export default function TestimonialForm() {
       setLink(linkData)
       
       // @ts-ignore
-      const business = linkData.businesses
-      setBusinessName(business.business_name)
-      setBrandColor(business.brand_color)
-      setWelcomeMessage(business.welcome_message)
+      const businessData = linkData.businesses as Business
+      setBusiness(businessData)
+      setBusinessName(businessData.business_name)
+      setBrandColor(businessData.brand_color)
+      setWelcomeMessage(businessData.welcome_message)
+
+      // Check if business has reached testimonial limit
+      const limitCheck = await canReceiveTestimonial(businessData.id, businessData.plan as PlanType)
+      if (!limitCheck.allowed) {
+        setLimitReached(true)
+      }
 
       // Increment views
       await supabase
@@ -66,7 +76,14 @@ export default function TestimonialForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!link) return
+    if (!link || !business) return
+
+    // Double-check limit before submitting
+    const limitCheck = await canReceiveTestimonial(business.id, business.plan as PlanType)
+    if (!limitCheck.allowed) {
+      setLimitReached(true)
+      return
+    }
 
     setSubmitting(true)
     try {
@@ -126,6 +143,30 @@ export default function TestimonialForm() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Enlace no encontrado</h1>
           <p className="text-gray-600">Este enlace no existe o ha sido desactivado</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (limitReached) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-orange-50 px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="h-8 w-8 text-amber-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Límite alcanzado
+            </h1>
+            <p className="text-gray-600 mb-6">
+              {businessName} ha alcanzado el límite de testimonios de su plan este mes. 
+              Por favor, inténtalo más tarde.
+            </p>
+            <p className="text-sm text-gray-500">
+              ¿Eres el dueño? Actualiza tu plan para recibir más testimonios.
+            </p>
+          </div>
         </div>
       </div>
     )

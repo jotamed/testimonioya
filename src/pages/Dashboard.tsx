@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
+import { getUsageStats, PlanType } from '../lib/plans'
+import { PLANS } from '../lib/stripe'
 
 export default function Dashboard() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -12,6 +14,10 @@ export default function Dashboard() {
     pending: 0,
     approved: 0,
   })
+  const [usage, setUsage] = useState<{
+    testimonials: { current: number; limit: number };
+    links: { current: number; limit: number };
+  } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -66,6 +72,10 @@ export default function Dashboard() {
           pending: pendingCount || 0,
           approved: approvedCount || 0,
         })
+
+        // Load usage stats
+        const usageStats = await getUsageStats(businessData.id, businessData.plan as PlanType)
+        setUsage(usageStats)
       }
     } catch (error) {
       console.error('Error loading data:', error)
@@ -139,6 +149,38 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Plan Usage */}
+        {usage && business.plan === 'free' && (
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-sm p-6 mb-8 text-white">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="mb-4 md:mb-0">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Zap className="h-5 w-5" />
+                  <h3 className="font-bold">Plan {PLANS[business.plan].name}</h3>
+                </div>
+                <div className="space-y-1 text-sm text-indigo-100">
+                  <p>
+                    📝 Testimonios este mes: {usage.testimonials.current} / {usage.testimonials.limit === Infinity ? '∞' : usage.testimonials.limit}
+                    {usage.testimonials.limit !== Infinity && usage.testimonials.current >= usage.testimonials.limit * 0.8 && (
+                      <span className="ml-2 text-yellow-300">⚠️ Cerca del límite</span>
+                    )}
+                  </p>
+                  <p>
+                    🔗 Enlaces: {usage.links.current} / {usage.links.limit === Infinity ? '∞' : usage.links.limit}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/settings"
+                className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors"
+              >
+                <span>Upgrade a Pro</span>
+                <span>→</span>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
