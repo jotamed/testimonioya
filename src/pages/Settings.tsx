@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { 
   Save, Crown, Check, Mic, Video, Palette, 
   Key, Webhook, Users, Building2, Download, 
-  MessageSquare, Zap, Lock, Settings2
+  MessageSquare, Zap, Lock, Settings2, CreditCard,
+  Receipt, ExternalLink, Loader2, AlertCircle
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
@@ -36,6 +37,8 @@ export default function Settings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [upgrading, setUpgrading] = useState(false)
+  const [openingPortal, setOpeningPortal] = useState(false)
+  const [portalError, setPortalError] = useState<string | null>(null)
 
   const plan = (business?.plan || 'free') as PlanType
   const isPro = plan === 'pro' || plan === 'premium'
@@ -126,6 +129,35 @@ export default function Settings() {
       alert('Error: ' + error.message)
     } finally {
       setUpgrading(false)
+    }
+  }
+
+  const openBillingPortal = async () => {
+    setOpeningPortal(true)
+    setPortalError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://wnmfanhejnrtfccemlai.supabase.co'}/functions/v1/create-portal-session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ 
+            returnUrl: window.location.href 
+          }),
+        }
+      )
+      const { url, error } = await response.json()
+      if (error) throw new Error(error)
+      window.location.href = url
+    } catch (error: any) {
+      console.error('Portal error:', error)
+      setPortalError(error.message)
+    } finally {
+      setOpeningPortal(false)
     }
   }
 
@@ -624,28 +656,128 @@ export default function Settings() {
                     })}
                   </div>
 
+                  {/* Billing Portal Section - Only for paying customers */}
                   {isPro && (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-2">Facturación</h4>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Gestiona tus facturas, método de pago y cancela tu suscripción.
-                      </p>
-                      <button type="button" className="btn-secondary text-sm">
-                        Abrir portal de facturación
-                      </button>
+                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4">
+                          <div className="h-12 w-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+                            <CreditCard className="h-6 w-6 text-indigo-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-1">Portal de Facturación</h4>
+                            <p className="text-sm text-gray-600 mb-4">
+                              Gestiona tu suscripción, método de pago y descarga facturas.
+                            </p>
+                            
+                            {portalError && (
+                              <div className="flex items-center space-x-2 text-red-600 text-sm mb-3">
+                                <AlertCircle className="h-4 w-4" />
+                                <span>{portalError}</span>
+                              </div>
+                            )}
+                            
+                            <div className="flex flex-wrap gap-3">
+                              <button 
+                                type="button" 
+                                onClick={openBillingPortal}
+                                disabled={openingPortal}
+                                className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+                              >
+                                {openingPortal ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span>Abriendo...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ExternalLink className="h-4 w-4" />
+                                    <span>Abrir portal</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Quick billing info */}
+                      <div className="mt-6 pt-4 border-t border-indigo-200 grid grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Plan actual</p>
+                          <p className="font-semibold text-gray-900">{plan === 'premium' ? 'Premium' : 'Pro'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Precio</p>
+                          <p className="font-semibold text-gray-900">€{plan === 'premium' ? '49' : '19'}/mes</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Estado</p>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            Activo
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* What you can do in portal */}
+                      <div className="mt-4 pt-4 border-t border-indigo-200">
+                        <p className="text-xs text-gray-500 mb-2">En el portal puedes:</p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="inline-flex items-center space-x-1 text-xs text-gray-600 bg-white px-2 py-1 rounded-full">
+                            <Receipt className="h-3 w-3" />
+                            <span>Ver facturas</span>
+                          </span>
+                          <span className="inline-flex items-center space-x-1 text-xs text-gray-600 bg-white px-2 py-1 rounded-full">
+                            <CreditCard className="h-3 w-3" />
+                            <span>Cambiar tarjeta</span>
+                          </span>
+                          <span className="inline-flex items-center space-x-1 text-xs text-gray-600 bg-white px-2 py-1 rounded-full">
+                            <Crown className="h-3 w-3" />
+                            <span>Cambiar plan</span>
+                          </span>
+                          <span className="inline-flex items-center space-x-1 text-xs text-gray-600 bg-white px-2 py-1 rounded-full">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>Cancelar</span>
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
 
+                  {/* Export Data */}
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-2">Exportar datos</h4>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Descarga todos tus testimonios y datos NPS en CSV.
-                    </p>
-                    <button type="button" className="btn-secondary text-sm flex items-center space-x-2">
-                      <Download className="h-4 w-4" />
-                      <span>Exportar todo</span>
-                    </button>
+                    <div className="flex items-start space-x-4">
+                      <div className="h-10 w-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Download className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 mb-1">Exportar datos</h4>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Descarga todos tus testimonios y datos NPS en CSV.
+                        </p>
+                        <button type="button" className="btn-secondary text-sm">
+                          Exportar todo
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Danger Zone */}
+                  {isPro && (
+                    <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                      <h4 className="font-medium text-red-900 mb-2">Zona de peligro</h4>
+                      <p className="text-sm text-red-700 mb-3">
+                        Para cancelar tu suscripción o eliminar tu cuenta, accede al portal de facturación.
+                      </p>
+                      <button 
+                        type="button" 
+                        onClick={openBillingPortal}
+                        className="text-red-600 text-sm font-medium hover:text-red-700"
+                      >
+                        Gestionar en portal →
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </form>
