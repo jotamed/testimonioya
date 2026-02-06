@@ -3,14 +3,16 @@ import {
   Save, Crown, Check, Mic, Video, Palette, 
   Key, Webhook, Users, Building2, Download, 
   MessageSquare, Zap, Lock, Settings2, CreditCard,
-  Receipt, ExternalLink, Loader2, AlertCircle
+  Receipt, ExternalLink, Loader2, AlertCircle, Shield,
+  Trash2, Mail, Eye, EyeOff
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
 
-type SettingsTab = 'general' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'billing'
+type SettingsTab = 'general' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
 
 export default function Settings() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -39,6 +41,19 @@ export default function Settings() {
   const [upgrading, setUpgrading] = useState(false)
   const [openingPortal, setOpeningPortal] = useState(false)
   const [portalError, setPortalError] = useState<string | null>(null)
+  
+  // Security state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+  
+  const navigate = useNavigate()
 
   const plan = (business?.plan || 'free') as PlanType
   const isPro = plan === 'pro' || plan === 'premium'
@@ -169,8 +184,73 @@ export default function Settings() {
     { id: 'branding', label: 'Marca', icon: Palette, requiresPlan: 'pro' },
     { id: 'integrations', label: 'Integraciones', icon: Webhook, requiresPlan: 'premium' },
     { id: 'team', label: 'Equipo', icon: Users, requiresPlan: 'premium' },
+    { id: 'security', label: 'Seguridad', icon: Shield },
     { id: 'billing', label: 'Plan', icon: Crown },
   ]
+
+  // Change password
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError(null)
+    setPasswordSuccess(false)
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError('Las contraseñas no coinciden')
+      return
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres')
+      return
+    }
+
+    setChangingPassword(true)
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+      if (error) throw error
+      
+      setPasswordSuccess(true)
+      setNewPassword('')
+      setConfirmNewPassword('')
+    } catch (err: any) {
+      setPasswordError(err.message || 'Error al cambiar la contraseña')
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
+  // Delete account
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'ELIMINAR') return
+    
+    setDeleting(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://wnmfanhejnrtfccemlai.supabase.co'}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ confirmation: deleteConfirmation }),
+        }
+      )
+      const result = await response.json()
+      if (result.error) throw new Error(result.error)
+      
+      // Sign out and redirect
+      await supabase.auth.signOut()
+      navigate('/')
+    } catch (err: any) {
+      alert('Error: ' + err.message)
+    } finally {
+      setDeleting(false)
+      setShowDeleteModal(false)
+    }
+  }
 
   const canAccessTab = (tab: typeof tabs[0]) => {
     if (!tab.requiresPlan) return true
@@ -601,6 +681,188 @@ export default function Settings() {
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Security Tab */}
+              {activeTab === 'security' && (
+                <div className="space-y-6">
+                  {/* Change Password */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <Key className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Cambiar contraseña</h2>
+                        <p className="text-sm text-gray-500">Actualiza tu contraseña de acceso</p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Nueva contraseña
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="input-field pr-10"
+                            placeholder="Mínimo 6 caracteres"
+                            minLength={6}
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Confirmar nueva contraseña
+                        </label>
+                        <input
+                          type="password"
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          className="input-field"
+                          placeholder="Repite la contraseña"
+                          required
+                        />
+                      </div>
+
+                      {passwordError && (
+                        <div className="flex items-center space-x-2 text-red-600 text-sm">
+                          <AlertCircle className="h-4 w-4" />
+                          <span>{passwordError}</span>
+                        </div>
+                      )}
+
+                      {passwordSuccess && (
+                        <div className="flex items-center space-x-2 text-green-600 text-sm">
+                          <Check className="h-4 w-4" />
+                          <span>Contraseña actualizada correctamente</span>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={changingPassword}
+                        className="btn-primary disabled:opacity-50"
+                      >
+                        {changingPassword ? 'Guardando...' : 'Cambiar contraseña'}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Email */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Mail className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Email de la cuenta</h2>
+                        <p className="text-sm text-gray-500">Tu dirección de email actual</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">{business?.user_id ? 'email@ejemplo.com' : 'Cargando...'}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Para cambiar tu email, contacta a soporte</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delete Account */}
+                  <div className="bg-red-50 rounded-xl border border-red-200 p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center">
+                        <Trash2 className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-red-900">Eliminar cuenta</h2>
+                        <p className="text-sm text-red-700">Esta acción es irreversible</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-red-800 mb-4">
+                      Al eliminar tu cuenta se borrarán permanentemente todos tus datos: 
+                      testimonios, respuestas NPS, enlaces, configuración y archivos multimedia.
+                      Esta acción no se puede deshacer.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteModal(true)}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                    >
+                      Eliminar mi cuenta
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete Account Modal */}
+              {showDeleteModal && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                  <div className="fixed inset-0 bg-black/50" onClick={() => setShowDeleteModal(false)} />
+                  <div className="flex min-h-full items-center justify-center p-4">
+                    <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                      <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Trash2 className="h-6 w-6 text-red-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+                        ¿Eliminar cuenta permanentemente?
+                      </h3>
+                      <p className="text-gray-600 text-center text-sm mb-6">
+                        Se eliminarán todos tus testimonios, respuestas NPS, y datos asociados. 
+                        Esta acción no se puede deshacer.
+                      </p>
+                      
+                      <div className="mb-6">
+                        <label className="block text-sm text-gray-700 mb-2">
+                          Escribe <span className="font-mono font-bold text-red-600">ELIMINAR</span> para confirmar:
+                        </label>
+                        <input
+                          type="text"
+                          value={deleteConfirmation}
+                          onChange={(e) => setDeleteConfirmation(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          placeholder="ELIMINAR"
+                        />
+                      </div>
+
+                      <div className="flex space-x-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowDeleteModal(false)
+                            setDeleteConfirmation('')
+                          }}
+                          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDeleteAccount}
+                          disabled={deleteConfirmation !== 'ELIMINAR' || deleting}
+                          className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {deleting ? 'Eliminando...' : 'Eliminar cuenta'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
