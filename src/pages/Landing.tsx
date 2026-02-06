@@ -485,15 +485,53 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-8">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
-          <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-            <MessageSquare className="h-5 w-5 text-indigo-600" />
-            <span className="font-bold text-gray-900">TestimonioYa</span>
+      <footer className="border-t border-gray-200 py-12 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <MessageSquare className="h-6 w-6 text-indigo-600" />
+                <span className="text-lg font-bold text-gray-900">TestimonioYa</span>
+              </div>
+              <p className="text-sm text-gray-600 max-w-xs">
+                La forma más inteligente de recopilar testimonios. 
+                Primero NPS, luego testimonios de tus fans.
+              </p>
+            </div>
+            
+            {/* Product */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Producto</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/#pricing" className="text-gray-600 hover:text-gray-900">Precios</a></li>
+                <li><a href="/#como-funciona" className="text-gray-600 hover:text-gray-900">Cómo funciona</a></li>
+                <li><Link to="/vs" className="text-gray-600 hover:text-gray-900">Comparativas</Link></li>
+              </ul>
+            </div>
+            
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/legal/terms" className="text-gray-600 hover:text-gray-900">Términos de Servicio</Link></li>
+                <li><Link to="/legal/privacy" className="text-gray-600 hover:text-gray-900">Política de Privacidad</Link></li>
+                <li><Link to="/legal/cookies" className="text-gray-600 hover:text-gray-900">Política de Cookies</Link></li>
+              </ul>
+            </div>
           </div>
-          <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} TestimonioYa. Hecho en Barcelona 🇪🇸
-          </p>
+          
+          {/* Bottom */}
+          <div className="pt-8 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-sm text-gray-500 mb-4 sm:mb-0">
+              © {new Date().getFullYear()} TestimonioYa. Hecho con ❤️ en Barcelona.
+            </p>
+            <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <a href="mailto:hola@testimonioya.com" className="hover:text-gray-700">
+                hola@testimonioya.com
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
