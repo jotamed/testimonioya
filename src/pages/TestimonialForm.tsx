@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Star, Send, MessageSquare, AlertTriangle, Type, Mic } from 'lucide-react'
+import { Star, Send, MessageSquare, AlertTriangle, Type, Mic, Video } from 'lucide-react'
 import { supabase, CollectionLink, Business } from '../lib/supabase'
 import { canReceiveTestimonial, PlanType } from '../lib/plans'
 import AudioRecorder from '../components/AudioRecorder'
+import VideoRecorder from '../components/VideoRecorder'
 
-type TestimonialMode = 'text' | 'audio'
+type TestimonialMode = 'text' | 'audio' | 'video'
 
 export default function TestimonialForm() {
   const { slug } = useParams()
@@ -17,6 +18,7 @@ export default function TestimonialForm() {
   const [limitReached, setLimitReached] = useState(false)
   const [mode, setMode] = useState<TestimonialMode>('text')
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -85,15 +87,17 @@ export default function TestimonialForm() {
     }
   }
 
-  const uploadAudio = async (blob: Blob): Promise<string | null> => {
+  const uploadMedia = async (blob: Blob, type: 'audio' | 'video'): Promise<string | null> => {
     try {
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webm`
+      const extension = type === 'video' ? 'webm' : 'webm'
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`
       const filePath = `testimonials/${link?.business_id}/${fileName}`
+      const bucket = type === 'video' ? 'video-testimonials' : 'audio-testimonials'
       
       setUploadProgress(30)
       
       const { error: uploadError } = await supabase.storage
-        .from('audio-testimonials')
+        .from(bucket)
         .upload(filePath, blob, {
           contentType: blob.type,
           cacheControl: '3600',
@@ -107,16 +111,20 @@ export default function TestimonialForm() {
       setUploadProgress(80)
 
       const { data: { publicUrl } } = supabase.storage
-        .from('audio-testimonials')
+        .from(bucket)
         .getPublicUrl(filePath)
 
       setUploadProgress(100)
       return publicUrl
     } catch (error) {
-      console.error('Error uploading audio:', error)
+      console.error(`Error uploading ${type}:`, error)
       return null
     }
   }
+
+  // Backwards compatibility
+  const uploadAudio = (blob: Blob) => uploadMedia(blob, 'audio')
+  const uploadVideo = (blob: Blob) => uploadMedia(blob, 'video')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -131,6 +139,10 @@ export default function TestimonialForm() {
       alert('Por favor, graba tu testimonio en audio')
       return
     }
+    if (mode === 'video' && !videoBlob) {
+      alert('Por favor, graba tu testimonio en video')
+      return
+    }
 
     // Double-check limit before submitting
     const limitCheck = await canReceiveTestimonial(business.id, business.plan as PlanType)
@@ -142,12 +154,23 @@ export default function TestimonialForm() {
     setSubmitting(true)
     try {
       let audioUrl: string | null = null
+      let videoUrl: string | null = null
       
       // Upload audio if present
       if (audioBlob) {
         audioUrl = await uploadAudio(audioBlob)
         if (!audioUrl && mode === 'audio') {
           alert('Error al subir el audio. Inténtalo de nuevo.')
+          setSubmitting(false)
+          return
+        }
+      }
+      
+      // Upload video if present
+      if (videoBlob) {
+        videoUrl = await uploadVideo(videoBlob)
+        if (!videoUrl && mode === 'video') {
+          alert('Error al subir el video. Inténtalo de nuevo.')
           setSubmitting(false)
           return
         }
@@ -161,6 +184,7 @@ export default function TestimonialForm() {
           customer_email: formData.customer_email || null,
           text_content: formData.text_content || null,
           audio_url: audioUrl,
+          video_url: videoUrl,
           rating: formData.rating,
           source: 'form',
           status: 'pending',
@@ -341,17 +365,17 @@ export default function TestimonialForm() {
               </div>
             </div>
 
-            {/* Mode Selector - Only show if business allows audio */}
+            {/* Mode Selector - Only show if business allows audio/video */}
             {business?.allow_audio_testimonials !== false && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   ¿Cómo quieres compartir tu testimonio?
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setMode('text')}
-                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
                       mode === 'text'
                         ? 'border-transparent text-white'
                         : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
@@ -359,12 +383,12 @@ export default function TestimonialForm() {
                     style={mode === 'text' ? { backgroundColor: brandColor } : {}}
                   >
                     <Type className="h-5 w-5" />
-                    <span className="font-medium">Escribir</span>
+                    <span className="font-medium text-sm">Texto</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode('audio')}
-                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
                       mode === 'audio'
                         ? 'border-transparent text-white'
                         : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
@@ -372,14 +396,27 @@ export default function TestimonialForm() {
                     style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
                   >
                     <Mic className="h-5 w-5" />
-                    <span className="font-medium">Grabar audio</span>
+                    <span className="font-medium text-sm">Audio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode('video')}
+                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
+                      mode === 'video'
+                        ? 'border-transparent text-white'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                    }`}
+                    style={mode === 'video' ? { backgroundColor: brandColor } : {}}
+                  >
+                    <Video className="h-5 w-5" />
+                    <span className="font-medium text-sm">Video</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Testimonial Content - Text or Audio */}
-            {mode === 'text' ? (
+            {/* Testimonial Content - Text, Audio, or Video */}
+            {mode === 'text' && (
               <div>
                 <label htmlFor="testimonial" className="block text-sm font-medium text-gray-700 mb-2">
                   Tu Testimonio <span className="text-red-500">*</span>
@@ -397,7 +434,9 @@ export default function TestimonialForm() {
                   Comparte detalles específicos que te gustaron
                 </p>
               </div>
-            ) : (
+            )}
+            
+            {mode === 'audio' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Tu Testimonio en Audio <span className="text-red-500">*</span>
@@ -409,6 +448,22 @@ export default function TestimonialForm() {
                 />
                 <p className="mt-2 text-xs text-gray-500">
                   Graba hasta 2 minutos contando tu experiencia
+                </p>
+              </div>
+            )}
+            
+            {mode === 'video' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Tu Testimonio en Video <span className="text-red-500">*</span>
+                </label>
+                <VideoRecorder 
+                  onVideoReady={setVideoBlob}
+                  brandColor={brandColor}
+                  maxDuration={60}
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  Graba hasta 1 minuto contando tu experiencia
                 </p>
               </div>
             )}
@@ -433,7 +488,7 @@ export default function TestimonialForm() {
             <div className="space-y-3 pt-4">
               <button
                 type="submit"
-                disabled={submitting || (mode === 'audio' && !audioBlob)}
+                disabled={submitting || (mode === 'audio' && !audioBlob) || (mode === 'video' && !videoBlob)}
                 className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: brandColor }}
               >
