@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Copy, Code } from 'lucide-react'
+import { Copy, Code, Layout, Columns, List, Moon, Sun } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
+
+type WidgetLayout = 'grid' | 'carousel' | 'list'
+type WidgetTheme = 'light' | 'dark'
 
 export default function Widget() {
   const [business, setBusiness] = useState<Business | null>(null)
   const [loading, setLoading] = useState(true)
+  const [layout, setLayout] = useState<WidgetLayout>('grid')
+  const [theme, setTheme] = useState<WidgetTheme>('light')
+  const [maxItems, setMaxItems] = useState(6)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -36,25 +43,30 @@ export default function Widget() {
     if (!business) return ''
     
     return `<!-- TestimonioYa Widget -->
-<div id="testimonioya-widget" data-slug="${business.slug}"></div>
-<script>
-(function() {
-  const widget = document.getElementById('testimonioya-widget');
-  const slug = widget.dataset.slug;
-  const iframe = document.createElement('iframe');
-  iframe.src = '${window.location.origin}/wall/' + slug + '?embed=true';
-  iframe.style.width = '100%';
-  iframe.style.height = '600px';
-  iframe.style.border = 'none';
-  iframe.style.borderRadius = '12px';
-  widget.appendChild(iframe);
-})();
-</script>`
+<div id="testimonioya-widget" 
+     data-slug="${business.slug}"
+     data-layout="${layout}"
+     data-theme="${theme}"
+     data-max="${maxItems}">
+</div>
+<script src="https://testimonioya.com/widget.js" async></script>`
   }
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(getWidgetCode())
-    alert('¡Código copiado al portapapeles!')
+  const getIframeCode = () => {
+    if (!business) return ''
+    
+    return `<!-- TestimonioYa Iframe Widget -->
+<iframe 
+  src="https://testimonioya.com/wall/${business.slug}?embed=true"
+  style="width:100%;height:600px;border:none;border-radius:12px;"
+  title="Testimonios de ${business.business_name}">
+</iframe>`
+  }
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) {
@@ -80,49 +92,148 @@ export default function Widget() {
   return (
     <DashboardLayout>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Widget Embebido</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Widget Embebido</h1>
+        <p className="text-gray-600 mb-8">Muestra tus testimonios en cualquier web</p>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Instructions */}
+          {/* Configuration */}
           <div className="space-y-6">
+            {/* Layout Options */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Cómo Integrar el Widget
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Personalización</h2>
+              
+              {/* Layout */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Diseño
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => setLayout('grid')}
+                    className={`flex flex-col items-center p-3 rounded-lg border-2 transition-colors ${
+                      layout === 'grid' 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Layout className="h-6 w-6 mb-1" />
+                    <span className="text-sm">Cuadrícula</span>
+                  </button>
+                  <button
+                    onClick={() => setLayout('carousel')}
+                    className={`flex flex-col items-center p-3 rounded-lg border-2 transition-colors ${
+                      layout === 'carousel' 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Columns className="h-6 w-6 mb-1" />
+                    <span className="text-sm">Carrusel</span>
+                  </button>
+                  <button
+                    onClick={() => setLayout('list')}
+                    className={`flex flex-col items-center p-3 rounded-lg border-2 transition-colors ${
+                      layout === 'list' 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <List className="h-6 w-6 mb-1" />
+                    <span className="text-sm">Lista</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Theme */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tema
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setTheme('light')}
+                    className={`flex items-center justify-center space-x-2 p-3 rounded-lg border-2 transition-colors ${
+                      theme === 'light' 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Sun className="h-5 w-5" />
+                    <span>Claro</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('dark')}
+                    className={`flex items-center justify-center space-x-2 p-3 rounded-lg border-2 transition-colors ${
+                      theme === 'dark' 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Moon className="h-5 w-5" />
+                    <span>Oscuro</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Max Items */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Máximo de testimonios: {maxItems}
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  value={maxItems}
+                  onChange={(e) => setMaxItems(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>1</span>
+                  <span>20</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">
+                Cómo Integrar
               </h2>
               
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                  <div className="flex-shrink-0 h-7 w-7 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                     1
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Copia el código</h3>
+                    <h3 className="font-medium text-gray-900">Elige tus opciones</h3>
                     <p className="text-sm text-gray-600">
-                      Haz clic en el botón "Copiar Código" para copiar el snippet
+                      Selecciona diseño, tema y cantidad de testimonios
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                  <div className="flex-shrink-0 h-7 w-7 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                     2
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-1">Pega en tu web</h3>
+                    <h3 className="font-medium text-gray-900">Copia el código</h3>
                     <p className="text-sm text-gray-600">
-                      Inserta el código en el HTML de tu página donde quieras mostrar los testimonios
+                      Haz clic en "Copiar" para copiar el código
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                  <div className="flex-shrink-0 h-7 w-7 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                     3
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 mb-1">¡Listo!</h3>
+                    <h3 className="font-medium text-gray-900">Pégalo en tu web</h3>
                     <p className="text-sm text-gray-600">
-                      Tus testimonios se mostrarán automáticamente en tu sitio web
+                      Inserta el código donde quieras mostrar los testimonios
                     </p>
                   </div>
                 </div>
@@ -132,47 +243,75 @@ export default function Widget() {
             {business.plan === 'free' && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                 <p className="text-sm text-amber-900">
-                  ⚠️ <strong>Plan Gratis:</strong> El widget mostrará "Powered by TestimonioYa" en la parte inferior. 
-                  Actualiza a Pro para quitarlo.
+                  ⚠️ <strong>Plan Gratis:</strong> El widget mostrará "Powered by TestimonioYa". 
+                  <a href="#" className="underline ml-1">Actualiza a Pro</a> para quitarlo.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Code Snippet */}
-          <div>
+          {/* Code & Preview */}
+          <div className="space-y-6">
+            {/* JavaScript Widget Code */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                  <Code className="h-6 w-6" />
-                  <span>Código del Widget</span>
+                <h2 className="text-lg font-bold text-gray-900 flex items-center space-x-2">
+                  <Code className="h-5 w-5" />
+                  <span>Widget JavaScript</span>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Recomendado</span>
                 </h2>
                 <button
-                  onClick={copyCode}
-                  className="btn-primary flex items-center space-x-2"
+                  onClick={() => copyCode(getWidgetCode())}
+                  className="btn-primary flex items-center space-x-2 text-sm"
                 >
                   <Copy className="h-4 w-4" />
-                  <span>Copiar Código</span>
+                  <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
                 </button>
               </div>
 
               <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-sm text-green-400 font-mono">
+                <pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
                   <code>{getWidgetCode()}</code>
                 </pre>
               </div>
             </div>
 
+            {/* Iframe Alternative */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900 flex items-center space-x-2">
+                  <Code className="h-5 w-5" />
+                  <span>Alternativa: Iframe</span>
+                </h2>
+                <button
+                  onClick={() => copyCode(getIframeCode())}
+                  className="btn-secondary flex items-center space-x-2 text-sm"
+                >
+                  <Copy className="h-4 w-4" />
+                  <span>Copiar</span>
+                </button>
+              </div>
+
+              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                <pre className="text-sm text-blue-400 font-mono whitespace-pre-wrap">
+                  <code>{getIframeCode()}</code>
+                </pre>
+              </div>
+            </div>
+
             {/* Preview */}
-            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Vista Previa</h2>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Vista Previa</h2>
+              <div className={`border-2 border-dashed border-gray-300 rounded-lg p-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
                 <iframe
                   src={`${window.location.origin}/wall/${business.slug}?embed=true`}
-                  className="w-full h-96 rounded-lg"
+                  className="w-full h-80 rounded-lg"
                   title="Widget Preview"
                 />
               </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                * La vista previa muestra el Wall of Love completo. El widget real respetará tus opciones.
+              </p>
             </div>
           </div>
         </div>
