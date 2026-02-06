@@ -3,6 +3,8 @@ import { Star, Check, X, Filter, Mic } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import AudioPlayer from '../components/AudioPlayer'
+import { SkeletonTestimonial } from '../components/LoadingSkeleton'
+import { EmptyTestimonials } from '../components/EmptyState'
 
 export default function Testimonials() {
   const [_business, setBusiness] = useState<Business | null>(null)
@@ -85,8 +87,16 @@ export default function Testimonials() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="text-center py-12">
-          <p className="text-gray-600">Cargando...</p>
+        <div>
+          <div className="flex items-center justify-between mb-8">
+            <div className="h-8 w-40 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <div className="space-y-4">
+            <SkeletonTestimonial />
+            <SkeletonTestimonial />
+            <SkeletonTestimonial />
+          </div>
         </div>
       </DashboardLayout>
     )
@@ -115,16 +125,20 @@ export default function Testimonials() {
         </div>
 
         {testimonials.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              No hay testimonios
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {filter === 'all'
-                ? 'Aún no has recibido testimonios. Crea un enlace para comenzar.'
-                : `No hay testimonios con estado "${filter}".`}
-            </p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            {filter === 'all' ? (
+              <EmptyTestimonials />
+            ) : (
+              <div className="p-12 text-center">
+                <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  No hay testimonios
+                </h3>
+                <p className="text-gray-600">
+                  No hay testimonios con estado "{filter}".
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

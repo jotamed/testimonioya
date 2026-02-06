@@ -5,6 +5,7 @@ import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats, PlanType } from '../lib/plans'
 import { PLANS } from '../lib/stripe'
+import { SkeletonDashboard } from '../components/LoadingSkeleton'
 
 export default function Dashboard() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -87,9 +88,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="text-center py-12">
-          <p className="text-gray-600">Cargando...</p>
-        </div>
+        <SkeletonDashboard />
       </DashboardLayout>
     )
   }
@@ -99,6 +98,9 @@ export default function Dashboard() {
       <DashboardLayout>
         <div className="text-center py-12">
           <p className="text-gray-600">No se encontró el negocio</p>
+          <Link to="/onboarding" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            Crear negocio →
+          </Link>
         </div>
       </DashboardLayout>
     )
