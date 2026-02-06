@@ -12,6 +12,7 @@ import Widget from './pages/Widget'
 import Analytics from './pages/Analytics'
 import TestimonialForm from './pages/TestimonialForm'
 import WallOfLove from './pages/WallOfLove'
+import NpsForm from './pages/NpsForm'
 import AuthGuard from './components/AuthGuard'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/t/:slug" element={<TestimonialForm />} />
+        <Route path="/nps/:slug" element={<NpsForm />} />
         <Route path="/wall/:slug" element={<WallOfLove />} />
         <Route path="/onboarding" element={<Onboarding />} />
         

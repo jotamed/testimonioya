@@ -153,3 +153,26 @@
 ---
 
 *Actualizado: 6 Feb 2026 00:00 UTC*
+
+---
+
+## 📊 QA EJECUTADO - 6 Feb 2026 22:00 UTC
+
+### Autenticación (API tests)
+- [x] Signup email/password - ✅ FUNCIONA (user created)
+- [x] Login email/password - ✅ FUNCIONA (token returned)
+- [ ] Password recovery - ⚠️ Requiere email válido (normal)
+- [ ] Google OAuth - PENDIENTE (requiere browser)
+
+### Form Público
+- [x] RLS policies - ✅ Bloquea inserts anónimos (correcto)
+- [ ] Submit via app - PENDIENTE (requiere browser)
+
+### API Responses
+- [x] Businesses endpoint - ✅ OK
+- [x] Testimonials endpoint - ✅ OK (respeta RLS)
+- [x] Collection links endpoint - ✅ OK
+
+---
+
+*Actualizado: 6 Feb 2026 22:00 UTC*
