@@ -29,6 +29,9 @@ export default function TestimonialForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const [notFound, setNotFound] = useState(false)
+  const [inactive, setInactive] = useState(false)
 
   useEffect(() => {
     loadLink()
@@ -43,14 +46,15 @@ export default function TestimonialForm() {
         .eq('slug', slug)
         .single()
 
-      if (linkError) throw linkError
-      if (!linkData) {
-        alert('Enlace no encontrado')
+      if (linkError || !linkData) {
+        setNotFound(true)
+        setLoading(false)
         return
       }
 
       if (!linkData.is_active) {
-        alert('Este enlace ya no está activo')
+        setInactive(true)
+        setLoading(false)
         return
       }
 
@@ -81,7 +85,7 @@ export default function TestimonialForm() {
         .eq('id', linkData.id)
     } catch (error) {
       console.error('Error loading link:', error)
-      alert('Error al cargar el formulario')
+      setNotFound(true)
     } finally {
       setLoading(false)
     }
@@ -130,17 +134,19 @@ export default function TestimonialForm() {
     e.preventDefault()
     if (!link || !business) return
 
+    setError(null)
+    
     // Validate based on mode
     if (mode === 'text' && !formData.text_content.trim()) {
-      alert('Por favor, escribe tu testimonio')
+      setError('Por favor, escribe tu testimonio')
       return
     }
     if (mode === 'audio' && !audioBlob) {
-      alert('Por favor, graba tu testimonio en audio')
+      setError('Por favor, graba tu testimonio en audio')
       return
     }
     if (mode === 'video' && !videoBlob) {
-      alert('Por favor, graba tu testimonio en video')
+      setError('Por favor, graba tu testimonio en video')
       return
     }
 
@@ -160,7 +166,7 @@ export default function TestimonialForm() {
       if (audioBlob) {
         audioUrl = await uploadAudio(audioBlob)
         if (!audioUrl && mode === 'audio') {
-          alert('Error al subir el audio. Inténtalo de nuevo.')
+          setError('Error al subir el audio. Inténtalo de nuevo.')
           setSubmitting(false)
           return
         }
@@ -170,7 +176,7 @@ export default function TestimonialForm() {
       if (videoBlob) {
         videoUrl = await uploadVideo(videoBlob)
         if (!videoUrl && mode === 'video') {
-          alert('Error al subir el video. Inténtalo de nuevo.')
+          setError('Error al subir el video. Inténtalo de nuevo.')
           setSubmitting(false)
           return
         }
@@ -201,7 +207,7 @@ export default function TestimonialForm() {
       setSubmitted(true)
     } catch (error) {
       console.error('Error submitting testimonial:', error)
-      alert('Error al enviar el testimonio')
+      setError('Error al enviar el testimonio. Inténtalo de nuevo.')
     } finally {
       setSubmitting(false)
       setUploadProgress(0)
@@ -229,12 +235,29 @@ export default function TestimonialForm() {
     )
   }
 
-  if (!link) {
+  if (notFound || !link) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
+          <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="h-8 w-8 text-gray-400" />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Enlace no encontrado</h1>
-          <p className="text-gray-600">Este enlace no existe o ha sido desactivado</p>
+          <p className="text-gray-600">Este enlace no existe o ha sido eliminado</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (inactive) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="h-8 w-8 text-amber-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Enlace desactivado</h1>
+          <p className="text-gray-600">Este enlace ya no está aceptando testimonios</p>
         </div>
       </div>
     )
@@ -308,6 +331,14 @@ export default function TestimonialForm() {
 
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start space-x-3">
+              <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
             <div>

@@ -26,9 +26,8 @@ export default function WallOfLove() {
         .eq('slug', slug)
         .single()
 
-      if (businessError) throw businessError
-      if (!businessData) {
-        alert('Negocio no encontrado')
+      if (businessError || !businessData) {
+        setBusiness(null)
         return
       }
 

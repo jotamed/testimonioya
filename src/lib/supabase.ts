@@ -18,6 +18,16 @@ export type Business = {
   plan: 'free' | 'pro' | 'premium'
   testimonials_count: number
   allow_audio_testimonials: boolean
+  allow_video_testimonials?: boolean
+  // NPS Settings
+  nps_delay_hours?: number
+  nps_reminder_days?: number
+  nps_auto_send?: boolean
+  // Email Settings
+  email_from_name?: string
+  email_reply_to?: string
+  // Branding
+  custom_domain?: string
   created_at: string
 }
 
@@ -32,7 +42,18 @@ export type Testimonial = {
   rating: number
   status: 'pending' | 'approved' | 'rejected'
   is_featured: boolean
-  source: 'whatsapp' | 'form' | 'manual'
+  source: 'whatsapp' | 'form' | 'manual' | 'nps'
+  created_at: string
+}
+
+export type NpsResponse = {
+  id: string
+  business_id: string
+  score: number
+  category: 'detractor' | 'passive' | 'promoter'
+  feedback: string | null
+  customer_name: string | null
+  customer_email: string | null
   created_at: string
 }
 

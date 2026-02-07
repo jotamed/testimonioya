@@ -54,6 +54,7 @@ export default function NpsForm() {
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadBusiness()
@@ -67,10 +68,14 @@ export default function NpsForm() {
         .eq('slug', slug)
         .single()
 
-      if (error) throw error
+      if (error || !data) {
+        setBusiness(null)
+        return
+      }
       setBusiness(data)
     } catch (error) {
       console.error('Error loading business:', error)
+      setBusiness(null)
     } finally {
       setLoading(false)
     }
@@ -115,7 +120,7 @@ export default function NpsForm() {
       setStep('thanks')
     } catch (error) {
       console.error('Error submitting NPS:', error)
-      alert('Error al enviar. Inténtalo de nuevo.')
+      setError('Error al enviar. Inténtalo de nuevo.')
     } finally {
       setSubmitting(false)
     }
@@ -202,6 +207,14 @@ export default function NpsForm() {
 
           {/* Feedback form */}
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start space-x-3">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-5">
               {category === 'promoter' && (
                 <>
