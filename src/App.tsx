@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
 import AuthGuard from './components/AuthGuard'
+import AdminGuard from './components/AdminGuard'
 import { ToastProvider } from './components/Toast'
 
 // Eagerly load Landing (critical path)
@@ -26,6 +27,7 @@ const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
 const ComparisonPage = lazy(() => import('./pages/ComparisonPage'))
 const Legal = lazy(() => import('./pages/Legal'))
+const Admin = lazy(() => import('./pages/Admin'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function PageLoader() {
@@ -71,6 +73,9 @@ function App() {
             <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
             <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
             <Route path="/dashboard/nps" element={<AuthGuard><NpsDashboard /></AuthGuard>} />
+            
+            {/* Admin */}
+            <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
             
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
