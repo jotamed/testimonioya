@@ -292,7 +292,8 @@ export default function TestimonialForm() {
 
   // Post-submission screen with Google Reviews redirect for promoters
   if (submitted) {
-    const isPromoter = formData.rating >= 4
+    const starThreshold = business?.google_reviews_star_threshold ?? 4
+    const isPromoter = formData.rating >= starThreshold
     const googleReviewsUrl = business?.google_reviews_url
 
     return (

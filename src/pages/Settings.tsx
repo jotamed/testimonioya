@@ -44,8 +44,12 @@ export default function Settings() {
     logo_url: '',
     custom_domain: '',
     google_reviews_url: '',
+    google_reviews_nps_threshold: 9,
+    google_reviews_star_threshold: 4,
     default_language: 'es',
   })
+  const [apiKey, setApiKey] = useState<string | null>(null)
+  const [generatingKey, setGeneratingKey] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [upgrading, setUpgrading] = useState(false)
@@ -114,8 +118,11 @@ export default function Settings() {
           logo_url: businessData.logo_url ?? '',
           custom_domain: businessData.custom_domain ?? '',
           google_reviews_url: businessData.google_reviews_url ?? '',
+          google_reviews_nps_threshold: businessData.google_reviews_nps_threshold ?? 9,
+          google_reviews_star_threshold: businessData.google_reviews_star_threshold ?? 4,
           default_language: businessData.default_language ?? 'es',
         })
+        setApiKey(businessData.api_key || null)
       }
     } catch (error) {
       console.error('Error loading business:', error)
@@ -493,9 +500,46 @@ export default function Settings() {
                         placeholder="https://g.page/r/tu-negocio/review"
                       />
                       <p className="mt-1.5 text-xs text-gray-500">
-                        Cuando un cliente deje una reseña positiva (4-5 estrellas o NPS 9-10), le sugeriremos dejar una reseña en Google.
+                        Cuando un cliente deje una reseña positiva, le sugeriremos dejar una reseña en Google.
                         Para encontrar tu link: busca tu negocio en Google Maps → Comparte → Copiar enlace.
                       </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6 mt-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Recomendar Google Reviews a partir de puntuación NPS:
+                        </label>
+                        <select
+                          value={formData.google_reviews_nps_threshold}
+                          onChange={(e) => setFormData({ ...formData, google_reviews_nps_threshold: parseInt(e.target.value) })}
+                          className="input-field"
+                        >
+                          {[7, 8, 9, 10].map((v) => (
+                            <option key={v} value={v}>{v}+</option>
+                          ))}
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Clientes con NPS ≥ este valor verán la sugerencia de Google Reviews
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Recomendar Google Reviews a partir de estrellas:
+                        </label>
+                        <select
+                          value={formData.google_reviews_star_threshold}
+                          onChange={(e) => setFormData({ ...formData, google_reviews_star_threshold: parseInt(e.target.value) })}
+                          className="input-field"
+                        >
+                          {[3, 4, 5].map((v) => (
+                            <option key={v} value={v}>{v}+ estrellas</option>
+                          ))}
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Testimonios con ≥ estas estrellas verán la sugerencia
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -757,38 +801,124 @@ export default function Settings() {
 
               {/* Integrations Tab */}
               {activeTab === 'integrations' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
-                  {!isPremium && <LockedOverlay plan="Premium" />}
-                  
-                  <h2 className="text-xl font-bold text-gray-900">Integraciones</h2>
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
+                    {!isPremium && <LockedOverlay plan="Premium" />}
+                    
+                    <h2 className="text-xl font-bold text-gray-900">Integraciones / API</h2>
 
-                  <div className="space-y-4">
-                    <IntegrationCard 
-                      name="API Keys"
-                      description="Acceso programático a tus datos"
-                      icon={Key}
-                      status="Configurar"
-                    />
-                    <IntegrationCard 
-                      name="Webhooks"
-                      description="Recibe eventos en tu servidor"
-                      icon={Webhook}
-                      status="Configurar"
-                    />
-                    <IntegrationCard 
-                      name="Zapier"
-                      description="Conecta con 5000+ apps"
-                      icon={Zap}
-                      status="Próximamente"
-                      disabled
-                    />
-                    <IntegrationCard 
-                      name="Stripe"
-                      description="Trigger NPS tras pago"
-                      icon={Building2}
-                      status="Próximamente"
-                      disabled
-                    />
+                    {/* API Key Section */}
+                    <div className="border border-gray-200 rounded-lg p-5 space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                          <Key className="h-5 w-5 text-indigo-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">API Key</h3>
+                          <p className="text-sm text-gray-500">Usa tu API key para enviar solicitudes de testimonio automáticamente</p>
+                        </div>
+                      </div>
+
+                      {apiKey ? (
+                        <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                          <code className="text-sm text-gray-800 font-mono break-all">{apiKey}</code>
+                          <button
+                            type="button"
+                            onClick={() => navigator.clipboard.writeText(apiKey)}
+                            className="ml-3 text-indigo-600 text-sm font-medium hover:text-indigo-700 whitespace-nowrap"
+                          >
+                            Copiar
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={generatingKey}
+                          onClick={async () => {
+                            if (!business) return
+                            setGeneratingKey(true)
+                            try {
+                              const key = 'ty_' + crypto.randomUUID().replace(/-/g, '')
+                              const { error } = await supabase
+                                .from('businesses')
+                                .update({ api_key: key })
+                                .eq('id', business.id)
+                              if (error) throw error
+                              setApiKey(key)
+                              toast.success('API Key generada')
+                            } catch (err: any) {
+                              toast.error('Error al generar API Key', err.message)
+                            } finally {
+                              setGeneratingKey(false)
+                            }
+                          }}
+                          className="btn-primary text-sm disabled:opacity-50"
+                        >
+                          {generatingKey ? 'Generando...' : 'Generar API Key'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* API Documentation */}
+                    <div className="border border-gray-200 rounded-lg p-5 space-y-4">
+                      <h3 className="font-semibold text-gray-900">📖 Cómo usar la API</h3>
+                      <p className="text-sm text-gray-600">
+                        Envía una solicitud de testimonio a tu cliente automáticamente después de una compra o servicio.
+                        Funciona con <strong>Zapier</strong>, <strong>Make</strong>, o cualquier sistema que haga HTTP POST.
+                      </p>
+
+                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre className="text-sm text-green-400 font-mono whitespace-pre">{`POST https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/trigger-review
+
+Headers:
+  x-api-key: ${apiKey || 'TU_API_KEY'}
+  Content-Type: application/json
+
+Body:
+{
+  "customer_email": "cliente@ejemplo.com",
+  "customer_name": "María García",
+  "delay_hours": 0
+}`}</pre>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Ejemplo con curl:</h4>
+                        <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                          <pre className="text-sm text-green-400 font-mono whitespace-pre">{`curl -X POST \\
+  https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/trigger-review \\
+  -H "x-api-key: ${apiKey || 'TU_API_KEY'}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"customer_email":"cliente@ejemplo.com","customer_name":"María"}'`}</pre>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-800">
+                          <strong>💡 Tip:</strong> Conecta esta API con tu pasarela de pago (Stripe, PayPal) vía Zapier o Make 
+                          para enviar automáticamente una solicitud de testimonio tras cada compra.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Other integrations */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-gray-900">Otras integraciones</h3>
+                      <IntegrationCard 
+                        name="Webhooks"
+                        description="Recibe eventos en tu servidor"
+                        icon={Webhook}
+                        status="Próximamente"
+                        disabled
+                      />
+                      <IntegrationCard 
+                        name="Zapier"
+                        description="Conecta con 5000+ apps"
+                        icon={Zap}
+                        status="Próximamente"
+                        disabled
+                      />
+                    </div>
                   </div>
                 </div>
               )}

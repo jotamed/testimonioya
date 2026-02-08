@@ -30,7 +30,11 @@ export type Business = {
   custom_domain?: string
   // Google Reviews & i18n
   google_reviews_url?: string
+  google_reviews_nps_threshold?: number
+  google_reviews_star_threshold?: number
   default_language?: string
+  // API
+  api_key?: string
   created_at: string
 }
 

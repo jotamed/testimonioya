@@ -159,8 +159,8 @@ export default function NpsForm() {
                 : _('nps.thanks.other')}
             </p>
 
-            {/* Google Reviews redirect for promoters (NPS >= 9) */}
-            {category === 'promoter' && googleReviewsUrl && (
+            {/* Google Reviews redirect for high NPS scores */}
+            {score !== null && score >= (business.google_reviews_nps_threshold ?? 9) && googleReviewsUrl && (
               <a
                 href={googleReviewsUrl}
                 target="_blank"
