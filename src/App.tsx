@@ -4,6 +4,7 @@ import { MessageSquare } from 'lucide-react'
 import AuthGuard from './components/AuthGuard'
 import AdminGuard from './components/AdminGuard'
 import { ToastProvider } from './components/Toast'
+import CookieConsent from './components/CookieConsent'
 
 // Eagerly load Landing (critical path)
 import Landing from './pages/Landing'
@@ -28,6 +29,8 @@ const NpsForm = lazy(() => import('./pages/NpsForm'))
 const ComparisonPage = lazy(() => import('./pages/ComparisonPage'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Admin = lazy(() => import('./pages/Admin'))
+const BlogList = lazy(() => import('./pages/blog/BlogList'))
+const BlogArticle = lazy(() => import('./pages/blog/BlogArticle'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function PageLoader() {
@@ -61,6 +64,10 @@ function App() {
             <Route path="/wall/:slug" element={<WallOfLove />} />
             <Route path="/onboarding" element={<Onboarding />} />
             
+            {/* Blog */}
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:slug" element={<BlogArticle />} />
+            
             {/* Legal pages */}
             <Route path="/legal" element={<Legal />} />
             <Route path="/legal/:page" element={<Legal />} />
@@ -81,6 +88,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <CookieConsent />
       </Router>
     </ToastProvider>
   )
