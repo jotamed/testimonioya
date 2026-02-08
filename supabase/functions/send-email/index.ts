@@ -12,7 +12,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-type EmailType = 'welcome' | 'new_testimonial' | 'nps_received'
+type EmailType = 'welcome' | 'new_testimonial' | 'nps_received' | 'request_testimonial'
 
 function emailFooter(settingsUrl: string): string {
   return `
@@ -89,6 +89,39 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
     `, `${data.dashboard_url}/settings`),
   }),
 
+  request_testimonial: (data) => ({
+    subject: `¿Qué tal tu experiencia con ${data.business_name}?`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="text-align: center; margin-bottom: 32px;">
+          ${data.logo_url
+            ? `<img src="${data.logo_url}" alt="${data.business_name}" style="max-height: 60px; max-width: 200px; margin-bottom: 12px;" />`
+            : `<h1 style="color: #111827; font-size: 24px; margin: 0;">${data.business_name}</h1>`
+          }
+        </div>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
+          ¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋
+        </p>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+          Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?
+        </p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${data.form_url}" style="background: #4f46e5; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+            Dejar mi opinión →
+          </a>
+        </div>
+        <p style="color: #9ca3af; font-size: 13px; text-align: center;">
+          Solo toma un minuto. ¡Gracias! 🙏
+        </p>
+        <div style="border-top: 1px solid #e5e7eb; margin-top: 40px; padding-top: 24px; text-align: center;">
+          <p style="color: #d1d5db; font-size: 11px; margin: 0;">
+            Enviado por ${data.business_name} a través de <a href="${APP_URL}" style="color: #9ca3af;">TestimonioYa</a>
+          </p>
+        </div>
+      </div>
+    `,
+  }),
+
   nps_received: (data) => ({
     subject: `📊 Nueva respuesta NPS: ${data.score}/10 ${data.score >= 9 ? '🎉' : data.score >= 7 ? '👍' : '⚠️'}`,
     html: emailWrapper(`
@@ -118,7 +151,7 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
 
 // Check notification preferences before sending
 async function shouldSendEmail(type: EmailType, userId: string): Promise<boolean> {
-  if (type === 'welcome') return true // Always send welcome
+  if (type === 'welcome' || type === 'request_testimonial') return true // Always send these
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   const { data: business } = await supabase
