@@ -1,6 +1,6 @@
 // Admin configuration
 export const ADMIN_EMAILS = [
-  'jotamedina@gmail.com',
+  'jorge.amg@hotmail.com',
   'admin@testimonioya.com',
 ]
 
