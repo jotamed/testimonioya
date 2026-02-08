@@ -149,13 +149,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               )}
             </div>
             
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-              <span className="hidden sm:inline">Cerrar Sesión</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              {currentBusiness && (
+                <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+                  {currentBusiness.business_name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -231,112 +238,39 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}>
             <nav className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    to="/dashboard" onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <LayoutDashboard className="h-5 w-5" />
-                    <span className="font-medium">Dashboard</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/testimonials"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/testimonials')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    <span className="font-medium">Testimonios</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/request"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/request')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Send className="h-5 w-5" />
-                    <span className="font-medium">Pedir Testimonio</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/links"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/links')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <LinkIcon className="h-5 w-5" />
-                    <span className="font-medium">Enlaces</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/widget"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/widget')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Code className="h-5 w-5" />
-                    <span className="font-medium">Widget</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/nps"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/nps')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Target className="h-5 w-5" />
-                    <span className="font-medium">NPS</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/analytics"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/analytics')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <BarChart3 className="h-5 w-5" />
-                    <span className="font-medium">Analíticas</span>
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Premium</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard/settings"
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/dashboard/settings')
-                        ? 'bg-indigo-50 text-indigo-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span className="font-medium">Configuración</span>
-                  </Link>
-                </li>
+              <ul className="space-y-1">
+                {[
+                  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', onClick: () => setSidebarOpen(false) },
+                  { to: '/dashboard/testimonials', icon: MessageCircle, label: 'Testimonios' },
+                  { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio' },
+                  { to: '/dashboard/links', icon: LinkIcon, label: 'Enlaces' },
+                  { to: '/dashboard/widget', icon: Code, label: 'Widget' },
+                  { to: '/dashboard/nps', icon: Target, label: 'NPS' },
+                  { to: '/dashboard/analytics', icon: BarChart3, label: 'Analíticas', badge: 'Premium' },
+                  { to: '/dashboard/settings', icon: Settings, label: 'Configuración' },
+                ].map((item) => {
+                  const Icon = item.icon
+                  const active = isActive(item.to)
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        onClick={item.onClick}
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-150 ${
+                          active
+                            ? 'bg-indigo-50 text-indigo-600 border-l-[3px] border-indigo-600 pl-[13px]'
+                            : 'text-gray-700 hover:bg-gray-50 border-l-[3px] border-transparent pl-[13px]'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span className="font-medium">{item.label}</span>
+                        {item.badge && (
+                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">{item.badge}</span>
+                        )}
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             </nav>
           </aside>

@@ -777,6 +777,30 @@ export default function Settings() {
                     )}
                   </div>
 
+                  {/* Live Branding Preview */}
+                  <div className="bg-gray-50 rounded-xl border border-gray-200 p-5">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Vista previa</h3>
+                    <div className="bg-white rounded-lg border border-gray-200 p-6 text-center space-y-3">
+                      {formData.logo_url ? (
+                        <img src={formData.logo_url} alt="Logo" className="h-10 mx-auto object-contain" />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg mx-auto flex items-center justify-center text-white font-bold" style={{ backgroundColor: formData.brand_color }}>
+                          {(formData.business_name || 'T')[0].toUpperCase()}
+                        </div>
+                      )}
+                      <p className="font-semibold text-gray-900">{formData.business_name || 'Tu Negocio'}</p>
+                      <p className="text-sm text-gray-500">{formData.welcome_message || '¡Cuéntanos tu experiencia!'}</p>
+                      <div className="flex justify-center gap-1">
+                        {[1,2,3,4,5].map(s => (
+                          <span key={s} className="text-xl" style={{ color: formData.brand_color }}>★</span>
+                        ))}
+                      </div>
+                      <button className="px-4 py-2 rounded-lg text-white text-sm font-medium" style={{ backgroundColor: formData.brand_color }}>
+                        Enviar testimonio
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Dominio personalizado
@@ -1434,11 +1458,11 @@ function ToggleRow({
         <button
           type="button"
           onClick={() => onChange(!enabled)}
-          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-            enabled ? 'bg-indigo-600' : 'bg-gray-200'
+          className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+            enabled ? 'bg-indigo-600' : 'bg-gray-300'
           }`}
         >
-          <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+          <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${
             enabled ? 'translate-x-5' : 'translate-x-0'
           }`} />
         </button>
@@ -1449,11 +1473,11 @@ function ToggleRow({
 
 function SaveButton({ saving }: { saving: boolean }) {
   return (
-    <div className="flex justify-end pt-4 border-t border-gray-200">
+    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm -mx-6 px-6 py-4 border-t border-gray-200 mt-6 flex justify-end md:static md:bg-transparent md:backdrop-blur-none md:mx-0 md:px-0">
       <button
         type="submit"
         disabled={saving}
-        className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+        className="btn-primary flex items-center space-x-2 disabled:opacity-50 w-full md:w-auto justify-center"
       >
         <Save className="h-4 w-4" />
         <span>{saving ? 'Guardando...' : 'Guardar cambios'}</span>

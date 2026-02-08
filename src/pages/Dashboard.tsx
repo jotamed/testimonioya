@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats, PlanType } from '../lib/plans'
@@ -32,7 +32,6 @@ export default function Dashboard() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Load business
       const { data: businessData } = await supabase
         .from('businesses')
         .select('*')
@@ -42,7 +41,6 @@ export default function Dashboard() {
       if (businessData) {
         setBusiness(businessData)
 
-        // Load recent testimonials
         const { data: testimonialsData } = await supabase
           .from('testimonials')
           .select('*')
@@ -52,7 +50,6 @@ export default function Dashboard() {
 
         setRecentTestimonials(testimonialsData || [])
 
-        // Calculate stats
         const { count: totalCount } = await supabase
           .from('testimonials')
           .select('*', { count: 'exact', head: true })
@@ -70,7 +67,6 @@ export default function Dashboard() {
           .eq('business_id', businessData.id)
           .eq('status', 'approved')
 
-        // Average rating
         const { data: ratingData } = await supabase
           .from('testimonials')
           .select('rating')
@@ -81,7 +77,6 @@ export default function Dashboard() {
           ? ratingData.reduce((sum, t) => sum + t.rating, 0) / ratingData.length
           : 0
 
-        // This month count
         const startOfMonth = new Date()
         startOfMonth.setDate(1)
         startOfMonth.setHours(0, 0, 0, 0)
@@ -99,7 +94,6 @@ export default function Dashboard() {
           thisMonth: monthCount || 0,
         })
 
-        // Load usage stats
         const usageStats = await getUsageStats(businessData.id, businessData.plan as PlanType)
         setUsage(usageStats)
       }
@@ -121,196 +115,265 @@ export default function Dashboard() {
   if (!business) {
     return (
       <DashboardLayout>
-        <div className="text-center py-12">
-          <p className="text-gray-600">No se encontró el negocio</p>
-          <Link to="/onboarding" className="text-indigo-600 hover:text-indigo-700 font-medium">
-            Crear negocio →
+        <div className="text-center py-16">
+          <div className="h-16 w-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="h-8 w-8 text-gray-400" />
+          </div>
+          <p className="text-gray-600 mb-4">No se encontró el negocio</p>
+          <Link to="/onboarding" className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
+            <span>Crear negocio</span>
+            <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
       </DashboardLayout>
     )
   }
 
+  const statCards = [
+    {
+      label: 'Total',
+      value: stats.total,
+      icon: MessageCircle,
+      iconBg: 'bg-indigo-50',
+      iconColor: 'text-indigo-600',
+      subtitle: null,
+    },
+    {
+      label: 'Pendientes',
+      value: stats.pending,
+      icon: Clock,
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+      subtitle: stats.pending > 0 ? '⚡ Requieren revisión' : null,
+      subtitleColor: 'text-amber-600',
+    },
+    {
+      label: 'Aprobados',
+      value: stats.approved,
+      icon: Star,
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      subtitle: stats.total > 0 ? `${Math.round((stats.approved / stats.total) * 100)}% tasa aprobación` : null,
+      subtitleColor: 'text-gray-500',
+    },
+    {
+      label: 'Rating',
+      value: stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—',
+      icon: BarChart3,
+      iconBg: 'bg-yellow-50',
+      iconColor: 'text-yellow-600',
+      subtitle: null,
+      stars: stats.avgRating > 0 ? stats.avgRating : 0,
+    },
+    {
+      label: 'Este Mes',
+      value: stats.thisMonth,
+      icon: TrendingUp,
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+      subtitle: null,
+    },
+  ]
+
   return (
     <DashboardLayout>
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Hola, {business.business_name} 👋
-        </h1>
+      <div className="space-y-8">
+        {/* Welcome */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Hola, {business.business_name} 👋
+          </h1>
+          <p className="text-gray-500 mt-1">Aquí tienes un resumen de tu cuenta</p>
+        </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total</p>
-              <MessageCircle className="h-4 w-4 text-indigo-500" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Pendientes</p>
-              <Clock className="h-4 w-4 text-amber-500" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-            {stats.pending > 0 && (
-              <p className="text-xs text-amber-600 mt-1">⚡ Requieren revisión</p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Aprobados</p>
-              <Star className="h-4 w-4 text-green-500" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
-            {stats.total > 0 && (
-              <p className="text-xs text-gray-500 mt-1">{Math.round((stats.approved / stats.total) * 100)}% tasa aprobación</p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Rating</p>
-              <BarChart3 className="h-4 w-4 text-yellow-500" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}
-            </p>
-            {stats.avgRating > 0 && (
-              <div className="flex items-center mt-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`h-3 w-3 ${i < Math.round(stats.avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
-                ))}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+          {statCards.map((card) => {
+            const Icon = card.icon
+            return (
+              <div
+                key={card.label}
+                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{card.label}</p>
+                  <div className={`h-8 w-8 rounded-lg ${card.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                    <Icon className={`h-4 w-4 ${card.iconColor}`} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                {'stars' in card && card.stars > 0 && (
+                  <div className="flex items-center mt-1.5 gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-3 w-3 ${i < Math.round(card.stars as number) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`} />
+                    ))}
+                  </div>
+                )}
+                {card.subtitle && (
+                  <p className={`text-xs mt-1.5 ${'subtitleColor' in card ? card.subtitleColor : 'text-gray-500'}`}>
+                    {card.subtitle}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Este Mes</p>
-              <TrendingUp className="h-4 w-4 text-purple-500" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.thisMonth}</p>
-          </div>
+            )
+          })}
         </div>
 
         {/* Plan Usage */}
         {usage && business.plan === 'free' && (
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-sm p-6 mb-8 text-white">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-6 text-white">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="mb-4 md:mb-0">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Zap className="h-5 w-5" />
-                  <h3 className="font-bold">Plan {PLANS[business.plan].name}</h3>
+                <div className="flex items-center space-x-2 mb-3">
+                  <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-bold text-lg">Plan {PLANS[business.plan].name}</h3>
                 </div>
-                <div className="space-y-1 text-sm text-indigo-100">
-                  <p>
-                    📝 Testimonios este mes: {usage.testimonials.current} / {usage.testimonials.limit === Infinity ? '∞' : usage.testimonials.limit}
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-indigo-200">Testimonios este mes</span>
+                    <div className="flex-1 max-w-[120px] h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-all duration-500"
+                        style={{
+                          width: usage.testimonials.limit === Infinity
+                            ? '10%'
+                            : `${Math.min((usage.testimonials.current / usage.testimonials.limit) * 100, 100)}%`
+                        }}
+                      />
+                    </div>
+                    <span className="font-medium tabular-nums">
+                      {usage.testimonials.current} / {usage.testimonials.limit === Infinity ? '∞' : usage.testimonials.limit}
+                    </span>
                     {usage.testimonials.limit !== Infinity && usage.testimonials.current >= usage.testimonials.limit * 0.8 && (
-                      <span className="ml-2 text-yellow-300">⚠️ Cerca del límite</span>
+                      <span className="text-yellow-300 text-xs">⚠️ Cerca del límite</span>
                     )}
-                  </p>
-                  <p>
-                    🔗 Enlaces: {usage.links.current} / {usage.links.limit === Infinity ? '∞' : usage.links.limit}
-                  </p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-indigo-200">Enlaces creados</span>
+                    <div className="flex-1 max-w-[120px] h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-all duration-500"
+                        style={{
+                          width: usage.links.limit === Infinity
+                            ? '10%'
+                            : `${Math.min((usage.links.current / usage.links.limit) * 100, 100)}%`
+                        }}
+                      />
+                    </div>
+                    <span className="font-medium tabular-nums">
+                      {usage.links.current} / {usage.links.limit === Infinity ? '∞' : usage.links.limit}
+                    </span>
+                  </div>
                 </div>
               </div>
               <Link
                 to="/dashboard/settings"
-                className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors"
+                className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-indigo-50 transition-colors shadow-sm"
               >
                 <span>Upgrade a Pro</span>
-                <span>→</span>
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
         )}
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link
-              to="/dashboard/request"
-              className="flex items-center space-x-3 p-4 border-2 border-indigo-300 bg-indigo-50 rounded-lg hover:border-indigo-400 hover:bg-indigo-100 transition-all"
-            >
-              <Send className="h-6 w-6 text-indigo-600" />
-              <span className="font-medium text-indigo-900">Pedir Testimonio</span>
-            </Link>
-            <Link
-              to="/dashboard/links"
-              className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-all"
-            >
-              <LinkIcon className="h-6 w-6 text-indigo-600" />
-              <span className="font-medium text-gray-900">Crear Enlace</span>
-            </Link>
-            <Link
-              to="/dashboard/testimonials"
-              className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-all"
-            >
-              <MessageCircle className="h-6 w-6 text-indigo-600" />
-              <span className="font-medium text-gray-900">Ver Testimonios</span>
-            </Link>
-            <Link
-              to={`/wall/${business.slug}`}
-              target="_blank"
-              className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-all"
-            >
-              <Star className="h-6 w-6 text-indigo-600" />
-              <span className="font-medium text-gray-900">Ver Muro</span>
-            </Link>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Acciones Rápidas</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio', desc: 'Email, WhatsApp o enlace', primary: true },
+              { to: '/dashboard/links', icon: LinkIcon, label: 'Crear Enlace', desc: 'Genera un link único' },
+              { to: '/dashboard/testimonials', icon: MessageCircle, label: 'Ver Testimonios', desc: 'Gestiona tus reseñas' },
+              { to: `/wall/${business.slug}`, icon: Star, label: 'Ver Muro', desc: 'Tu muro público', external: true },
+            ].map((action) => {
+              const Icon = action.icon
+              return (
+                <Link
+                  key={action.to}
+                  to={action.to}
+                  target={action.external ? '_blank' : undefined}
+                  className={`group relative flex flex-col p-4 sm:p-5 rounded-xl border-2 transition-all duration-200 ${
+                    action.primary
+                      ? 'border-indigo-200 bg-indigo-50/50 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-md'
+                      : 'border-gray-100 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 hover:shadow-md'
+                  }`}
+                >
+                  <div className={`h-10 w-10 rounded-lg flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-110 ${
+                    action.primary ? 'bg-indigo-100' : 'bg-gray-100 group-hover:bg-indigo-100'
+                  }`}>
+                    <Icon className={`h-5 w-5 ${action.primary ? 'text-indigo-600' : 'text-gray-600 group-hover:text-indigo-600'} transition-colors`} />
+                  </div>
+                  <span className="font-semibold text-gray-900 text-sm">{action.label}</span>
+                  <span className="text-xs text-gray-500 mt-0.5 hidden sm:block">{action.desc}</span>
+                  {action.external && (
+                    <ArrowUpRight className="absolute top-3 right-3 h-3.5 w-3.5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                  )}
+                </Link>
+              )
+            })}
           </div>
         </div>
 
         {/* Recent Testimonials */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Testimonios Recientes</h2>
-            <Link to="/dashboard/testimonials" className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-              Ver todos
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between p-5 sm:p-6 pb-0">
+            <h2 className="text-lg font-semibold text-gray-900">Testimonios Recientes</h2>
+            <Link to="/dashboard/testimonials" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
+              Ver todos →
             </Link>
           </div>
 
           {recentTestimonials.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-600 mb-4">Aún no tienes testimonios</p>
-              <Link to="/dashboard/links" className="btn-primary">
-                Crear Primer Enlace
+            <div className="text-center py-12 px-4">
+              <div className="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <MessageCircle className="h-7 w-7 text-gray-300" />
+              </div>
+              <p className="text-gray-500 mb-4 text-sm">Aún no tienes testimonios. ¡Empieza pidiendo uno!</p>
+              <Link to="/dashboard/links" className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                <span>Crear Primer Enlace</span>
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="divide-y divide-gray-50 mt-4">
               {recentTestimonials.map((testimonial) => (
                 <div
                   key={testimonial.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors"
+                  className="px-5 sm:px-6 py-4 hover:bg-gray-50/50 transition-colors duration-150"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="font-medium text-gray-900">{testimonial.customer_name}</p>
-                      <div className="flex items-center space-x-1 mt-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < testimonial.rating
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-medium">
+                          {testimonial.customer_name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900 text-sm truncate">{testimonial.customer_name}</p>
+                        <div className="flex items-center gap-0.5 mt-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3.5 w-3.5 ${
+                                i < testimonial.rating
+                                  ? 'text-yellow-400 fill-yellow-400'
+                                  : 'text-gray-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${
                         testimonial.status === 'approved'
-                          ? 'bg-green-100 text-green-700'
+                          ? 'bg-emerald-50 text-emerald-700'
                           : testimonial.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-amber-50 text-amber-700'
+                          : 'bg-red-50 text-red-700'
                       }`}
                     >
                       {testimonial.status === 'approved'
@@ -320,7 +383,7 @@ export default function Dashboard() {
                         : 'Rechazado'}
                     </span>
                   </div>
-                  <p className="text-gray-700 text-sm">{testimonial.text_content}</p>
+                  <p className="text-gray-600 text-sm line-clamp-2 ml-12">{testimonial.text_content}</p>
                 </div>
               ))}
             </div>

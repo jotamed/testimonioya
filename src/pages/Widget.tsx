@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Copy, Code, Layout, Columns, List, Moon, Sun } from 'lucide-react'
+import { Copy, Check, Code, Layout, Columns, List, Moon, Sun } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
 
@@ -12,7 +12,8 @@ export default function Widget() {
   const [layout, setLayout] = useState<WidgetLayout>('grid')
   const [theme, setTheme] = useState<WidgetTheme>('light')
   const [maxItems, setMaxItems] = useState(6)
-  const [copied, setCopied] = useState(false)
+  const [copiedWidget, setCopiedWidget] = useState(false)
+  const [copiedIframe, setCopiedIframe] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -63,10 +64,15 @@ export default function Widget() {
 </iframe>`
   }
 
-  const copyCode = (code: string) => {
+  const copyCode = (code: string, type: 'widget' | 'iframe') => {
     navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (type === 'widget') {
+      setCopiedWidget(true)
+      setTimeout(() => setCopiedWidget(false), 2000)
+    } else {
+      setCopiedIframe(true)
+      setTimeout(() => setCopiedIframe(false), 2000)
+    }
   }
 
   if (loading) {
@@ -261,18 +267,29 @@ export default function Widget() {
                   <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Recomendado</span>
                 </h2>
                 <button
-                  onClick={() => copyCode(getWidgetCode())}
-                  className="btn-primary flex items-center space-x-2 text-sm"
+                  onClick={() => copyCode(getWidgetCode(), 'widget')}
+                  className={`flex items-center space-x-2 text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    copiedWidget 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
                 >
-                  <Copy className="h-4 w-4" />
-                  <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
+                  {copiedWidget ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  <span>{copiedWidget ? '¡Copiado!' : 'Copiar'}</span>
                 </button>
               </div>
 
-              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
-                  <code>{getWidgetCode()}</code>
-                </pre>
+              <div className="bg-gray-950 rounded-lg overflow-x-auto border border-gray-800">
+                <div className="flex">
+                  <div className="py-4 pl-4 pr-2 text-right select-none">
+                    {getWidgetCode().split('\n').map((_, i) => (
+                      <div key={i} className="text-xs text-gray-600 font-mono leading-5">{i + 1}</div>
+                    ))}
+                  </div>
+                  <pre className="py-4 pr-4 text-sm text-emerald-400 font-mono whitespace-pre-wrap leading-5">
+                    <code>{getWidgetCode()}</code>
+                  </pre>
+                </div>
               </div>
             </div>
 
@@ -284,18 +301,29 @@ export default function Widget() {
                   <span>Alternativa: Iframe</span>
                 </h2>
                 <button
-                  onClick={() => copyCode(getIframeCode())}
-                  className="btn-secondary flex items-center space-x-2 text-sm"
+                  onClick={() => copyCode(getIframeCode(), 'iframe')}
+                  className={`flex items-center space-x-2 text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    copiedIframe
+                      ? 'bg-green-600 text-white'
+                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
-                  <Copy className="h-4 w-4" />
-                  <span>Copiar</span>
+                  {copiedIframe ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  <span>{copiedIframe ? '¡Copiado!' : 'Copiar'}</span>
                 </button>
               </div>
 
-              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-sm text-blue-400 font-mono whitespace-pre-wrap">
-                  <code>{getIframeCode()}</code>
-                </pre>
+              <div className="bg-gray-950 rounded-lg overflow-x-auto border border-gray-800">
+                <div className="flex">
+                  <div className="py-4 pl-4 pr-2 text-right select-none">
+                    {getIframeCode().split('\n').map((_, i) => (
+                      <div key={i} className="text-xs text-gray-600 font-mono leading-5">{i + 1}</div>
+                    ))}
+                  </div>
+                  <pre className="py-4 pr-4 text-sm text-sky-400 font-mono whitespace-pre-wrap leading-5">
+                    <code>{getIframeCode()}</code>
+                  </pre>
+                </div>
               </div>
             </div>
 

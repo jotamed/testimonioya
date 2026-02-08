@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Plus, Copy, QrCode, ExternalLink, Trash2, AlertTriangle, Download, X } from 'lucide-react'
+import { Plus, Copy, Check, QrCode, ExternalLink, Trash2, AlertTriangle, Download, X, Eye, Send } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useToast } from '../components/Toast'
@@ -130,8 +130,14 @@ export default function CollectionLinks() {
     }
   }
 
-  const copyToClipboard = (text: string) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const copyToClipboard = (text: string, linkId?: string) => {
     navigator.clipboard.writeText(text)
+    if (linkId) {
+      setCopiedId(linkId)
+      setTimeout(() => setCopiedId(null), 2000)
+    }
     toast.success('¡Enlace copiado!')
   }
 
@@ -224,85 +230,90 @@ export default function CollectionLinks() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-6">
+          <div className="grid gap-4 md:grid-cols-2">
             {links.map((link) => (
               <div
                 key={link.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                className={`bg-white rounded-xl border-2 p-5 transition-all ${
+                  link.is_active ? 'border-gray-200 hover:border-indigo-200' : 'border-gray-100 opacity-75'
+                }`}
               >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex-1 mb-4 lg:mb-0">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{link.name}</h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          link.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {link.is_active ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 text-gray-600 mb-3">
-                      <code className="bg-gray-100 px-3 py-1 rounded text-sm">
-                        {getFullUrl(link.slug)}
-                      </code>
-                    </div>
-                    
-                    <div className="flex items-center space-x-6 text-sm text-gray-500">
-                      <span>👁️ {link.views_count} vistas</span>
-                      <span>✉️ {link.submissions_count} envíos</span>
-                    </div>
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className={`h-2.5 w-2.5 rounded-full ${link.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
+                    <h3 className="font-semibold text-gray-900">{link.name}</h3>
                   </div>
+                  <button
+                    onClick={() => deleteLink(link.id)}
+                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                
+                {/* URL */}
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2 mb-3">
+                  <code className="text-xs text-gray-600 font-mono truncate flex-1">
+                    {getFullUrl(link.slug)}
+                  </code>
+                  <button
+                    onClick={() => copyToClipboard(getFullUrl(link.slug), link.id)}
+                    className={`flex-shrink-0 p-1.5 rounded-md transition-all duration-200 ${
+                      copiedId === link.id
+                        ? 'bg-green-100 text-green-600'
+                        : 'hover:bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {copiedId === link.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => copyToClipboard(getFullUrl(link.slug))}
-                      className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>Copiar</span>
-                    </button>
-                    
-                    <a
-                      href={getFullUrl(link.slug)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      <span>Abrir</span>
-                    </a>
-                    
-                    <button
-                      onClick={() => setShowQRModal({ url: getFullUrl(link.slug), name: link.name })}
-                      className="flex items-center space-x-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                    >
-                      <QrCode className="h-4 w-4" />
-                      <span>QR</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => toggleLinkStatus(link.id, link.is_active)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        link.is_active
-                          ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                          : 'bg-green-100 text-green-700 hover:bg-green-200'
-                      }`}
-                    >
-                      {link.is_active ? 'Desactivar' : 'Activar'}
-                    </button>
-                    
-                    <button
-                      onClick={() => deleteLink(link.id)}
-                      className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
+                {/* Stats */}
+                <div className="flex items-center space-x-4 text-sm mb-4">
+                  <span className="flex items-center space-x-1.5 text-gray-500">
+                    <Eye className="h-4 w-4" />
+                    <span>{link.views_count} vistas</span>
+                  </span>
+                  <span className="flex items-center space-x-1.5 text-gray-500">
+                    <Send className="h-4 w-4" />
+                    <span>{link.submissions_count} envíos</span>
+                  </span>
+                  {link.views_count > 0 && (
+                    <span className="text-indigo-600 font-medium text-xs">
+                      {Math.round((link.submissions_count / link.views_count) * 100)}% conv.
+                    </span>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  <a
+                    href={getFullUrl(link.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>Abrir</span>
+                  </a>
+                  <button
+                    onClick={() => setShowQRModal({ url: getFullUrl(link.slug), name: link.name })}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                  >
+                    <QrCode className="h-3.5 w-3.5" />
+                    <span>QR</span>
+                  </button>
+                  <button
+                    onClick={() => toggleLinkStatus(link.id, link.is_active)}
+                    className={`ml-auto px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                      link.is_active
+                        ? 'text-amber-700 hover:bg-amber-50'
+                        : 'text-green-700 hover:bg-green-50'
+                    }`}
+                  >
+                    {link.is_active ? 'Desactivar' : 'Activar'}
+                  </button>
                 </div>
               </div>
             ))}

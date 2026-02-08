@@ -144,14 +144,59 @@ export default function NpsDashboard() {
           </div>
         </div>
 
-        {/* NPS Score Hero */}
-        <div className={`rounded-2xl border-2 p-8 text-center ${npsBg}`}>
-          <p className="text-sm font-medium text-gray-600 mb-2">Tu NPS Score</p>
-          <p className={`text-7xl font-bold ${npsColor}`}>
-            {stats.total > 0 ? stats.npsScore : '—'}
-          </p>
-          <p className={`text-lg font-medium mt-2 ${npsColor}`}>{stats.total > 0 ? npsLabel : 'Sin datos aún'}</p>
-          <p className="text-sm text-gray-500 mt-1">Basado en {stats.total} respuesta{stats.total !== 1 ? 's' : ''}</p>
+        {/* NPS Score Hero with Gauge */}
+        <div className={`rounded-2xl border-2 p-8 ${npsBg}`}>
+          <div className="flex flex-col items-center">
+            <p className="text-sm font-medium text-gray-600 mb-4">Tu NPS Score</p>
+            {/* Semi-circle gauge */}
+            <div className="relative w-48 h-24 mb-2">
+              <svg viewBox="0 0 200 100" className="w-full h-full">
+                {/* Background arc */}
+                <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#e5e7eb" strokeWidth="16" strokeLinecap="round" />
+                {/* Colored segments */}
+                <path d="M 10 100 A 90 90 0 0 1 70 17" fill="none" stroke="#ef4444" strokeWidth="16" strokeLinecap="round" />
+                <path d="M 70 17 A 90 90 0 0 1 130 17" fill="none" stroke="#f59e0b" strokeWidth="16" strokeLinecap="round" />
+                <path d="M 130 17 A 90 90 0 0 1 190 100" fill="none" stroke="#22c55e" strokeWidth="16" strokeLinecap="round" />
+                {/* Needle */}
+                {stats.total > 0 && (() => {
+                  const normalized = (stats.npsScore + 100) / 200 // 0 to 1
+                  const angle = Math.PI * (1 - normalized) // PI to 0
+                  const nx = 100 + 65 * Math.cos(angle)
+                  const ny = 100 - 65 * Math.sin(angle)
+                  return <line x1="100" y1="100" x2={nx} y2={ny} stroke="#1e1b4b" strokeWidth="3" strokeLinecap="round" />
+                })()}
+                <circle cx="100" cy="100" r="6" fill="#1e1b4b" />
+              </svg>
+              <div className="absolute inset-0 flex items-end justify-center pb-0">
+                <span className={`text-4xl font-bold ${npsColor}`}>
+                  {stats.total > 0 ? stats.npsScore : '—'}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between w-48 text-xs text-gray-400 -mt-1 mb-2">
+              <span>-100</span>
+              <span>0</span>
+              <span>+100</span>
+            </div>
+            <p className={`text-lg font-semibold ${npsColor}`}>{stats.total > 0 ? npsLabel : 'Sin datos aún'}</p>
+            <p className="text-sm text-gray-500 mt-1">Basado en {stats.total} respuesta{stats.total !== 1 ? 's' : ''}</p>
+          </div>
+          
+          {/* Horizontal distribution bar */}
+          {stats.total > 0 && (
+            <div className="mt-6 max-w-md mx-auto">
+              <div className="flex rounded-full overflow-hidden h-3">
+                <div className="bg-red-500 transition-all" style={{ width: `${(stats.detractors / stats.total) * 100}%` }} />
+                <div className="bg-amber-400 transition-all" style={{ width: `${(stats.passives / stats.total) * 100}%` }} />
+                <div className="bg-green-500 transition-all" style={{ width: `${(stats.promoters / stats.total) * 100}%` }} />
+              </div>
+              <div className="flex justify-between text-xs mt-1.5 text-gray-500">
+                <span className="text-red-600">{Math.round((stats.detractors / stats.total) * 100)}% detractores</span>
+                <span className="text-amber-600">{Math.round((stats.passives / stats.total) * 100)}% pasivos</span>
+                <span className="text-green-600">{Math.round((stats.promoters / stats.total) * 100)}% promotores</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Category Breakdown */}
@@ -251,14 +296,27 @@ export default function NpsDashboard() {
           </h2>
 
           {stats.responses.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-600 mb-2">Sin respuestas NPS aún</p>
-              <p className="text-sm text-gray-500">
-                Comparte tu enlace NPS: <code className="bg-gray-100 px-2 py-1 rounded text-indigo-600 text-xs">
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="h-10 w-10 text-indigo-300" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin respuestas NPS aún</h3>
+              <p className="text-gray-500 mb-4 max-w-sm mx-auto">
+                Comparte tu enlace NPS con tus clientes para empezar a medir su satisfacción
+              </p>
+              <div className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+                <code className="text-sm text-indigo-600 font-mono">
                   {window.location.origin}/nps/{business.slug}
                 </code>
-              </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/nps/${business.slug}`)
+                  }}
+                  className="text-indigo-600 hover:text-indigo-700 font-medium text-sm ml-2"
+                >
+                  Copiar
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">

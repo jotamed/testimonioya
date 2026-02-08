@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Star, Check, X, Filter, Mic } from 'lucide-react'
+import { Star, Check, X, Mic, Sparkles } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useToast } from '../components/Toast'
 import { supabase, Business, Testimonial } from '../lib/supabase'
@@ -7,10 +7,19 @@ import AudioPlayer from '../components/AudioPlayer'
 import { SkeletonTestimonial } from '../components/LoadingSkeleton'
 import { EmptyTestimonials } from '../components/EmptyState'
 
+type FilterType = 'all' | 'pending' | 'approved' | 'rejected'
+
+const FILTERS: { key: FilterType; label: string }[] = [
+  { key: 'all', label: 'Todos' },
+  { key: 'pending', label: 'Pendientes' },
+  { key: 'approved', label: 'Aprobados' },
+  { key: 'rejected', label: 'Rechazados' },
+]
+
 export default function Testimonials() {
-  const [_business, setBusiness] = useState<Business | null>(null)
+  const [business, setBusiness] = useState<Business | null>(null)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [filter, setFilter] = useState<FilterType>('all')
   const toast = useToast()
   const [loading, setLoading] = useState(true)
 
@@ -23,7 +32,6 @@ export default function Testimonials() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Load business
       const { data: businessData } = await supabase
         .from('businesses')
         .select('*')
@@ -33,7 +41,6 @@ export default function Testimonials() {
       if (businessData) {
         setBusiness(businessData)
 
-        // Load testimonials with filter
         let query = supabase
           .from('testimonials')
           .select('*')
@@ -62,7 +69,6 @@ export default function Testimonials() {
         .eq('id', id)
 
       if (error) throw error
-      
       loadData()
     } catch (error) {
       console.error('Error updating testimonial:', error)
@@ -78,7 +84,6 @@ export default function Testimonials() {
         .eq('id', id)
 
       if (error) throw error
-      
       loadData()
     } catch (error) {
       console.error('Error updating featured status:', error)
@@ -91,8 +96,12 @@ export default function Testimonials() {
       <DashboardLayout>
         <div>
           <div className="flex items-center justify-between mb-8">
-            <div className="h-8 w-40 bg-gray-200 rounded animate-pulse" />
-            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 w-40 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-9 w-20 bg-gray-200 rounded-full animate-pulse" />
+              ))}
+            </div>
           </div>
           <div className="space-y-4">
             <SkeletonTestimonial />
@@ -106,79 +115,116 @@ export default function Testimonials() {
 
   return (
     <DashboardLayout>
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">Testimonios</h1>
-          
-          {/* Filter */}
-          <div className="flex items-center space-x-2">
-            <Filter className="h-5 w-5 text-gray-500" />
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
-              className="input-field py-2"
-            >
-              <option value="all">Todos</option>
-              <option value="pending">Pendientes</option>
-              <option value="approved">Aprobados</option>
-              <option value="rejected">Rechazados</option>
-            </select>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Testimonios</h1>
+            {business && testimonials.length > 0 && (
+              <p className="text-sm text-gray-500 mt-1">{testimonials.length} testimonio{testimonials.length !== 1 ? 's' : ''}</p>
+            )}
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl">
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  filter === f.key
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
         </div>
 
         {testimonials.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             {filter === 'all' ? (
               <EmptyTestimonials />
             ) : (
               <div className="p-12 text-center">
-                <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <div className="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Star className="h-7 w-7 text-gray-300" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   No hay testimonios
                 </h3>
-                <p className="text-gray-600">
-                  No hay testimonios con estado "{filter}".
+                <p className="text-gray-500 text-sm">
+                  No hay testimonios con estado &ldquo;{filter === 'pending' ? 'pendiente' : filter === 'approved' ? 'aprobado' : 'rechazado'}&rdquo;.
                 </p>
               </div>
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {testimonials.map((testimonial) => (
               <div
                 key={testimonial.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200"
               >
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-                  <div className="flex-1 mb-4 lg:mb-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900">
-                          {testimonial.customer_name}
-                        </h3>
-                        {testimonial.customer_email && (
-                          <p className="text-sm text-gray-600">{testimonial.customer_email}</p>
-                        )}
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    {/* Header row */}
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-semibold">
+                            {testimonial.customer_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {testimonial.customer_name}
+                          </h3>
+                          {testimonial.customer_email && (
+                            <p className="text-sm text-gray-500 truncate">{testimonial.customer_email}</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-5 w-5 ${
-                              i < testimonial.rating
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* Stars */}
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < testimonial.rating
+                                  ? 'text-yellow-400 fill-yellow-400'
+                                  : 'text-gray-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        {/* Status badge */}
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            testimonial.status === 'approved'
+                              ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+                              : testimonial.status === 'pending'
+                              ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                              : 'bg-red-50 text-red-700 ring-1 ring-red-200'
+                          }`}
+                        >
+                          {testimonial.status === 'approved'
+                            ? '✓ Aprobado'
+                            : testimonial.status === 'pending'
+                            ? '● Pendiente'
+                            : '✗ Rechazado'}
+                        </span>
                       </div>
                     </div>
-                    
+
                     {/* Text content */}
                     {testimonial.text_content && (
-                      <p className="text-gray-700 mb-3">{testimonial.text_content}</p>
+                      <p className="text-gray-700 leading-relaxed mb-3">{testimonial.text_content}</p>
                     )}
-                    
+
                     {/* Audio player */}
                     {testimonial.audio_url && (
                       <div className="mb-3">
@@ -186,75 +232,82 @@ export default function Testimonials() {
                       </div>
                     )}
 
-                    {/* Show badge if audio-only */}
+                    {/* Audio-only badge */}
                     {testimonial.audio_url && !testimonial.text_content && (
-                      <div className="flex items-center space-x-1 text-indigo-600 mb-3">
+                      <div className="flex items-center space-x-1.5 text-indigo-600 mb-3">
                         <Mic className="h-4 w-4" />
                         <span className="text-sm font-medium">Testimonio en audio</span>
                       </div>
                     )}
-                    
-                    <div className="flex items-center space-x-3 text-sm text-gray-500">
-                      <span className="capitalize">Fuente: {testimonial.source}</span>
+
+                    {/* Meta info */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                      <span className="capitalize bg-gray-50 px-2 py-0.5 rounded">{testimonial.source}</span>
                       <span>•</span>
-                      <span>{new Date(testimonial.created_at).toLocaleDateString('es-ES')}</span>
+                      <span>{new Date(testimonial.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                       {testimonial.is_featured && (
                         <>
                           <span>•</span>
-                          <span className="text-indigo-600 font-medium">⭐ Destacado</span>
+                          <span className="inline-flex items-center gap-1 text-indigo-600 font-medium">
+                            <Sparkles className="h-3 w-3" />
+                            Destacado
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                  <div className="flex lg:flex-col gap-2 flex-shrink-0">
                     {testimonial.status === 'pending' && (
                       <>
                         <button
                           onClick={() => updateTestimonialStatus(testimonial.id, 'approved')}
-                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                          className="flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 active:scale-[0.98] transition-all text-sm font-medium"
                         >
                           <Check className="h-4 w-4" />
                           <span>Aprobar</span>
                         </button>
                         <button
                           onClick={() => updateTestimonialStatus(testimonial.id, 'rejected')}
-                          className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                          className="flex items-center justify-center space-x-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 active:scale-[0.98] transition-all text-sm font-medium"
                         >
                           <X className="h-4 w-4" />
                           <span>Rechazar</span>
                         </button>
                       </>
                     )}
-                    
+
                     {testimonial.status === 'approved' && (
                       <>
                         <button
                           onClick={() => toggleFeatured(testimonial.id, testimonial.is_featured)}
-                          className={`px-4 py-2 rounded-lg transition-colors ${
+                          className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium active:scale-[0.98] transition-all ${
                             testimonial.is_featured
-                              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                               : 'bg-indigo-600 text-white hover:bg-indigo-700'
                           }`}
                         >
-                          {testimonial.is_featured ? 'Quitar Destacado' : 'Destacar'}
+                          <Sparkles className="h-4 w-4" />
+                          <span>{testimonial.is_featured ? 'Quitar' : 'Destacar'}</span>
                         </button>
                         <button
                           onClick={() => updateTestimonialStatus(testimonial.id, 'rejected')}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                          className="flex items-center justify-center space-x-2 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 active:scale-[0.98] transition-all text-sm font-medium"
                         >
-                          Rechazar
+                          <X className="h-4 w-4" />
+                          <span>Rechazar</span>
                         </button>
                       </>
                     )}
-                    
+
                     {testimonial.status === 'rejected' && (
                       <button
                         onClick={() => updateTestimonialStatus(testimonial.id, 'approved')}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        className="flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 active:scale-[0.98] transition-all text-sm font-medium"
                       >
-                        Aprobar
+                        <Check className="h-4 w-4" />
+                        <span>Aprobar</span>
                       </button>
                     )}
                   </div>
