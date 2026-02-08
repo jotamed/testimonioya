@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { 
   Save, Crown, Check, Mic, Video, Palette, 
-  Key, Webhook, Users, Building2, Download, 
+  Key, Webhook, Users, Download, 
   MessageSquare, Zap, Lock, Settings2, CreditCard,
   Receipt, ExternalLink, Loader2, AlertCircle, Shield,
   Trash2, Mail, Eye, EyeOff, Bell
