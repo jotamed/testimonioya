@@ -26,7 +26,6 @@ const NpsDashboard = lazy(() => import('./pages/NpsDashboard'))
 const TestimonialForm = lazy(() => import('./pages/TestimonialForm'))
 const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
-const ComparisonPage = lazy(() => import('./pages/ComparisonPage'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Admin = lazy(() => import('./pages/Admin'))
 const BlogList = lazy(() => import('./pages/blog/BlogList'))
@@ -59,8 +58,6 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/t/:slug" element={<TestimonialForm />} />
             <Route path="/nps/:slug" element={<NpsForm />} />
-            <Route path="/vs" element={<ComparisonPage />} />
-            <Route path="/vs/:competitor" element={<ComparisonPage />} />
             <Route path="/wall/:slug" element={<WallOfLove />} />
             <Route path="/onboarding" element={<Onboarding />} />
             

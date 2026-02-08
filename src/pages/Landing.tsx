@@ -517,7 +517,6 @@ export default function Landing() {
               <ul className="space-y-2 text-sm">
                 <li><a href="/#pricing" className="text-gray-600 hover:text-gray-900">Precios</a></li>
                 <li><a href="/#como-funciona" className="text-gray-600 hover:text-gray-900">Cómo funciona</a></li>
-                <li><Link to="/vs" className="text-gray-600 hover:text-gray-900">Comparativas</Link></li>
               </ul>
             </div>
             
