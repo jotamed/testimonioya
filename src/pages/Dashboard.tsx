@@ -202,7 +202,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-                {'stars' in card && card.stars > 0 && (
+                {'stars' in card && (card.stars ?? 0) > 0 && (
                   <div className="flex items-center mt-1.5 gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className={`h-3 w-3 ${i < Math.round(card.stars as number) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`} />
