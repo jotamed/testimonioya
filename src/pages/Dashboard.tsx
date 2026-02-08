@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats, PlanType } from '../lib/plans'
@@ -231,7 +231,14 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link
+              to="/dashboard/request"
+              className="flex items-center space-x-3 p-4 border-2 border-indigo-300 bg-indigo-50 rounded-lg hover:border-indigo-400 hover:bg-indigo-100 transition-all"
+            >
+              <Send className="h-6 w-6 text-indigo-600" />
+              <span className="font-medium text-indigo-900">Pedir Testimonio</span>
+            </Link>
             <Link
               to="/dashboard/links"
               className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-all"

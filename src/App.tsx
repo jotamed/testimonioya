@@ -23,6 +23,7 @@ const Settings = lazy(() => import('./pages/Settings'))
 const Widget = lazy(() => import('./pages/Widget'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const NpsDashboard = lazy(() => import('./pages/NpsDashboard'))
+const RequestTestimonial = lazy(() => import('./pages/RequestTestimonial'))
 const TestimonialForm = lazy(() => import('./pages/TestimonialForm'))
 const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
@@ -77,6 +78,7 @@ function App() {
             <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
             <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
             <Route path="/dashboard/nps" element={<AuthGuard><NpsDashboard /></AuthGuard>} />
+            <Route path="/dashboard/request" element={<AuthGuard><RequestTestimonial /></AuthGuard>} />
             
             {/* Admin */}
             <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
