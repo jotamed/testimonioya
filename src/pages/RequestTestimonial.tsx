@@ -45,7 +45,12 @@ export default function RequestTestimonial() {
         .from('businesses')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .then(({ data: allBiz, error: bizErr }) => {
+          if (bizErr || !allBiz?.length) return { data: null, error: bizErr }
+          const savedId = localStorage.getItem('testimonioya_current_business')
+          const biz = allBiz.find((b: any) => b.id === savedId) || allBiz[0]
+          return { data: biz, error: null }
+        })
 
       if (biz) {
         setBusiness(biz)
