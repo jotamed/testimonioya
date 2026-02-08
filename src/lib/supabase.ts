@@ -28,6 +28,9 @@ export type Business = {
   email_reply_to?: string
   // Branding
   custom_domain?: string
+  // Google Reviews & i18n
+  google_reviews_url?: string
+  default_language?: string
   created_at: string
 }
 

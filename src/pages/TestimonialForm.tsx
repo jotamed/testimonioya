@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { Star, Send, MessageSquare, AlertTriangle, Type, Mic, Video } from 'lucide-react'
+import { Star, Send, MessageSquare, AlertTriangle, Type, Mic, Video, ExternalLink } from 'lucide-react'
 import { supabase, CollectionLink, Business } from '../lib/supabase'
 import { canReceiveTestimonial, PlanType } from '../lib/plans'
 import { updateSEO } from '../lib/seo'
+import { detectLanguage, t, SupportedLang } from '../lib/i18n'
 import AudioRecorder from '../components/AudioRecorder'
 import VideoRecorder from '../components/VideoRecorder'
 
@@ -33,6 +34,10 @@ export default function TestimonialForm() {
   const [error, setError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [inactive, setInactive] = useState(false)
+  const [lang, setLang] = useState<SupportedLang>('es')
+
+  // Helper for translations
+  const _ = useMemo(() => (key: string, vars?: Record<string, string>) => t(lang, key, vars), [lang])
 
   useEffect(() => {
     loadLink()
@@ -40,7 +45,6 @@ export default function TestimonialForm() {
 
   const loadLink = async () => {
     try {
-      // Load collection link
       const { data: linkData, error: linkError } = await supabase
         .from('collection_links')
         .select('*, businesses(*)')
@@ -68,25 +72,26 @@ export default function TestimonialForm() {
       setBrandColor(businessData.brand_color)
       setWelcomeMessage(businessData.welcome_message)
 
+      // Detect language with business default as fallback
+      const defaultLang = (businessData.default_language || 'es') as SupportedLang
+      setLang(detectLanguage(defaultLang))
+
       updateSEO({
         title: `Deja tu testimonio para ${businessData.business_name}`,
         description: `Comparte tu experiencia con ${businessData.business_name}. Tu opinión es importante.`,
         url: `https://testimonioya.com/t/${slug}`,
-        noIndex: true, // Don't index form pages
+        noIndex: true,
       })
       
-      // If business doesn't allow audio, force text mode
       if (!businessData.allow_audio_testimonials) {
         setMode('text')
       }
 
-      // Check if business has reached testimonial limit
       const limitCheck = await canReceiveTestimonial(businessData.id, businessData.plan as PlanType)
       if (!limitCheck.allowed) {
         setLimitReached(true)
       }
 
-      // Increment views
       await supabase
         .from('collection_links')
         .update({ views_count: linkData.views_count + 1 })
@@ -101,7 +106,7 @@ export default function TestimonialForm() {
 
   const uploadMedia = async (blob: Blob, type: 'audio' | 'video'): Promise<string | null> => {
     try {
-      const extension = type === 'video' ? 'webm' : 'webm'
+      const extension = 'webm'
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`
       const filePath = `testimonials/${link?.business_id}/${fileName}`
       const bucket = type === 'video' ? 'video-testimonials' : 'audio-testimonials'
@@ -115,10 +120,7 @@ export default function TestimonialForm() {
           cacheControl: '3600',
         })
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError)
-        throw uploadError
-      }
+      if (uploadError) throw uploadError
 
       setUploadProgress(80)
 
@@ -134,7 +136,6 @@ export default function TestimonialForm() {
     }
   }
 
-  // Backwards compatibility
   const uploadAudio = (blob: Blob) => uploadMedia(blob, 'audio')
   const uploadVideo = (blob: Blob) => uploadMedia(blob, 'video')
 
@@ -144,21 +145,19 @@ export default function TestimonialForm() {
 
     setError(null)
     
-    // Validate based on mode
     if (mode === 'text' && !formData.text_content.trim()) {
-      setError('Por favor, escribe tu testimonio')
+      setError(_('form.error.text'))
       return
     }
     if (mode === 'audio' && !audioBlob) {
-      setError('Por favor, graba tu testimonio en audio')
+      setError(_('form.error.audio'))
       return
     }
     if (mode === 'video' && !videoBlob) {
-      setError('Por favor, graba tu testimonio en video')
+      setError(_('form.error.video'))
       return
     }
 
-    // Double-check limit before submitting
     const limitCheck = await canReceiveTestimonial(business.id, business.plan as PlanType)
     if (!limitCheck.allowed) {
       setLimitReached(true)
@@ -170,21 +169,19 @@ export default function TestimonialForm() {
       let audioUrl: string | null = null
       let videoUrl: string | null = null
       
-      // Upload audio if present
       if (audioBlob) {
         audioUrl = await uploadAudio(audioBlob)
         if (!audioUrl && mode === 'audio') {
-          setError('Error al subir el audio. Inténtalo de nuevo.')
+          setError(_('form.error.upload.audio'))
           setSubmitting(false)
           return
         }
       }
       
-      // Upload video if present
       if (videoBlob) {
         videoUrl = await uploadVideo(videoBlob)
         if (!videoUrl && mode === 'video') {
-          setError('Error al subir el video. Inténtalo de nuevo.')
+          setError(_('form.error.upload.video'))
           setSubmitting(false)
           return
         }
@@ -206,7 +203,6 @@ export default function TestimonialForm() {
 
       if (error) throw error
 
-      // Increment submissions count
       await supabase
         .from('collection_links')
         .update({ submissions_count: link.submissions_count + 1 })
@@ -215,7 +211,7 @@ export default function TestimonialForm() {
       setSubmitted(true)
     } catch (error) {
       console.error('Error submitting testimonial:', error)
-      setError('Error al enviar el testimonio. Inténtalo de nuevo.')
+      setError(_('form.error.submit'))
     } finally {
       setSubmitting(false)
       setUploadProgress(0)
@@ -237,7 +233,7 @@ export default function TestimonialForm() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <MessageSquare className="h-12 w-12 text-indigo-600 animate-pulse mx-auto mb-4" />
-          <p className="text-gray-600">Cargando...</p>
+          <p className="text-gray-600">{_('loading')}</p>
         </div>
       </div>
     )
@@ -250,8 +246,8 @@ export default function TestimonialForm() {
           <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageSquare className="h-8 w-8 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Enlace no encontrado</h1>
-          <p className="text-gray-600">Este enlace no existe o ha sido eliminado</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{_('notfound.title')}</h1>
+          <p className="text-gray-600">{_('notfound.message')}</p>
         </div>
       </div>
     )
@@ -264,8 +260,8 @@ export default function TestimonialForm() {
           <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="h-8 w-8 text-amber-500" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Enlace desactivado</h1>
-          <p className="text-gray-600">Este enlace ya no está aceptando testimonios</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{_('inactive.title')}</h1>
+          <p className="text-gray-600">{_('inactive.message')}</p>
         </div>
       </div>
     )
@@ -280,14 +276,13 @@ export default function TestimonialForm() {
               <AlertTriangle className="h-8 w-8 text-amber-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Límite alcanzado
+              {_('limit.title')}
             </h1>
             <p className="text-gray-600 mb-6">
-              {businessName} ha alcanzado el límite de testimonios de su plan este mes. 
-              Por favor, inténtalo más tarde.
+              {_('limit.message', { business: businessName })}
             </p>
             <p className="text-sm text-gray-500">
-              ¿Eres el dueño? Actualiza tu plan para recibir más testimonios.
+              {_('limit.owner')}
             </p>
           </div>
         </div>
@@ -295,7 +290,11 @@ export default function TestimonialForm() {
     )
   }
 
+  // Post-submission screen with Google Reviews redirect for promoters
   if (submitted) {
+    const isPromoter = formData.rating >= 4
+    const googleReviewsUrl = business?.google_reviews_url
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
         <div className="max-w-md w-full text-center">
@@ -304,14 +303,32 @@ export default function TestimonialForm() {
               <Star className="h-8 w-8 text-green-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              ¡Gracias!
+              {_('thanks.title')}
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Tu testimonio {mode === 'audio' ? 'en audio ' : ''}ha sido recibido y será revisado pronto.
+              {isPromoter 
+                ? (mode === 'audio' ? _('thanks.message.audio') : _('thanks.message'))
+                : _('thanks.detractor')
+              }
             </p>
+            
+            {/* Google Reviews redirect for promoters */}
+            {isPromoter && googleReviewsUrl && (
+              <a
+                href={googleReviewsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 px-6 mb-4 rounded-xl font-semibold text-white text-lg transition-all hover:opacity-90 hover:scale-[1.02] flex items-center justify-center space-x-3"
+                style={{ backgroundColor: brandColor }}
+              >
+                <span>{_('thanks.google')}</span>
+                <ExternalLink className="h-5 w-5" />
+              </a>
+            )}
+
             <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
               <p className="text-sm text-indigo-900">
-                Tu opinión es muy valiosa para {businessName} ❤️
+                {_('thanks.valuable', { business: businessName })}
               </p>
             </div>
           </div>
@@ -330,7 +347,7 @@ export default function TestimonialForm() {
             <MessageSquare className="h-8 w-8" style={{ color: brandColor }} />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Comparte tu experiencia con {businessName}
+            {_('form.title', { business: businessName })}
           </h1>
           <p className="text-lg text-gray-600">
             {welcomeMessage}
@@ -339,7 +356,6 @@ export default function TestimonialForm() {
 
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start space-x-3">
               <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
@@ -351,7 +367,7 @@ export default function TestimonialForm() {
             {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Tu Nombre <span className="text-red-500">*</span>
+                {_('form.name')} <span className="text-red-500">{_('form.required')}</span>
               </label>
               <input
                 id="name"
@@ -360,14 +376,14 @@ export default function TestimonialForm() {
                 value={formData.customer_name}
                 onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
                 className="input-field"
-                placeholder="Juan Pérez"
+                placeholder={_('form.name.placeholder')}
               />
             </div>
 
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Tu Email <span className="text-gray-400">(opcional)</span>
+                {_('form.email')} <span className="text-gray-400">{_('form.email.optional')}</span>
               </label>
               <input
                 id="email"
@@ -375,14 +391,14 @@ export default function TestimonialForm() {
                 value={formData.customer_email}
                 onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
                 className="input-field"
-                placeholder="juan@email.com"
+                placeholder={_('form.email.placeholder')}
               />
             </div>
 
             {/* Rating */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Calificación <span className="text-red-500">*</span>
+                {_('form.rating')} <span className="text-red-500">{_('form.required')}</span>
               </label>
               <div className="flex items-center space-x-2">
                 {[1, 2, 3, 4, 5].map((rating) => (
@@ -404,11 +420,11 @@ export default function TestimonialForm() {
               </div>
             </div>
 
-            {/* Mode Selector - Only show if business allows audio/video */}
+            {/* Mode Selector */}
             {business?.allow_audio_testimonials !== false && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  ¿Cómo quieres compartir tu testimonio?
+                  {_('form.mode.label')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
@@ -422,7 +438,7 @@ export default function TestimonialForm() {
                     style={mode === 'text' ? { backgroundColor: brandColor } : {}}
                   >
                     <Type className="h-5 w-5" />
-                    <span className="font-medium text-sm">Texto</span>
+                    <span className="font-medium text-sm">{_('form.mode.text')}</span>
                   </button>
                   <button
                     type="button"
@@ -435,7 +451,7 @@ export default function TestimonialForm() {
                     style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
                   >
                     <Mic className="h-5 w-5" />
-                    <span className="font-medium text-sm">Audio</span>
+                    <span className="font-medium text-sm">{_('form.mode.audio')}</span>
                   </button>
                   <button
                     type="button"
@@ -448,17 +464,17 @@ export default function TestimonialForm() {
                     style={mode === 'video' ? { backgroundColor: brandColor } : {}}
                   >
                     <Video className="h-5 w-5" />
-                    <span className="font-medium text-sm">Video</span>
+                    <span className="font-medium text-sm">{_('form.mode.video')}</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Testimonial Content - Text, Audio, or Video */}
+            {/* Testimonial Content */}
             {mode === 'text' && (
               <div>
                 <label htmlFor="testimonial" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tu Testimonio <span className="text-red-500">*</span>
+                  {_('form.testimonial')} <span className="text-red-500">{_('form.required')}</span>
                 </label>
                 <textarea
                   id="testimonial"
@@ -467,10 +483,10 @@ export default function TestimonialForm() {
                   value={formData.text_content}
                   onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
                   className="input-field"
-                  placeholder="Cuéntanos sobre tu experiencia..."
+                  placeholder={_('form.testimonial.placeholder')}
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Comparte detalles específicos que te gustaron
+                  {_('form.testimonial.hint')}
                 </p>
               </div>
             )}
@@ -478,7 +494,7 @@ export default function TestimonialForm() {
             {mode === 'audio' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tu Testimonio en Audio <span className="text-red-500">*</span>
+                  {_('form.audio.label')} <span className="text-red-500">{_('form.required')}</span>
                 </label>
                 <AudioRecorder 
                   onAudioReady={setAudioBlob}
@@ -486,7 +502,7 @@ export default function TestimonialForm() {
                   maxDuration={120}
                 />
                 <p className="mt-2 text-xs text-gray-500">
-                  Graba hasta 2 minutos contando tu experiencia
+                  {_('form.audio.hint')}
                 </p>
               </div>
             )}
@@ -494,7 +510,7 @@ export default function TestimonialForm() {
             {mode === 'video' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tu Testimonio en Video <span className="text-red-500">*</span>
+                  {_('form.video.label')} <span className="text-red-500">{_('form.required')}</span>
                 </label>
                 <VideoRecorder 
                   onVideoReady={setVideoBlob}
@@ -502,7 +518,7 @@ export default function TestimonialForm() {
                   maxDuration={60}
                 />
                 <p className="mt-2 text-xs text-gray-500">
-                  Graba hasta 1 minuto contando tu experiencia
+                  {_('form.video.hint')}
                 </p>
               </div>
             )}
@@ -511,7 +527,7 @@ export default function TestimonialForm() {
             {submitting && uploadProgress > 0 && (
               <div className="bg-indigo-50 rounded-lg p-4">
                 <div className="flex items-center justify-between text-sm text-indigo-700 mb-2">
-                  <span>Subiendo audio...</span>
+                  <span>{_('form.uploading')}</span>
                   <span>{uploadProgress}%</span>
                 </div>
                 <div className="h-2 bg-indigo-200 rounded-full overflow-hidden">
@@ -532,7 +548,7 @@ export default function TestimonialForm() {
                 style={{ backgroundColor: brandColor }}
               >
                 <Send className="h-5 w-5" />
-                <span>{submitting ? 'Enviando...' : 'Enviar Testimonio'}</span>
+                <span>{submitting ? _('form.submitting') : _('form.submit')}</span>
               </button>
 
               {mode === 'text' && (
@@ -545,14 +561,14 @@ export default function TestimonialForm() {
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                   </svg>
-                  <span>Enviar por WhatsApp</span>
+                  <span>{_('form.whatsapp')}</span>
                 </a>
               )}
             </div>
           </form>
         </div>
 
-        {/* Footer - Only show branding for free plan */}
+        {/* Footer */}
         {business?.plan === 'free' && (
           <div className="text-center mt-8">
             <p className="text-sm text-gray-500">

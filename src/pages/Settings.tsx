@@ -13,6 +13,7 @@ import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
 import TwoFactorSetup from '../components/TwoFactorSetup'
+import { SUPPORTED_LANGUAGES } from '../lib/i18n'
 
 type SettingsTab = 'general' | 'notifications' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
 
@@ -42,6 +43,8 @@ export default function Settings() {
     // Branding
     logo_url: '',
     custom_domain: '',
+    google_reviews_url: '',
+    default_language: 'es',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -110,6 +113,8 @@ export default function Settings() {
           email_reply_to: businessData.email_reply_to ?? '',
           logo_url: businessData.logo_url ?? '',
           custom_domain: businessData.custom_domain ?? '',
+          google_reviews_url: businessData.google_reviews_url ?? '',
+          default_language: businessData.default_language ?? 'es',
         })
       }
     } catch (error) {
@@ -472,6 +477,49 @@ export default function Settings() {
                       </code>
                     </div>
                   )}
+
+                  {/* Google Reviews URL */}
+                  <div className="border-t pt-6">
+                    <h3 className="font-medium text-gray-900 mb-4">Google Reviews</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        URL de Google Reviews
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.google_reviews_url}
+                        onChange={(e) => setFormData({ ...formData, google_reviews_url: e.target.value })}
+                        className="input-field"
+                        placeholder="https://g.page/r/tu-negocio/review"
+                      />
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        Cuando un cliente deje una reseña positiva (4-5 estrellas o NPS 9-10), le sugeriremos dejar una reseña en Google.
+                        Para encontrar tu link: busca tu negocio en Google Maps → Comparte → Copiar enlace.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Default Language */}
+                  <div className="border-t pt-6">
+                    <h3 className="font-medium text-gray-900 mb-4">Idioma por defecto</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Idioma de los formularios públicos
+                      </label>
+                      <select
+                        value={formData.default_language}
+                        onChange={(e) => setFormData({ ...formData, default_language: e.target.value })}
+                        className="input-field"
+                      >
+                        {SUPPORTED_LANGUAGES.map((l) => (
+                          <option key={l.code} value={l.code}>{l.label}</option>
+                        ))}
+                      </select>
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        Se usará si no se detecta el idioma del navegador del cliente. Los formularios se muestran automáticamente en el idioma del visitante.
+                      </p>
+                    </div>
+                  </div>
 
                   <SaveButton saving={saving} />
                 </div>
