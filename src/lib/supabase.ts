@@ -14,6 +14,7 @@ export type Business = {
   website: string | null
   logo_url: string | null
   brand_color: string
+  description: string | null
   welcome_message: string
   plan: 'free' | 'pro' | 'premium'
   testimonials_count: number
