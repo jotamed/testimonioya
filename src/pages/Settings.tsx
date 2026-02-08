@@ -12,6 +12,7 @@ import { useToast } from '../components/Toast'
 import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
+import TwoFactorSetup from '../components/TwoFactorSetup'
 
 type SettingsTab = 'general' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
 
@@ -54,6 +55,12 @@ export default function Settings() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   
+  // 2FA state
+  const [mfaEnabled, setMfaEnabled] = useState(false)
+  const [mfaLoading, setMfaLoading] = useState(true)
+  const [showMfaSetup, setShowMfaSetup] = useState(false)
+  const [disablingMfa, setDisablingMfa] = useState(false)
+  
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -63,6 +70,7 @@ export default function Settings() {
 
   useEffect(() => {
     loadData()
+    loadMfaStatus()
   }, [])
 
   const loadData = async () => {
@@ -251,6 +259,37 @@ export default function Settings() {
     } finally {
       setDeleting(false)
       setShowDeleteModal(false)
+    }
+  }
+
+  const loadMfaStatus = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.listFactors()
+      if (!error && data?.totp && data.totp.length > 0) {
+        setMfaEnabled(true)
+      }
+    } catch (e) {
+      console.error('Error loading MFA status:', e)
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  const handleDisableMfa = async () => {
+    setDisablingMfa(true)
+    try {
+      const { data } = await supabase.auth.mfa.listFactors()
+      const factor = data?.totp?.[0]
+      if (factor) {
+        const { error } = await supabase.auth.mfa.unenroll({ factorId: factor.id })
+        if (error) throw error
+        setMfaEnabled(false)
+        toast.success('2FA desactivado')
+      }
+    } catch (err: any) {
+      toast.error('Error al desactivar 2FA', err.message)
+    } finally {
+      setDisablingMfa(false)
     }
   }
 
@@ -765,7 +804,76 @@ export default function Settings() {
                     </form>
                   </div>
 
-                  {/* Email */}
+                  
+                  {/* Two-Factor Authentication */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Shield className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h2 className="text-lg font-semibold text-gray-900">Autenticación en dos pasos (2FA)</h2>
+                        <p className="text-sm text-gray-500">Añade una capa extra de seguridad a tu cuenta</p>
+                      </div>
+                      {!mfaLoading && (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          mfaEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {mfaEnabled ? '✓ Activado' : 'Desactivado'}
+                        </span>
+                      )}
+                    </div>
+
+                    {mfaLoading ? (
+                      <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Cargando estado de 2FA...</span>
+                      </div>
+                    ) : mfaEnabled ? (
+                      <div className="space-y-4">
+                        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                          <p className="text-sm text-green-800">
+                            Tu cuenta está protegida con autenticación en dos pasos.
+                            Se te pedirá un código TOTP cada vez que inicies sesión.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleDisableMfa}
+                          disabled={disablingMfa}
+                          className="text-red-600 text-sm font-medium hover:text-red-700 disabled:opacity-50"
+                        >
+                          {disablingMfa ? 'Desactivando...' : 'Desactivar 2FA'}
+                        </button>
+                      </div>
+                    ) : showMfaSetup ? (
+                      <TwoFactorSetup
+                        onComplete={() => {
+                          setShowMfaSetup(false)
+                          setMfaEnabled(true)
+                          toast.success('¡2FA activado correctamente!')
+                        }}
+                        onCancel={() => setShowMfaSetup(false)}
+                      />
+                    ) : (
+                      <div className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                          Protege tu cuenta con un código temporal generado por una app como
+                          Google Authenticator o Authy.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setShowMfaSetup(true)}
+                          className="btn-primary flex items-center space-x-2"
+                        >
+                          <Shield className="h-4 w-4" />
+                          <span>Activar 2FA</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+{/* Email */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">

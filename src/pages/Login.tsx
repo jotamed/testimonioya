@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import TwoFactorVerify from '../components/TwoFactorVerify'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -9,6 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [needs2FA, setNeeds2FA] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,6 +24,15 @@ export default function Login() {
       })
 
       if (error) throw error
+
+      // Check if user has MFA enabled
+      const { data: factorsData } = await supabase.auth.mfa.listFactors()
+      const hasTOTP = factorsData?.totp && factorsData.totp.length > 0
+
+      if (hasTOTP) {
+        setNeeds2FA(true)
+        return
+      }
 
       navigate('/dashboard')
     } catch (err: any) {
@@ -39,6 +50,10 @@ export default function Login() {
       },
     })
     if (error) setError(error.message)
+  }
+
+  if (needs2FA) {
+    return <TwoFactorVerify onVerified={() => navigate('/dashboard')} />
   }
 
   return (
