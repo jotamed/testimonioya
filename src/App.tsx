@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
 import AuthGuard from './components/AuthGuard'
 import AdminGuard from './components/AdminGuard'
+import ErrorBoundary from './components/ErrorBoundary'
 import { ToastProvider } from './components/Toast'
 import CookieConsent from './components/CookieConsent'
 
@@ -48,6 +49,7 @@ function App() {
   return (
     <ToastProvider>
       <Router>
+        <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}
@@ -87,6 +89,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
         <CookieConsent />
       </Router>
     </ToastProvider>
