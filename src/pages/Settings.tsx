@@ -479,7 +479,7 @@ export default function Settings() {
                   {business && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Tu Muro Público</label>
-                      <code className="block bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-indigo-600 border">
+                      <code className="block bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-indigo-600 border break-all overflow-hidden">
                         {window.location.origin}/wall/{business.slug}
                       </code>
                     </div>
@@ -675,7 +675,7 @@ export default function Settings() {
 
                   <div className="bg-indigo-50 rounded-lg p-4">
                     <h4 className="font-medium text-indigo-900 mb-2">Enlaces NPS</h4>
-                    <code className="block bg-white px-3 py-2 rounded text-sm text-indigo-600 border border-indigo-200">
+                    <code className="block bg-white px-3 py-2 rounded text-sm text-indigo-600 border border-indigo-200 break-all overflow-hidden">
                       {window.location.origin}/nps/{business?.slug}
                     </code>
                   </div>
