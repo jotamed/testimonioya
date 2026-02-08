@@ -1,5 +1,36 @@
 import { useState, useRef, useEffect } from 'react'
-import { Video, Square, Play, Pause, Trash2, RotateCcw } from 'lucide-react'
+import { Video, Square, Play, Pause, Trash2, RotateCcw, AlertTriangle } from 'lucide-react'
+
+function detectBrowserSupport() {
+  const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  const hasMediaRecorder = typeof MediaRecorder !== 'undefined'
+  const isSecureContext = window.isSecureContext
+  
+  const ua = navigator.userAgent
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua)
+  
+  let supportedMimeType: string | null = null
+  if (hasMediaRecorder) {
+    const mimeTypes = [
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm',
+      'video/mp4',
+    ]
+    supportedMimeType = mimeTypes.find(mt => MediaRecorder.isTypeSupported(mt)) || null
+  }
+
+  return {
+    hasMediaDevices,
+    hasMediaRecorder,
+    isSecureContext,
+    isIOS,
+    isSafari,
+    supportedMimeType,
+    isFullySupported: hasMediaDevices && hasMediaRecorder && isSecureContext && !!supportedMimeType,
+  }
+}
 
 interface VideoRecorderProps {
   onVideoReady: (blob: Blob | null) => void
@@ -20,6 +51,8 @@ export default function VideoRecorder({
   const [permissionDenied, setPermissionDenied] = useState(false)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
   const [isPreview, setIsPreview] = useState(false)
+  const [browserSupport] = useState(() => detectBrowserSupport())
+  const [recordingError, setRecordingError] = useState<string | null>(null)
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -88,17 +121,27 @@ export default function VideoRecorder({
 
   const startRecording = () => {
     if (!streamRef.current) return
+    setRecordingError(null)
     
-    const mediaRecorder = new MediaRecorder(streamRef.current, {
-      mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
-        ? 'video/webm;codecs=vp9' 
-        : MediaRecorder.isTypeSupported('video/webm')
-          ? 'video/webm'
-          : 'video/mp4'
-    })
+    let mediaRecorder: MediaRecorder
+    try {
+      const mimeType = browserSupport.supportedMimeType || 'video/webm'
+      mediaRecorder = new MediaRecorder(streamRef.current, { mimeType })
+    } catch (err) {
+      console.error('MediaRecorder creation failed:', err)
+      setRecordingError('No se pudo iniciar la grabación. Prueba con otro navegador.')
+      return
+    }
     
     mediaRecorderRef.current = mediaRecorder
     chunksRef.current = []
+
+    mediaRecorder.onerror = (e) => {
+      console.error('MediaRecorder error:', e)
+      setRecordingError('Error durante la grabación. Inténtalo de nuevo.')
+      setIsRecording(false)
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
 
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
@@ -176,6 +219,38 @@ export default function VideoRecorder({
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Browser not supported
+  if (!browserSupport.isFullySupported) {
+    let message = 'Tu navegador no soporta la grabación de video.'
+    let detail = ''
+    
+    if (!browserSupport.isSecureContext) {
+      message = 'La grabación de video requiere una conexión segura (HTTPS).'
+      detail = 'Pide al dueño del sitio que habilite HTTPS.'
+    } else if (!browserSupport.hasMediaRecorder) {
+      if (browserSupport.isIOS && browserSupport.isSafari) {
+        message = 'La grabación de video requiere iOS 14.3 o superior.'
+        detail = 'Actualiza tu dispositivo para usar esta función.'
+      } else {
+        detail = 'Prueba con Chrome, Firefox o Edge en su última versión.'
+      }
+    } else if (!browserSupport.supportedMimeType) {
+      message = 'Tu navegador no soporta los formatos de video necesarios.'
+      detail = 'Prueba con Google Chrome o Firefox.'
+    }
+    
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
+        <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+        <p className="text-amber-900 text-sm font-medium mb-1">{message}</p>
+        {detail && <p className="text-amber-700 text-xs">{detail}</p>}
+        <p className="text-amber-600 text-xs mt-3">
+          💡 Puedes usar el modo "Texto" para dejar tu testimonio
+        </p>
+      </div>
+    )
   }
 
   if (permissionDenied) {
@@ -287,6 +362,13 @@ export default function VideoRecorder({
             </button>
           )}
         </div>
+
+        {/* Recording Error */}
+        {recordingError && (
+          <div className="mx-4 mt-2 p-3 bg-red-500/90 text-white text-sm rounded-lg text-center">
+            {recordingError}
+          </div>
+        )}
 
         {/* Controls */}
         <div className="p-4 flex items-center justify-center space-x-4">

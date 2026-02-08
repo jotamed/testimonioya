@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats, PlanType } from '../lib/plans'
@@ -14,6 +14,8 @@ export default function Dashboard() {
     total: 0,
     pending: 0,
     approved: 0,
+    avgRating: 0,
+    thisMonth: 0,
   })
   const [usage, setUsage] = useState<{
     testimonials: { current: number; limit: number };
@@ -68,10 +70,33 @@ export default function Dashboard() {
           .eq('business_id', businessData.id)
           .eq('status', 'approved')
 
+        // Average rating
+        const { data: ratingData } = await supabase
+          .from('testimonials')
+          .select('rating')
+          .eq('business_id', businessData.id)
+          .eq('status', 'approved')
+
+        const avgRating = ratingData && ratingData.length > 0
+          ? ratingData.reduce((sum, t) => sum + t.rating, 0) / ratingData.length
+          : 0
+
+        // This month count
+        const startOfMonth = new Date()
+        startOfMonth.setDate(1)
+        startOfMonth.setHours(0, 0, 0, 0)
+        const { count: monthCount } = await supabase
+          .from('testimonials')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+          .gte('created_at', startOfMonth.toISOString())
+
         setStats({
           total: totalCount || 0,
           pending: pendingCount || 0,
           approved: approvedCount || 0,
+          avgRating,
+          thisMonth: monthCount || 0,
         })
 
         // Load usage stats
@@ -114,41 +139,60 @@ export default function Dashboard() {
         </h1>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Testimonios</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <MessageCircle className="h-6 w-6 text-indigo-600" />
-              </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total</p>
+              <MessageCircle className="h-4 w-4 text-indigo-500" />
             </div>
+            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Pendientes</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
-              </div>
-              <div className="h-12 w-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-amber-600" />
-              </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Pendientes</p>
+              <Clock className="h-4 w-4 text-amber-500" />
             </div>
+            <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+            {stats.pending > 0 && (
+              <p className="text-xs text-amber-600 mt-1">⚡ Requieren revisión</p>
+            )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Aprobados</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.approved}</p>
-              </div>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Star className="h-6 w-6 text-green-600" />
-              </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Aprobados</p>
+              <Star className="h-4 w-4 text-green-500" />
             </div>
+            <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+            {stats.total > 0 && (
+              <p className="text-xs text-gray-500 mt-1">{Math.round((stats.approved / stats.total) * 100)}% tasa aprobación</p>
+            )}
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Rating</p>
+              <BarChart3 className="h-4 w-4 text-yellow-500" />
+            </div>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}
+            </p>
+            {stats.avgRating > 0 && (
+              <div className="flex items-center mt-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className={`h-3 w-3 ${i < Math.round(stats.avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Este Mes</p>
+              <TrendingUp className="h-4 w-4 text-purple-500" />
+            </div>
+            <p className="text-2xl font-bold text-gray-900">{stats.thisMonth}</p>
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { Star, MessageSquare, Mic } from 'lucide-react'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import AudioPlayer from '../components/AudioPlayer'
+import { updateSEO } from '../lib/seo'
 
 export default function WallOfLove() {
   const { slug } = useParams()
@@ -32,6 +33,12 @@ export default function WallOfLove() {
       }
 
       setBusiness(businessData)
+      
+      updateSEO({
+        title: `Testimonios de ${businessData.business_name}`,
+        description: `Lee los testimonios reales de clientes de ${businessData.business_name}. Opiniones verificadas.`,
+        url: `https://testimonioya.com/wall/${slug}`,
+      })
 
       // Load approved testimonials
       const { data: testimonialsData } = await supabase

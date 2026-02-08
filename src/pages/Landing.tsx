@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Star, Globe, ArrowRight, Check, ChevronRight, BarChart3, Mail, Sparkles } from 'lucide-react'
+import { updateSEO } from '../lib/seo'
 
 const testimonials = [
   { name: 'María García', biz: 'Clínica Dental Sonríe', text: 'El sistema NPS nos salvó de 3 reseñas negativas. Atendimos a clientes insatisfechos ANTES de que fueran a Google.', rating: 5 },
@@ -8,6 +10,15 @@ const testimonials = [
 ]
 
 export default function Landing() {
+  useEffect(() => {
+    updateSEO({
+      title: 'TestimonioYa - Testimonios de 5 Estrellas. Garantizado.',
+      description: 'Recolecta testimonios de clientes que te aman. Sistema NPS inteligente que filtra insatisfechos y solo pide reseñas a promotores. Gratis.',
+      url: 'https://testimonioya.com',
+      image: 'https://testimonioya.com/og-image.png',
+    })
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}

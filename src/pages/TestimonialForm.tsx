@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Star, Send, MessageSquare, AlertTriangle, Type, Mic, Video } from 'lucide-react'
 import { supabase, CollectionLink, Business } from '../lib/supabase'
 import { canReceiveTestimonial, PlanType } from '../lib/plans'
+import { updateSEO } from '../lib/seo'
 import AudioRecorder from '../components/AudioRecorder'
 import VideoRecorder from '../components/VideoRecorder'
 
@@ -66,6 +67,13 @@ export default function TestimonialForm() {
       setBusinessName(businessData.business_name)
       setBrandColor(businessData.brand_color)
       setWelcomeMessage(businessData.welcome_message)
+
+      updateSEO({
+        title: `Deja tu testimonio para ${businessData.business_name}`,
+        description: `Comparte tu experiencia con ${businessData.business_name}. Tu opinión es importante.`,
+        url: `https://testimonioya.com/t/${slug}`,
+        noIndex: true, // Don't index form pages
+      })
       
       // If business doesn't allow audio, force text mode
       if (!businessData.allow_audio_testimonials) {

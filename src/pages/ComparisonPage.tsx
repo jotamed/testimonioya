@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { MessageSquare, Check, X, ArrowRight, Zap } from 'lucide-react'
+import { updateSEO } from '../lib/seo'
 
 type Competitor = {
   name: string
@@ -124,6 +126,22 @@ const competitors: { [key: string]: Competitor } = {
 export default function ComparisonPage() {
   const { competitor } = useParams<{ competitor: string }>()
   const comp = competitor ? competitors[competitor] : null
+
+  useEffect(() => {
+    if (comp) {
+      updateSEO({
+        title: `TestimonioYa vs ${comp.name} - Comparativa`,
+        description: `Compara TestimonioYa con ${comp.name}. Testimonios, NPS y reseñas en una sola plataforma.`,
+        url: `https://testimonioya.com/vs/${competitor}`,
+      })
+    } else {
+      updateSEO({
+        title: 'TestimonioYa vs Competencia - Comparativas',
+        description: 'Compara TestimonioYa con las principales herramientas de testimonios y reseñas.',
+        url: 'https://testimonioya.com/vs',
+      })
+    }
+  }, [competitor, comp])
 
   if (!comp) {
     return (

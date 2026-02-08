@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { MessageSquare, Star, Globe, Shield, ArrowRight, Check, ChevronRight, Share2 } from 'lucide-react'
+import { updateSEO } from '../lib/seo'
 
 // Vertical configurations
 const verticals: Record<string, {
@@ -148,6 +150,16 @@ export default function VerticalLanding() {
   
   const config = vertical ? verticals[vertical] : null
   
+  useEffect(() => {
+    if (config) {
+      updateSEO({
+        title: `TestimonioYa para ${config.name} ${config.emoji} - Testimonios que convierten`,
+        description: config.subheadline,
+        url: `https://testimonioya.com/para/${vertical}`,
+      })
+    }
+  }, [vertical, config])
+
   if (!config) {
     return <Navigate to="/" replace />
   }

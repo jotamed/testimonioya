@@ -1,5 +1,25 @@
 import { useState, useRef, useEffect } from 'react'
-import { Mic, Square, Play, Pause, Trash2 } from 'lucide-react'
+import { Mic, Square, Play, Pause, Trash2, AlertTriangle } from 'lucide-react'
+
+function detectAudioSupport() {
+  const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  const hasMediaRecorder = typeof MediaRecorder !== 'undefined'
+  const isSecureContext = window.isSecureContext
+  
+  let supportedMimeType: string | null = null
+  if (hasMediaRecorder) {
+    const types = ['audio/webm', 'audio/mp4', 'audio/ogg']
+    supportedMimeType = types.find(t => MediaRecorder.isTypeSupported(t)) || null
+  }
+
+  return {
+    hasMediaDevices,
+    hasMediaRecorder,
+    isSecureContext,
+    supportedMimeType,
+    isFullySupported: hasMediaDevices && hasMediaRecorder && isSecureContext && !!supportedMimeType,
+  }
+}
 
 interface AudioRecorderProps {
   onAudioReady: (blob: Blob | null) => void
@@ -20,6 +40,7 @@ export default function AudioRecorder({
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackTime, setPlaybackTime] = useState(0)
   const [permissionDenied, setPermissionDenied] = useState(false)
+  const [browserSupport] = useState(() => detectAudioSupport())
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -44,7 +65,7 @@ export default function AudioRecorder({
       streamRef.current = stream
       
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+        mimeType: browserSupport.supportedMimeType || 'audio/webm'
       })
       
       mediaRecorderRef.current = mediaRecorder
@@ -163,6 +184,21 @@ export default function AudioRecorder({
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  if (!browserSupport.isFullySupported) {
+    let message = 'Tu navegador no soporta la grabación de audio.'
+    if (!browserSupport.isSecureContext) {
+      message = 'La grabación de audio requiere una conexión segura (HTTPS).'
+    }
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
+        <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+        <p className="text-amber-900 text-sm font-medium mb-1">{message}</p>
+        <p className="text-amber-700 text-xs">Prueba con Chrome, Firefox o Edge en su última versión.</p>
+        <p className="text-amber-600 text-xs mt-3">💡 Puedes usar el modo "Texto" para dejar tu testimonio</p>
+      </div>
+    )
   }
 
   if (permissionDenied) {
