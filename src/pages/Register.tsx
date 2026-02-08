@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { MessageSquare, Check, CheckCircle, Mail } from 'lucide-react'
+import { MessageSquare, Check, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Register() {

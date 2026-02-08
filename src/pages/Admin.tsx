@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
   ShieldCheck, Users, Crown, Star, MessageCircle, Eye, ArrowLeft,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp, UserPlus, Loader2, Search
@@ -40,7 +40,6 @@ const FAKE_TESTIMONIALS = [
 ]
 
 export default function Admin() {
-  const navigate = useNavigate()
   const [users, setUsers] = useState<UserRow[]>([])
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, proUsers: 0, premiumUsers: 0, totalTestimonials: 0, totalBusinesses: 0 })
   const [loading, setLoading] = useState(true)
