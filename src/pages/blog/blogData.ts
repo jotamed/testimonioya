@@ -235,6 +235,7 @@ Gratis para empezar. Sin tarjeta de crédito.
 
 [Pruébalo gratis →](/register)`
   },
+  {
     slug: 'wall-of-love-que-es-como-crear',
     title: 'Wall of Love: qué es y cómo crear uno para tu negocio',
     description: 'Descubre qué es un Wall of Love de testimonios, por qué funciona y cómo crear uno para tu negocio paso a paso.',
