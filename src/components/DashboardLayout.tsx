@@ -17,6 +17,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [newBusinessName, setNewBusinessName] = useState('')
   const [createError, setCreateError] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [confirmLogout, setConfirmLogout] = useState(false)
   
   const { businesses, currentBusiness, loading: bizLoading, canCreate, switchBusiness, createBusiness } = useBusinesses()
 
@@ -149,19 +151,52 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               )}
             </div>
             
-            <div className="flex items-center space-x-3">
-              {currentBusiness && (
-                <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
-                  {currentBusiness.business_name.charAt(0).toUpperCase()}
-                </div>
-              )}
+            <div className="relative">
               <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
+                onClick={() => { setShowProfileMenu(!showProfileMenu); setConfirmLogout(false) }}
+                className="h-9 w-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
               >
-                <LogOut className="h-5 w-5" />
-                <span className="hidden sm:inline">Cerrar Sesión</span>
+                {currentBusiness ? currentBusiness.business_name.charAt(0).toUpperCase() : '?'}
               </button>
+              
+              {showProfileMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => { setShowProfileMenu(false); setConfirmLogout(false) }} />
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-2">
+                    {currentBusiness && (
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="font-medium text-gray-900 text-sm truncate">{currentBusiness.business_name}</p>
+                        <p className="text-xs text-gray-500 truncate">{currentBusiness.plan} plan</p>
+                      </div>
+                    )}
+                    <Link
+                      to="/dashboard/settings"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 w-full"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Configuración</span>
+                    </Link>
+                    {!confirmLogout ? (
+                      <button
+                        onClick={() => setConfirmLogout(true)}
+                        className="flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Cerrar sesión</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center space-x-2 px-4 py-2.5 text-sm text-red-600 bg-red-50 hover:bg-red-100 w-full text-left"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>¿Seguro? Pulsa para confirmar</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
