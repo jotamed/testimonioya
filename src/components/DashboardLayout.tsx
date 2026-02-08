@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send } from 'lucide-react'
+import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send, Menu, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useBusinesses } from '../lib/useBusinesses'
 
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newBusinessName, setNewBusinessName] = useState('')
   const [createError, setCreateError] = useState('')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   
   const { businesses, currentBusiness, loading: bizLoading, canCreate, switchBusiness, createBusiness } = useBusinesses()
 
@@ -72,7 +73,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-indigo-600 transition-colors"
+              >
+                {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+              <Link to="/dashboard" onClick={() => setSidebarOpen(false)} className="flex items-center space-x-2">
                 <MessageSquare className="h-8 w-8 text-indigo-600" />
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">TestimonioYa</span>
               </Link>
@@ -209,13 +216,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-8">
+          {/* Mobile sidebar overlay */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          
           {/* Sidebar */}
-          <aside className="w-full md:w-64 flex-shrink-0">
+          <aside className={`
+            fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-lg transform transition-transform duration-200 ease-in-out pt-20 px-4 pb-4
+            md:relative md:inset-auto md:z-auto md:w-64 md:shadow-none md:bg-transparent md:transform-none md:pt-0 md:px-0 md:pb-0
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          `}>
             <nav className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/dashboard"
+                    to="/dashboard" onClick={() => setSidebarOpen(false)}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive('/dashboard')
                         ? 'bg-indigo-50 text-indigo-600'
