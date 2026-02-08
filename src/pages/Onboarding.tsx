@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MessageSquare, ArrowRight, Sparkles } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { sendWelcomeEmail } from '../lib/email'
 
 const industries = [
   { id: 'coach', name: 'Coach / Consultor', emoji: '💼' },
@@ -151,6 +152,12 @@ export default function Onboarding() {
             name: tips.firstLinkName,
             slug: linkSlug,
           })
+      }
+
+      // Send welcome email (non-blocking)
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (currentUser?.email) {
+        sendWelcomeEmail(currentUser.email, businessName)
       }
 
       navigate('/dashboard?welcome=true')

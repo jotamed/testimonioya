@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3 } from 'lucide-react'
+import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useBusinesses } from '../lib/useBusinesses'
 
@@ -263,6 +263,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   >
                     <Code className="h-5 w-5" />
                     <span className="font-medium">Widget</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/dashboard/nps"
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive('/dashboard/nps')
+                        ? 'bg-indigo-50 text-indigo-600'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Target className="h-5 w-5" />
+                    <span className="font-medium">NPS</span>
                   </Link>
                 </li>
                 <li>

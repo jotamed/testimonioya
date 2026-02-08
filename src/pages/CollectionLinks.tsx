@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Plus, Copy, QrCode, ExternalLink, Trash2, AlertTriangle, Download, X } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import DashboardLayout from '../components/DashboardLayout'
+import { useToast } from '../components/Toast'
 import { supabase, Business, CollectionLink } from '../lib/supabase'
 import { canCreateCollectionLink, PlanType } from '../lib/plans'
 
@@ -13,6 +14,7 @@ export default function CollectionLinks() {
   const [newLinkName, setNewLinkName] = useState('')
   const [loading, setLoading] = useState(true)
   const [linkLimit, setLinkLimit] = useState<{ allowed: boolean; current: number; limit: number } | null>(null)
+  const toast = useToast()
   const qrRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function CollectionLinks() {
     // Check limit before creating
     const limitCheck = await canCreateCollectionLink(business.id, business.plan as PlanType)
     if (!limitCheck.allowed) {
-      alert('Has alcanzado el límite de enlaces de tu plan. Actualiza a Pro para crear enlaces ilimitados.')
+      toast.warning('Límite alcanzado', 'Actualiza a Pro para crear enlaces ilimitados.')
       setShowCreateModal(false)
       return
     }
@@ -93,7 +95,7 @@ export default function CollectionLinks() {
       loadData()
     } catch (error) {
       console.error('Error creating link:', error)
-      alert('Error al crear el enlace')
+      toast.error('Error al crear el enlace')
     }
   }
 
@@ -124,13 +126,13 @@ export default function CollectionLinks() {
       loadData()
     } catch (error) {
       console.error('Error deleting link:', error)
-      alert('Error al eliminar el enlace')
+      toast.error('Error al eliminar el enlace')
     }
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    alert('¡Enlace copiado!')
+    toast.success('¡Enlace copiado!')
   }
 
   const getFullUrl = (slug: string) => {

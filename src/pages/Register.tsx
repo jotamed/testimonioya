@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { MessageSquare, Check } from 'lucide-react'
+import { MessageSquare, Check, CheckCircle, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Register() {
@@ -9,6 +9,7 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -29,18 +30,62 @@ export default function Register() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+        },
       })
 
       if (authError) throw authError
       if (!authData.user) throw new Error('Error al crear usuario')
 
-      // Redirect to onboarding to complete profile
+      // Check if email confirmation is required
+      if (authData.user.identities?.length === 0) {
+        throw new Error('Este email ya está registrado. Intenta iniciar sesión.')
+      }
+
+      // If email confirmation is needed (session will be null)
+      if (!authData.session) {
+        setEmailSent(true)
+        return
+      }
+
+      // If auto-confirmed, redirect to onboarding
       navigate('/onboarding')
     } catch (err: any) {
       setError(err.message || 'Error al crear cuenta')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="h-8 w-8 text-green-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              ¡Revisa tu email!
+            </h1>
+            <p className="text-gray-600 mb-4">
+              Hemos enviado un enlace de confirmación a <span className="font-medium">{email}</span>.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Haz clic en el enlace del email para activar tu cuenta y empezar a recolectar testimonios.
+              Revisa tu carpeta de spam si no lo ves.
+            </p>
+            <Link
+              to="/login"
+              className="text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              ← Volver a iniciar sesión
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -144,8 +189,8 @@ export default function Register() {
 
           <p className="mt-6 text-center text-xs text-gray-500">
             Al crear una cuenta, aceptas nuestros{' '}
-            <a href="#" className="text-indigo-600 hover:underline">términos</a> y{' '}
-            <a href="#" className="text-indigo-600 hover:underline">política de privacidad</a>
+            <Link to="/legal/terms" className="text-indigo-600 hover:underline">términos</Link> y{' '}
+            <Link to="/legal/privacy" className="text-indigo-600 hover:underline">política de privacidad</Link>
           </p>
 
           <div className="mt-6 text-center text-sm text-gray-600">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Star, Check, X, Filter, Mic } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
+import { useToast } from '../components/Toast'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import AudioPlayer from '../components/AudioPlayer'
 import { SkeletonTestimonial } from '../components/LoadingSkeleton'
@@ -10,6 +11,7 @@ export default function Testimonials() {
   const [_business, setBusiness] = useState<Business | null>(null)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const toast = useToast()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function Testimonials() {
       loadData()
     } catch (error) {
       console.error('Error updating testimonial:', error)
-      alert('Error al actualizar el testimonio')
+      toast.error('Error al actualizar el testimonio')
     }
   }
 
@@ -80,7 +82,7 @@ export default function Testimonials() {
       loadData()
     } catch (error) {
       console.error('Error updating featured status:', error)
-      alert('Error al actualizar el testimonio')
+      toast.error('Error al actualizar el testimonio')
     }
   }
 

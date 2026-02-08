@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import DashboardLayout from '../components/DashboardLayout'
+import { useToast } from '../components/Toast'
 import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
@@ -54,6 +55,7 @@ export default function Settings() {
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   
   const navigate = useNavigate()
+  const toast = useToast()
 
   const plan = (business?.plan || 'free') as PlanType
   const isPro = plan === 'pro' || plan === 'premium'
@@ -112,11 +114,11 @@ export default function Settings() {
         .eq('id', business.id)
 
       if (error) throw error
-      alert('¡Configuración guardada!')
+      toast.success('¡Configuración guardada!')
       loadData()
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Error al guardar')
+      toast.error('Error al guardar', 'No se pudieron guardar los cambios')
     } finally {
       setSaving(false)
     }
@@ -141,7 +143,7 @@ export default function Settings() {
       if (error) throw new Error(error)
       window.location.href = url
     } catch (error: any) {
-      alert('Error: ' + error.message)
+      toast.error('Error al iniciar checkout', error.message)
     } finally {
       setUpgrading(false)
     }
@@ -245,7 +247,7 @@ export default function Settings() {
       await supabase.auth.signOut()
       navigate('/')
     } catch (err: any) {
-      alert('Error: ' + err.message)
+      toast.error('Error al eliminar cuenta', err.message)
     } finally {
       setDeleting(false)
       setShowDeleteModal(false)
