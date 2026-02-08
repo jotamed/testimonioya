@@ -221,7 +221,7 @@ export default function NpsDashboard() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <Minus className="h-5 w-5 text-amber-600" />
@@ -241,7 +241,7 @@ export default function NpsDashboard() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <TrendingDown className="h-5 w-5 text-red-600" />
@@ -304,15 +304,15 @@ export default function NpsDashboard() {
               <p className="text-gray-500 mb-4 max-w-sm mx-auto">
                 Comparte tu enlace NPS con tus clientes para empezar a medir su satisfacción
               </p>
-              <div className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-                <code className="text-sm text-indigo-600 font-mono">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 max-w-full overflow-hidden">
+                <code className="text-sm text-indigo-600 font-mono break-all min-w-0">
                   {window.location.origin}/nps/{business.slug}
                 </code>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(`${window.location.origin}/nps/${business.slug}`)
                   }}
-                  className="text-indigo-600 hover:text-indigo-700 font-medium text-sm ml-2"
+                  className="text-indigo-600 hover:text-indigo-700 font-medium text-sm shrink-0"
                 >
                   Copiar
                 </button>

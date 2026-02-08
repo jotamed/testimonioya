@@ -100,7 +100,7 @@ export default function Widget() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Widget Embebido</h1>
         <p className="text-gray-600 mb-8">Muestra tus testimonios en cualquier web</p>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Configuration */}
           <div className="space-y-6">
             {/* Layout Options */}
