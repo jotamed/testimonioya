@@ -74,14 +74,6 @@ export default function Onboarding() {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { navigate('/register'); return }
-
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
-
-    if (business) { navigate('/dashboard'); return }
     setUserEmail(user.email || '')
     setCheckingAuth(false)
   }
@@ -190,20 +182,15 @@ export default function Onboarding() {
   const sendTestEmail = async () => {
     if (!userEmail) return
     setTestEmailSent(true)
-    // Use the existing email infrastructure
     try {
       await supabase.functions.invoke('send-email', {
         body: {
+          type: 'request_testimonial',
           to: userEmail,
-          subject: `Prueba: Deja tu testimonio para ${businessName}`,
-          html: `
-            <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: ${brandColor};">¡Hola!</h2>
-              <p>${welcomeMessages[sector] || welcomeMessages.otro}</p>
-              <a href="${shareableLink}" style="display: inline-block; background: ${brandColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">Dejar testimonio</a>
-              <p style="color: #666; font-size: 12px; margin-top: 24px;">Este es un email de prueba de TestimonioYa</p>
-            </div>
-          `,
+          business_name: businessName,
+          form_url: shareableLink,
+          customer_name: userEmail.split('@')[0],
+          logo_url: logoUrl || undefined,
         },
       })
     } catch {
@@ -541,7 +528,7 @@ export default function Onboarding() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => { window.location.href = '/dashboard' }}
                 className="flex-1 px-4 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
                 Ir al dashboard
@@ -549,7 +536,7 @@ export default function Onboarding() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(shareableLink)
-                  navigate('/dashboard?welcome=true')
+                  window.location.href = '/dashboard/request'
                 }}
                 className="flex-1 btn-primary flex items-center justify-center space-x-2 py-3"
               >
