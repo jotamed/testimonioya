@@ -50,6 +50,7 @@ export default function Settings() {
   })
   const [apiKey, setApiKey] = useState<string | null>(null)
   const [generatingKey, setGeneratingKey] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [upgrading, setUpgrading] = useState(false)
@@ -89,6 +90,7 @@ export default function Settings() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      setUserEmail(user.email || '')
 
       const { data: businessData } = await supabase
         .from('businesses')
@@ -1152,7 +1154,7 @@ Body:
 
                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">{business?.user_id ? 'email@ejemplo.com' : 'Cargando...'}</p>
+                        <p className="font-medium text-gray-900">{userEmail || 'Cargando...'}</p>
                         <p className="text-xs text-gray-500 mt-0.5">Para cambiar tu email, contacta a soporte</p>
                       </div>
                     </div>
