@@ -187,7 +187,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
           {statCards.map((card) => {
             const Icon = card.icon
             return (
@@ -201,7 +201,7 @@ export default function Dashboard() {
                     <Icon className={`h-4 w-4 ${card.iconColor}`} />
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{card.value}</p>
                 {'stars' in card && (card.stars ?? 0) > 0 && (
                   <div className="flex items-center mt-1.5 gap-0.5">
                     {[...Array(5)].map((_, i) => (
@@ -283,7 +283,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div>
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Acciones Rápidas</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
               { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio', desc: 'Email, WhatsApp o enlace', primary: true },
               { to: '/dashboard/links', icon: LinkIcon, label: 'Crear Enlace', desc: 'Genera un link único' },

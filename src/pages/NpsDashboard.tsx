@@ -145,11 +145,11 @@ export default function NpsDashboard() {
         </div>
 
         {/* NPS Score Hero with Gauge */}
-        <div className={`rounded-2xl border-2 p-8 ${npsBg}`}>
+        <div className={`rounded-2xl border-2 p-4 sm:p-8 ${npsBg}`}>
           <div className="flex flex-col items-center">
             <p className="text-sm font-medium text-gray-600 mb-4">Tu NPS Score</p>
             {/* Semi-circle gauge */}
-            <div className="relative w-48 h-24 mb-2">
+            <div className="relative w-36 sm:w-48 h-[72px] sm:h-24 mb-2">
               <svg viewBox="0 0 200 100" className="w-full h-full">
                 {/* Background arc */}
                 <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#e5e7eb" strokeWidth="16" strokeLinecap="round" />
@@ -168,12 +168,12 @@ export default function NpsDashboard() {
                 <circle cx="100" cy="100" r="6" fill="#1e1b4b" />
               </svg>
               <div className="absolute inset-0 flex items-end justify-center pb-0">
-                <span className={`text-4xl font-bold ${npsColor}`}>
+                <span className={`text-3xl sm:text-4xl font-bold ${npsColor}`}>
                   {stats.total > 0 ? stats.npsScore : '—'}
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between w-48 text-xs text-gray-400 -mt-1 mb-2">
+            <div className="flex items-center justify-between w-36 sm:w-48 text-xs text-gray-400 -mt-1 mb-2">
               <span>-100</span>
               <span>0</span>
               <span>+100</span>
@@ -200,8 +200,8 @@ export default function NpsDashboard() {
         </div>
 
         {/* Category Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-green-600" />
@@ -366,7 +366,7 @@ export default function NpsDashboard() {
             El Net Promoter Score mide la probabilidad de que tus clientes te recomienden. 
             Va de -100 a 100.
           </p>
-          <div className="grid grid-cols-3 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
             <div className="bg-white rounded-lg p-3">
               <p className="font-medium text-green-700">🟢 &gt;50: Excelente</p>
               <p className="text-gray-600 text-xs">Tus clientes te aman</p>

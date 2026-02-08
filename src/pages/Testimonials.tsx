@@ -126,12 +126,12 @@ export default function Testimonials() {
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl">
+          <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl overflow-x-auto flex-nowrap">
             {FILTERS.map(f => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   filter === f.key
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
@@ -166,7 +166,7 @@ export default function Testimonials() {
             {testimonials.map((testimonial) => (
               <div
                 key={testimonial.id}
-                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-5 sm:p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200"
+                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200"
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -258,7 +258,7 @@ export default function Testimonials() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex lg:flex-col gap-2 flex-shrink-0">
+                  <div className="flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0">
                     {testimonial.status === 'pending' && (
                       <>
                         <button

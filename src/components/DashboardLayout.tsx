@@ -92,14 +92,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     <Building2 className="h-4 w-4 text-gray-600" />
-                    <span className="font-medium text-gray-900 max-w-32 truncate">
+                    <span className="font-medium text-gray-900 max-w-[8rem] sm:max-w-[12rem] truncate text-sm sm:text-base">
                       {currentBusiness?.business_name || 'Seleccionar'}
                     </span>
                     <ChevronDown className="h-4 w-4 text-gray-600" />
                   </button>
                   
                   {showBusinessMenu && (
-                    <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="absolute left-0 mt-2 w-56 sm:w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-w-[calc(100vw-2rem)]">
                       <div className="p-2">
                         <p className="text-xs text-gray-500 px-2 py-1">Tus negocios</p>
                         {businesses.map((biz) => (

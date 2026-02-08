@@ -351,7 +351,7 @@ export default function Settings() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Configuración</h1>
           {isPro && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
               <Crown className="h-4 w-4 mr-1" />
@@ -363,7 +363,7 @@ export default function Settings() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Tabs */}
           <div className="lg:w-56 flex-shrink-0">
-            <nav className="bg-white rounded-xl border border-gray-200 p-2 space-y-1">
+            <nav className="bg-white rounded-xl border border-gray-200 p-2 space-y-0 lg:space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1 lg:gap-0">
               {tabs.map((tab) => {
                 const Icon = tab.icon
                 const accessible = canAccessTab(tab)
@@ -381,9 +381,9 @@ export default function Settings() {
                           : 'text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <Icon className="h-5 w-5" />
-                      <span className="font-medium">{tab.label}</span>
+                    <div className="flex items-center space-x-2 lg:space-x-3 whitespace-nowrap">
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium text-sm lg:text-base">{tab.label}</span>
                     </div>
                     {!accessible && <Lock className="h-4 w-4" />}
                   </button>
@@ -397,7 +397,7 @@ export default function Settings() {
             <form onSubmit={handleSubmit}>
               {/* General Tab */}
               {activeTab === 'general' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 space-y-6">
                   <h2 className="text-xl font-bold text-gray-900">Datos del negocio</h2>
                   
                   <div>

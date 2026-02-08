@@ -130,7 +130,7 @@ export default function Landing() {
             La herramienta de testimonios para PYMEs españolas
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
             Consigue más reseñas
             <br />
             en Google{' '}
@@ -293,7 +293,7 @@ export default function Landing() {
       {/* Extra Features Row */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
               { icon: Smartphone, label: 'WhatsApp nativo', desc: 'El canal #1 en España' },
               { icon: Zap, label: 'Automático', desc: 'Envía y olvídate' },
@@ -320,7 +320,7 @@ export default function Landing() {
             <p className="text-gray-600">Empieza gratis. Crece cuando lo necesites.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {pricingPlans.map((plan) => (
               <div
                 key={plan.name}

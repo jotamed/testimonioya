@@ -238,8 +238,8 @@ export default function RequestTestimonial() {
                       : `${tab.color} hover:text-gray-700 hover:bg-gray-50`
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span>{tab.label}</span>
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               )
             })}
@@ -284,9 +284,9 @@ export default function RequestTestimonial() {
                     </div>
 
                     {/* Email Preview */}
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100 overflow-hidden">
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Vista previa del email</p>
-                      <div className="bg-white rounded-lg border border-gray-200 p-5 text-sm space-y-3">
+                      <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-5 text-sm space-y-3 overflow-hidden">
                         <div className="flex items-center gap-2 text-gray-400 text-xs">
                           <Mail className="h-3.5 w-3.5" />
                           <span>De: {business.business_name} via TestimonioYa</span>
@@ -350,7 +350,7 @@ export default function RequestTestimonial() {
                     <p className="text-gray-900 whitespace-pre-line">
                       ¡Hola! 👋 Soy de <strong>{business.business_name}</strong>. Tu opinión es muy importante para nosotros. ¿Podrías dejarnos un testimonio? Solo toma un minuto:
                     </p>
-                    <p className="text-blue-500 mt-2 text-xs break-all">{testimonialUrl}</p>
+                    <p className="text-blue-500 mt-2 text-xs break-all overflow-hidden">{testimonialUrl}</p>
                     <p className="text-gray-900 mt-2">¡Muchas gracias! 🙏</p>
                     <p className="text-[10px] text-gray-400 text-right mt-1">ahora ✓✓</p>
                   </div>
@@ -374,12 +374,12 @@ export default function RequestTestimonial() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tu enlace de testimonios
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
                       type="text"
                       readOnly
                       value={testimonialUrl}
-                      className="flex-1 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 text-sm font-mono"
+                      className="flex-1 min-w-0 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 text-sm font-mono truncate"
                     />
                     <button
                       onClick={handleCopyLink}
