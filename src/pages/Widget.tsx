@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Copy, Check, Code, Layout, Columns, List, Moon, Sun } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
-import { supabase, Business } from '../lib/supabase'
+import { useBusinesses } from '../lib/useBusinesses'
 
 type WidgetLayout = 'grid' | 'carousel' | 'list'
 type WidgetTheme = 'light' | 'dark'
 
 export default function Widget() {
-  const [business, setBusiness] = useState<Business | null>(null)
+  const { currentBusiness: business, loading: bizLoading } = useBusinesses()
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState<WidgetLayout>('grid')
   const [theme, setTheme] = useState<WidgetTheme>('light')
@@ -16,29 +16,8 @@ export default function Widget() {
   const [copiedIframe, setCopiedIframe] = useState(false)
 
   useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data: businessData } = await supabase
-        .from('businesses')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-
-      if (businessData) {
-        setBusiness(businessData)
-      }
-    } catch (error) {
-      console.error('Error loading business:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    if (!bizLoading) setLoading(false)
+  }, [bizLoading])
 
   const getWidgetCode = () => {
     if (!business) return ''
