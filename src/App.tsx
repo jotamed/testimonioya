@@ -6,24 +6,24 @@ import AdminGuard from './components/AdminGuard'
 import { ToastProvider } from './components/Toast'
 import CookieConsent from './components/CookieConsent'
 
-// Eagerly load Landing (critical path)
+// Eagerly load critical pages
 import Landing from './pages/Landing'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Dashboard from './pages/Dashboard'
+import Testimonials from './pages/Testimonials'
+import CollectionLinks from './pages/CollectionLinks'
+import Settings from './pages/Settings'
+import RequestTestimonial from './pages/RequestTestimonial'
+import NpsDashboard from './pages/NpsDashboard'
 
-// Lazy load everything else
+// Lazy load less-used pages
 const VerticalLanding = lazy(() => import('./pages/VerticalLanding'))
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Onboarding = lazy(() => import('./pages/Onboarding'))
-const Dashboard = lazy(() => import('./pages/Dashboard'))
-const Testimonials = lazy(() => import('./pages/Testimonials'))
-const CollectionLinks = lazy(() => import('./pages/CollectionLinks'))
-const Settings = lazy(() => import('./pages/Settings'))
 const Widget = lazy(() => import('./pages/Widget'))
 const Analytics = lazy(() => import('./pages/Analytics'))
-const NpsDashboard = lazy(() => import('./pages/NpsDashboard'))
-const RequestTestimonial = lazy(() => import('./pages/RequestTestimonial'))
 const TestimonialForm = lazy(() => import('./pages/TestimonialForm'))
 const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
