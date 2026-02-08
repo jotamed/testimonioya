@@ -4,7 +4,7 @@ import {
   Key, Webhook, Users, Building2, Download, 
   MessageSquare, Zap, Lock, Settings2, CreditCard,
   Receipt, ExternalLink, Loader2, AlertCircle, Shield,
-  Trash2, Mail, Eye, EyeOff
+  Trash2, Mail, Eye, EyeOff, Bell
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import DashboardLayout from '../components/DashboardLayout'
@@ -14,7 +14,7 @@ import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
 import TwoFactorSetup from '../components/TwoFactorSetup'
 
-type SettingsTab = 'general' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
+type SettingsTab = 'general' | 'notifications' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
 
 export default function Settings() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -27,6 +27,11 @@ export default function Settings() {
     welcome_message: '',
     allow_audio_testimonials: true,
     allow_video_testimonials: true,
+    // Notification preferences
+    notify_new_testimonial: true,
+    notify_nps_response: true,
+    notify_weekly_digest: false,
+    notify_monthly_report: false,
     // NPS Settings
     nps_delay_hours: 24,
     nps_reminder_days: 3,
@@ -94,6 +99,10 @@ export default function Settings() {
           welcome_message: businessData.welcome_message,
           allow_audio_testimonials: businessData.allow_audio_testimonials ?? true,
           allow_video_testimonials: businessData.allow_video_testimonials ?? true,
+          notify_new_testimonial: businessData.notify_new_testimonial ?? true,
+          notify_nps_response: businessData.notify_nps_response ?? true,
+          notify_weekly_digest: businessData.notify_weekly_digest ?? false,
+          notify_monthly_report: businessData.notify_monthly_report ?? false,
           nps_delay_hours: businessData.nps_delay_hours ?? 24,
           nps_reminder_days: businessData.nps_reminder_days ?? 3,
           nps_auto_send: businessData.nps_auto_send ?? false,
@@ -189,6 +198,7 @@ export default function Settings() {
   // Tab configuration
   const tabs: { id: SettingsTab; label: string; icon: any; requiresPlan?: PlanType }[] = [
     { id: 'general', label: 'General', icon: Settings2 },
+    { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'nps', label: 'NPS', icon: MessageSquare, requiresPlan: 'pro' },
     { id: 'automation', label: 'Automatización', icon: Zap, requiresPlan: 'pro' },
     { id: 'branding', label: 'Marca', icon: Palette, requiresPlan: 'pro' },
@@ -462,6 +472,59 @@ export default function Settings() {
                       </code>
                     </div>
                   )}
+
+                  <SaveButton saving={saving} />
+                </div>
+              )}
+
+
+              {/* Notifications Tab */}
+              {activeTab === 'notifications' && (
+                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Notificaciones por email</h2>
+                    <p className="text-sm text-gray-500 mt-1">Elige qué emails quieres recibir</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-gray-700 text-sm uppercase tracking-wide">Actividad</h3>
+                    
+                    <ToggleRow
+                      icon={Mail}
+                      label="Nuevo testimonio recibido"
+                      description="Recibe un email cada vez que un cliente deja un testimonio"
+                      enabled={formData.notify_new_testimonial}
+                      onChange={(v) => setFormData({ ...formData, notify_new_testimonial: v })}
+                    />
+                    
+                    <ToggleRow
+                      icon={MessageSquare}
+                      label="Respuesta NPS recibida"
+                      description="Recibe un email cuando alguien responde tu encuesta NPS"
+                      enabled={formData.notify_nps_response}
+                      onChange={(v) => setFormData({ ...formData, notify_nps_response: v })}
+                    />
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <h3 className="font-medium text-gray-700 text-sm uppercase tracking-wide">Resúmenes</h3>
+                    
+                    <ToggleRow
+                      icon={Mail}
+                      label="Resumen semanal"
+                      description="Cada lunes: testimonios recibidos, pendientes y rating medio"
+                      enabled={formData.notify_weekly_digest}
+                      onChange={(v) => setFormData({ ...formData, notify_weekly_digest: v })}
+                    />
+                    
+                    <ToggleRow
+                      icon={Mail}
+                      label="Informe mensual"
+                      description="El 1 de cada mes: métricas completas con comparación"
+                      enabled={formData.notify_monthly_report}
+                      onChange={(v) => setFormData({ ...formData, notify_monthly_report: v })}
+                    />
+                  </div>
 
                   <SaveButton saving={saving} />
                 </div>

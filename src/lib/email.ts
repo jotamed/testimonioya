@@ -5,8 +5,38 @@ type EmailType = 'welcome' | 'new_testimonial' | 'nps_received'
 const SUPABASE_URL = 'https://wnmfanhejnrtfccemlai.supabase.co'
 const DASHBOARD_URL = typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : ''
 
+// Check notification preferences before sending
+async function isNotificationEnabled(type: EmailType): Promise<boolean> {
+  if (type === 'welcome') return true
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return true
+
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('notify_new_testimonial, notify_nps_response')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!business) return true
+
+    if (type === 'new_testimonial') return business.notify_new_testimonial !== false
+    if (type === 'nps_received') return business.notify_nps_response !== false
+  } catch {
+    // Default to sending if check fails
+  }
+  return true
+}
+
 export async function sendEmail(type: EmailType, to: string, data: Record<string, any>) {
   try {
+    // Check preference before sending
+    if (!(await isNotificationEnabled(type))) {
+      console.log(`Email ${type} skipped: notification disabled`)
+      return { skipped: true }
+    }
+
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
@@ -29,7 +59,6 @@ export async function sendEmail(type: EmailType, to: string, data: Record<string
     }
     return result
   } catch (error) {
-    // Email sending should never block the main flow
     console.warn('Email send error (non-blocking):', error)
   }
 }
