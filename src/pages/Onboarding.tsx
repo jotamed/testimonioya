@@ -62,7 +62,6 @@ export default function Onboarding() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Step 3+4
-  const [businessId, setBusinessId] = useState('')
   const [shareableLink, setShareableLink] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
   const [testEmailSent, setTestEmailSent] = useState(false)
@@ -150,7 +149,6 @@ export default function Onboarding() {
       })
 
       const origin = window.location.origin
-      setBusinessId(businessData.id)
       setShareableLink(`${origin}/t/${linkSlug}`)
 
       // Welcome email (non-blocking)
