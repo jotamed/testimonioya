@@ -21,15 +21,15 @@ export default function AuthGuard({ children, requireBusiness = true }: AuthGuar
         return
       }
 
-      // Check if user has a business (if required)
+      // Check if user has at least one business (if required)
       if (requireBusiness) {
-        const { data: business } = await supabase
+        const { data: businesses } = await supabase
           .from('businesses')
           .select('id')
           .eq('user_id', session.user.id)
-          .single()
+          .limit(1)
 
-        if (!business) {
+        if (!businesses || businesses.length === 0) {
           navigate('/onboarding')
           return
         }
