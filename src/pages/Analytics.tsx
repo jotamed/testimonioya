@@ -126,7 +126,7 @@ export default function Analytics() {
     )
   }
 
-  // Show upgrade prompt for non-premium users
+  // Show upgrade prompt for non-business users
   if (!hasFeature(plan, 'hasAnalytics')) {
     return (
       <DashboardLayout>
@@ -136,7 +136,7 @@ export default function Analytics() {
             <h1 className="text-3xl font-bold mb-4">Analíticas Avanzadas</h1>
             <p className="text-lg text-purple-100 mb-6">
               Accede a métricas detalladas de tus testimonios, tasas de conversión y más.
-              Disponible en el plan Premium.
+              Disponible en el plan Business.
             </p>
             <ul className="text-left text-purple-100 mb-8 space-y-2 max-w-md mx-auto">
               <li className="flex items-center space-x-2">
@@ -156,7 +156,7 @@ export default function Analytics() {
               to="/dashboard/settings"
               className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-colors"
             >
-              <span>Upgrade a Premium</span>
+              <span>Upgrade a Business</span>
               <span>→</span>
             </Link>
           </div>

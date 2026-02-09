@@ -17,7 +17,7 @@ export type Business = {
   description: string | null
   welcome_message: string
   /** @deprecated Plan is now stored at user level in profiles table. Use useUserPlan() hook instead. */
-  plan?: 'free' | 'pro' | 'premium'
+  plan?: 'free' | 'pro' | 'business'
   testimonials_count: number
   allow_audio_testimonials: boolean
   allow_video_testimonials?: boolean

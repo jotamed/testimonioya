@@ -16,7 +16,7 @@ import { useUserPlan } from '../lib/useUserPlan'
 import TwoFactorSetup from '../components/TwoFactorSetup'
 import { SUPPORTED_LANGUAGES } from '../lib/i18n'
 
-type SettingsTab = 'general' | 'notifications' | 'nps' | 'automation' | 'branding' | 'integrations' | 'team' | 'security' | 'billing'
+type SettingsTab = 'general' | 'notifications' | 'nps' | 'branding' | 'security' | 'billing'
 
 export default function Settings() {
   const [business, setBusiness] = useState<Business | null>(null)
@@ -35,15 +35,9 @@ export default function Settings() {
     notify_weekly_digest: false,
     notify_monthly_report: false,
     // NPS Settings
-    nps_delay_hours: 24,
-    nps_reminder_days: 3,
-    nps_auto_send: false,
     // Email Settings
-    email_from_name: '',
-    email_reply_to: '',
     // Branding
     logo_url: '',
-    custom_domain: '',
     google_reviews_url: '',
     google_reviews_nps_threshold: 9,
     google_reviews_star_threshold: 4,
@@ -80,8 +74,8 @@ export default function Settings() {
   const { plan: userPlan } = useUserPlan()
 
   const plan = userPlan
-  const isPro = plan === 'pro' || plan === 'premium'
-  const isPremium = plan === 'premium'
+  const isPro = plan === 'pro' || plan === 'business'
+  const isBusiness = plan === 'business'
 
   useEffect(() => {
     loadData()
@@ -119,13 +113,7 @@ export default function Settings() {
           notify_nps_response: businessData.notify_nps_response ?? true,
           notify_weekly_digest: businessData.notify_weekly_digest ?? false,
           notify_monthly_report: businessData.notify_monthly_report ?? false,
-          nps_delay_hours: businessData.nps_delay_hours ?? 24,
-          nps_reminder_days: businessData.nps_reminder_days ?? 3,
-          nps_auto_send: businessData.nps_auto_send ?? false,
-          email_from_name: businessData.email_from_name ?? '',
-          email_reply_to: businessData.email_reply_to ?? '',
           logo_url: businessData.logo_url ?? '',
-          custom_domain: businessData.custom_domain ?? '',
           google_reviews_url: businessData.google_reviews_url ?? '',
           google_reviews_nps_threshold: businessData.google_reviews_nps_threshold ?? 9,
           google_reviews_star_threshold: businessData.google_reviews_star_threshold ?? 4,
@@ -221,10 +209,7 @@ export default function Settings() {
     { id: 'general', label: 'General', icon: Settings2 },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'nps', label: 'NPS', icon: MessageSquare, requiresPlan: 'pro' },
-    { id: 'automation', label: 'Automatización', icon: Zap, requiresPlan: 'pro' },
     { id: 'branding', label: 'Marca', icon: Palette, requiresPlan: 'pro' },
-    { id: 'integrations', label: 'Integraciones', icon: Webhook, requiresPlan: 'premium' },
-    { id: 'team', label: 'Equipo', icon: Users, requiresPlan: 'premium' },
     { id: 'security', label: 'Seguridad', icon: Shield },
     { id: 'billing', label: 'Plan', icon: Crown },
   ]
@@ -327,7 +312,7 @@ export default function Settings() {
   const canAccessTab = (tab: typeof tabs[0]) => {
     if (!tab.requiresPlan) return true
     if (tab.requiresPlan === 'pro') return isPro
-    if (tab.requiresPlan === 'premium') return isPremium
+    if (tab.requiresPlan === 'business') return isBusiness
     return false
   }
 
@@ -364,7 +349,7 @@ export default function Settings() {
           {isPro && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
               <Crown className="h-4 w-4 mr-1" />
-              {plan === 'premium' ? 'Premium' : 'Pro'}
+              {plan === 'business' ? 'Business' : 'Pro'}
             </span>
           )}
         </div>
@@ -639,47 +624,6 @@ export default function Settings() {
                   <h2 className="text-xl font-bold text-gray-900">Configuración NPS</h2>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Enviar NPS después de
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="number"
-                          min="1"
-                          max="168"
-                          value={formData.nps_delay_hours}
-                          onChange={(e) => setFormData({ ...formData, nps_delay_hours: parseInt(e.target.value) })}
-                          className="input-field w-24"
-                        />
-                        <span className="text-gray-500">horas post-compra</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Reminder si no responde
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="number"
-                          min="1"
-                          max="14"
-                          value={formData.nps_reminder_days}
-                          onChange={(e) => setFormData({ ...formData, nps_reminder_days: parseInt(e.target.value) })}
-                          className="input-field w-24"
-                        />
-                        <span className="text-gray-500">días después</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <ToggleRow
-                    icon={Zap}
-                    label="Envío automático de NPS"
-                    description="Enviar NPS automáticamente tras recibir un webhook"
-                    enabled={formData.nps_auto_send}
-                    onChange={(v) => setFormData({ ...formData, nps_auto_send: v })}
                   />
 
                   <div className="bg-indigo-50 rounded-lg p-4">
@@ -694,53 +638,6 @@ export default function Settings() {
               )}
 
               {/* Automation Tab */}
-              {activeTab === 'automation' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
-                  {!isPro && <LockedOverlay plan="Pro" />}
-                  
-                  <h2 className="text-xl font-bold text-gray-900">Email Automation</h2>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Nombre del remitente
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.email_from_name}
-                        onChange={(e) => setFormData({ ...formData, email_from_name: e.target.value })}
-                        className="input-field"
-                        placeholder={formData.business_name || 'Tu Negocio'}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Email de respuesta
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email_reply_to}
-                        onChange={(e) => setFormData({ ...formData, email_reply_to: e.target.value })}
-                        className="input-field"
-                        placeholder="hola@tuempresa.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-3">Templates de email</h4>
-                    <div className="space-y-2">
-                      <EmailTemplateRow title="Solicitud NPS" description="Email inicial pidiendo puntuación" />
-                      <EmailTemplateRow title="Reminder NPS" description="Recordatorio si no responde" />
-                      <EmailTemplateRow title="Gracias promotor" description="Confirmación de testimonio recibido" />
-                    </div>
-                  </div>
-
-                  <SaveButton saving={saving} />
-                </div>
-              )}
-
               {/* Branding Tab */}
               {activeTab === 'branding' && (
                 <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
@@ -810,197 +707,12 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Dominio personalizado
-                      {!isPremium && <span className="ml-2 text-xs text-gray-400">(Premium)</span>}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.custom_domain}
-                      onChange={(e) => setFormData({ ...formData, custom_domain: e.target.value })}
-                      className="input-field"
-                      placeholder="testimonios.tuempresa.com"
-                      disabled={!isPremium}
-                    />
-                    {!isPremium && (
-                      <p className="text-xs text-gray-400 mt-1">Actualiza a Premium para usar tu propio dominio</p>
-                    )}
-                  </div>
 
                   <SaveButton saving={saving} />
                 </div>
               )}
 
               {/* Integrations Tab */}
-              {activeTab === 'integrations' && (
-                <div className="space-y-6">
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
-                    {!isPremium && <LockedOverlay plan="Premium" />}
-                    
-                    <h2 className="text-xl font-bold text-gray-900">Integraciones / API</h2>
-
-                    {/* API Key Section */}
-                    <div className="border border-gray-200 rounded-lg p-5 space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                          <Key className="h-5 w-5 text-indigo-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">API Key</h3>
-                          <p className="text-sm text-gray-500">Usa tu API key para enviar solicitudes de testimonio automáticamente</p>
-                        </div>
-                      </div>
-
-                      {apiKey ? (
-                        <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
-                          <code className="text-sm text-gray-800 font-mono break-all">{apiKey}</code>
-                          <button
-                            type="button"
-                            onClick={() => navigator.clipboard.writeText(apiKey)}
-                            className="ml-3 text-indigo-600 text-sm font-medium hover:text-indigo-700 whitespace-nowrap"
-                          >
-                            Copiar
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={generatingKey}
-                          onClick={async () => {
-                            if (!business) return
-                            setGeneratingKey(true)
-                            try {
-                              const key = 'ty_' + crypto.randomUUID().replace(/-/g, '')
-                              const { error } = await supabase
-                                .from('businesses')
-                                .update({ api_key: key })
-                                .eq('id', business.id)
-                              if (error) throw error
-                              setApiKey(key)
-                              toast.success('API Key generada')
-                            } catch (err: any) {
-                              toast.error('Error al generar API Key', err.message)
-                            } finally {
-                              setGeneratingKey(false)
-                            }
-                          }}
-                          className="btn-primary text-sm disabled:opacity-50"
-                        >
-                          {generatingKey ? 'Generando...' : 'Generar API Key'}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* API Documentation */}
-                    <div className="border border-gray-200 rounded-lg p-5 space-y-4">
-                      <h3 className="font-semibold text-gray-900">📖 Cómo usar la API</h3>
-                      <p className="text-sm text-gray-600">
-                        Envía una solicitud de testimonio a tu cliente automáticamente después de una compra o servicio.
-                        Funciona con <strong>Zapier</strong>, <strong>Make</strong>, o cualquier sistema que haga HTTP POST.
-                      </p>
-
-                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                        <pre className="text-sm text-green-400 font-mono whitespace-pre">{`POST https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/trigger-review
-
-Headers:
-  x-api-key: ${apiKey || 'TU_API_KEY'}
-  Content-Type: application/json
-
-Body:
-{
-  "customer_email": "cliente@ejemplo.com",
-  "customer_name": "María García",
-  "delay_hours": 0
-}`}</pre>
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Ejemplo con curl:</h4>
-                        <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                          <pre className="text-sm text-green-400 font-mono whitespace-pre">{`curl -X POST \\
-  https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/trigger-review \\
-  -H "x-api-key: ${apiKey || 'TU_API_KEY'}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"customer_email":"cliente@ejemplo.com","customer_name":"María"}'`}</pre>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm text-blue-800">
-                          <strong>💡 Tip:</strong> Conecta esta API con tu pasarela de pago (Stripe, PayPal) vía Zapier o Make 
-                          para enviar automáticamente una solicitud de testimonio tras cada compra.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Other integrations */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-gray-900">Otras integraciones</h3>
-                      <IntegrationCard 
-                        name="Webhooks"
-                        description="Recibe eventos en tu servidor"
-                        icon={Webhook}
-                        status="Próximamente"
-                        disabled
-                      />
-                      <IntegrationCard 
-                        name="Zapier"
-                        description="Conecta con 5000+ apps"
-                        icon={Zap}
-                        status="Próximamente"
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Team Tab */}
-              {activeTab === 'team' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
-                  {!isPremium && <LockedOverlay plan="Premium" />}
-                  
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">Equipo</h2>
-                    <button type="button" className="btn-secondary text-sm">
-                      + Invitar miembro
-                    </button>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Miembro</th>
-                          <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Rol</th>
-                          <th className="text-left px-4 py-3 text-sm font-medium text-gray-700">Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <span className="text-sm font-medium text-indigo-600">TU</span>
-                              </div>
-                              <span className="text-sm text-gray-900">Tú (Owner)</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">Admin</td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              Activo
-                            </span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* Security Tab */}
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   {/* Change Password */}
@@ -1351,11 +1063,11 @@ Body:
                       <div className="mt-6 pt-4 border-t border-indigo-200 grid grid-cols-3 gap-4">
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Plan actual</p>
-                          <p className="font-semibold text-gray-900">{plan === 'premium' ? 'Premium' : 'Pro'}</p>
+                          <p className="font-semibold text-gray-900">{plan === 'business' ? 'Business' : 'Pro'}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Precio</p>
-                          <p className="font-semibold text-gray-900">€{plan === 'premium' ? '49' : '19'}/mes</p>
+                          <p className="font-semibold text-gray-900">€{plan === 'business' ? '49' : '19'}/mes</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Estado</p>

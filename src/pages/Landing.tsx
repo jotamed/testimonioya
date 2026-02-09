@@ -40,17 +40,17 @@ const pricingPlans = [
     highlighted: true,
   },
   {
-    name: 'Premium',
-    price: '39',
+    name: 'Business',
+    price: '49',
     period: '/mes',
     description: 'Analytics avanzados + API',
     features: [
       'Todo lo de Pro',
-      'Analytics y reportes',
-      'API + Webhooks',
-      'Integraciones (Zapier)',
+      'Analytics avanzados',
+      
+      
       'Hasta 5 negocios',
-      'White-label completo',
+      
       'Soporte dedicado',
     ],
     cta: 'Contactar ventas',

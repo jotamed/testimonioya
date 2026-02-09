@@ -6,8 +6,8 @@ export const PLAN_LIMITS = {
     // NPS
     npsPerMonth: 25,
     // Testimonials (from promoters)
-    testimonialsPerMonth: 10,
-    collectionLinks: 1,
+    testimonialsPerMonth: 15, // era 10
+    collectionLinks: 2, // era 1
     businesses: 1,
     // Features
     removesBranding: false,
@@ -33,14 +33,14 @@ export const PLAN_LIMITS = {
     hasWidget: true,
     hasAudioTestimonials: true,
     hasVideoTestimonials: true,
-    hasEmailAutomation: true,
+    hasEmailAutomation: false, // NO FUNCIONA
     hasNpsDashboard: true, // Full dashboard
-    hasAnalytics: false,
+    hasAnalytics: true, // MOVIDO de business a pro
     hasApi: false,
     hasIntegrations: false,
     hasWhiteLabel: false,
   },
-  premium: {
+  business: { // RENOMBRADO de premium
     // NPS
     npsPerMonth: Infinity,
     // Testimonials
@@ -52,12 +52,12 @@ export const PLAN_LIMITS = {
     hasWidget: true,
     hasAudioTestimonials: true,
     hasVideoTestimonials: true,
-    hasEmailAutomation: true,
+    hasEmailAutomation: false, // NO FUNCIONA
     hasNpsDashboard: true,
     hasAnalytics: true,
-    hasApi: true,
-    hasIntegrations: true, // Zapier, webhooks
-    hasWhiteLabel: true,
+    hasApi: true, // mantener flag para futuro pero no mostrar en UI
+    hasIntegrations: false, // NO FUNCIONA
+    hasWhiteLabel: false, // NO FUNCIONA
   },
 } as const
 
@@ -70,46 +70,41 @@ export const PLAN_INFO = {
     price: 0,
     description: 'Para probar el sistema',
     features: [
-      '25 encuestas NPS/mes',
-      '10 testimonios/mes',
-      '1 enlace',
+      '15 testimonios/mes',
+      '2 enlaces',
       'Muro público',
-      'NPS Score básico',
-    ],
-    limitations: [
+      'NPS básico',
       'Solo texto',
-      'Marca TestimonioYa',
-      'Sin automatización',
+      'Branding TestimonioYa',
     ],
+    limitations: [],
   },
   pro: {
     name: 'Pro',
     price: 19,
     description: 'Para negocios que quieren crecer',
     features: [
-      'Encuestas NPS ilimitadas',
       'Testimonios ilimitados',
       'Enlaces ilimitados',
-      'Audio + Video testimonios',
+      'Sin branding',
+      'Audio + Video',
       'Widget embebible',
-      'Email automático post-compra',
-      'Dashboard NPS completo',
-      'Sin marca',
+      'NPS dashboard completo',
+      'Analytics',
+      'QR + Google Reviews redirect',
+      '1 negocio',
     ],
     limitations: [],
     popular: true,
   },
-  premium: {
-    name: 'Premium',
+  business: { // RENOMBRADO de premium
+    name: 'Business',
     price: 49,
     description: 'Para agencias y multi-negocio',
     features: [
       'Todo lo de Pro',
       'Hasta 5 negocios',
       'Analytics avanzados',
-      'API / Webhooks',
-      'Integraciones (Zapier, etc)',
-      'White-label completo',
       'Soporte prioritario',
     ],
     limitations: [],

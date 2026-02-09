@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <p className="font-medium text-gray-900 text-sm truncate">{currentBusiness.business_name}</p>
                         <p className="text-xs text-gray-500 truncate">
                           Plan: <span className={`font-medium ${
-                            userPlan === 'premium' ? 'text-purple-600' :
+                            userPlan === 'business' ? 'text-purple-600' :
                             userPlan === 'pro' ? 'text-indigo-600' :
                             'text-gray-600'
                           }`}>{userPlan}</span>
@@ -282,7 +282,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   { to: '/dashboard/links', icon: LinkIcon, label: 'Enlaces' },
                   { to: '/dashboard/widget', icon: Code, label: 'Widget' },
                   { to: '/dashboard/nps', icon: Target, label: 'NPS' },
-                  { to: '/dashboard/analytics', icon: BarChart3, label: 'Analíticas', badge: 'Premium' },
+                  { to: '/dashboard/analytics', icon: BarChart3, label: 'Analíticas', badge: 'Business' },
                   { to: '/dashboard/settings', icon: Settings, label: 'Configuración' },
                 ].map((item) => {
                   const Icon = item.icon

@@ -24,7 +24,7 @@ interface UserRow {
 interface Stats {
   totalUsers: number
   proUsers: number
-  premiumUsers: number
+  businessUsers: number
   totalTestimonials: number
   totalBusinesses: number
 }
@@ -41,7 +41,7 @@ const FAKE_TESTIMONIALS = [
 
 export default function Admin() {
   const [users, setUsers] = useState<UserRow[]>([])
-  const [stats, setStats] = useState<Stats>({ totalUsers: 0, proUsers: 0, premiumUsers: 0, totalTestimonials: 0, totalBusinesses: 0 })
+  const [stats, setStats] = useState<Stats>({ totalUsers: 0, proUsers: 0, businessUsers: 0, totalTestimonials: 0, totalBusinesses: 0 })
   const [loading, setLoading] = useState(true)
   const [expandedUser, setExpandedUser] = useState<string | null>(null)
   const [creatingTest, setCreatingTest] = useState(false)
@@ -120,7 +120,7 @@ export default function Admin() {
       setStats({
         totalUsers: userList.length,
         proUsers: userList.filter(u => u.plan === 'pro').length,
-        premiumUsers: userList.filter(u => u.plan === 'premium').length,
+        businessUsers: userList.filter(u => u.plan === 'business').length,
         totalTestimonials,
         totalBusinesses: allBusinesses.length,
       })
@@ -244,7 +244,7 @@ export default function Admin() {
 
   const planBadge = (plan: string) => {
     const styles: Record<string, string> = {
-      premium: 'bg-purple-100 text-purple-700',
+      business: 'bg-purple-100 text-purple-700',
       pro: 'bg-indigo-100 text-indigo-700',
       free: 'bg-gray-100 text-gray-600',
     }
@@ -326,8 +326,8 @@ export default function Admin() {
                 <Crown className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.premiumUsers}</p>
-                <p className="text-xs text-gray-500">Premium</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.businessUsers}</p>
+                <p className="text-xs text-gray-500">Business</p>
               </div>
             </div>
           </div>
@@ -433,7 +433,7 @@ export default function Admin() {
                             >
                               <option value="free">Free</option>
                               <option value="pro">Pro</option>
-                              <option value="premium">Premium</option>
+                              <option value="business">Business</option>
                             </select>
                           </div>
                         </div>
