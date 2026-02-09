@@ -12,6 +12,7 @@ export default function WallOfLove() {
   
   const [business, setBusiness] = useState<Business | null>(null)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [ownerPlan, setOwnerPlan] = useState<string>('free')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,6 +34,16 @@ export default function WallOfLove() {
       }
 
       setBusiness(businessData)
+
+      // Fetch owner's plan from profiles
+      if (businessData.user_id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', businessData.user_id)
+          .single()
+        if (profile?.plan) setOwnerPlan(profile.plan)
+      }
       
       updateSEO({
         title: `Testimonios de ${businessData.business_name}`,
@@ -215,7 +226,7 @@ export default function WallOfLove() {
       </div>
 
       {/* Footer - Only show branding for free plan */}
-      {plan === 'free' && (
+      {ownerPlan === 'free' && (
         <div className="py-6 text-center">
           <p className="text-sm text-gray-500">
             Powered by{' '}

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { BarChart3, TrendingUp, Eye, MessageCircle, Star, Percent } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
-import { hasFeature, PlanType } from '../lib/plans'
+import { hasFeature } from '../lib/plans'
+import { useUserPlan } from '../lib/useUserPlan'
 import { Link } from 'react-router-dom'
 
 interface AnalyticsData {
@@ -16,7 +17,7 @@ interface AnalyticsData {
 }
 
 export default function Analytics() {
-  const [business, setBusiness] = useState<Business | null>(null)
+  const [_business, setBusiness] = useState<Business | null>(null)
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const { plan } = useUserPlan()

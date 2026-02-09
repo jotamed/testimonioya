@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase, Business } from './supabase'
-import { canCreateBusiness, PlanType } from './plans'
+import { canCreateBusiness } from './plans'
 
 const CURRENT_BUSINESS_KEY = 'testimonioya_current_business'
 

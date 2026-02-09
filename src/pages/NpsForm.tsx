@@ -16,6 +16,7 @@ const getNpsCategory = (score: NpsScore): NpsCategory => {
 export default function NpsForm() {
   const { slug } = useParams()
   const [business, setBusiness] = useState<Business | null>(null)
+  const [ownerPlan, setOwnerPlan] = useState<string>('free')
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState<'score' | 'feedback' | 'thanks'>('score')
   const [score, setScore] = useState<NpsScore | null>(null)
@@ -45,6 +46,15 @@ export default function NpsForm() {
         return
       }
       setBusiness(data)
+      // Fetch owner's plan from profiles
+      if (data.user_id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', data.user_id)
+          .single()
+        if (profile?.plan) setOwnerPlan(profile.plan)
+      }
       const defaultLang = (data.default_language || 'es') as SupportedLang
       setLang(detectLanguage(defaultLang))
     } catch (error) {
@@ -351,7 +361,7 @@ export default function NpsForm() {
           </p>
         </div>
 
-        {plan === 'free' && (
+        {ownerPlan === 'free' && (
           <div className="text-center mt-6">
             <p className="text-xs text-gray-400">
               Powered by{' '}
