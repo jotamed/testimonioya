@@ -19,6 +19,7 @@ export default function Analytics() {
   const [business, setBusiness] = useState<Business | null>(null)
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const { plan } = useUserPlan()
 
   useEffect(() => {
     loadData()
@@ -44,11 +45,8 @@ export default function Analytics() {
       if (!businessData) return
       setBusiness(businessData)
 
-      // Check if user has analytics access
-      if (!hasFeature(businessData.plan as PlanType, 'hasAnalytics')) {
-        setLoading(false)
-        return
-      }
+      // Check if user has analytics access (now from user plan, not business)
+      // Note: Will use `plan` from useUserPlan hook instead
 
       // Load collection links stats
       const { data: linksData } = await supabase
@@ -128,7 +126,7 @@ export default function Analytics() {
   }
 
   // Show upgrade prompt for non-premium users
-  if (business && !hasFeature(business.plan as PlanType, 'hasAnalytics')) {
+  if (!hasFeature(plan, 'hasAnalytics')) {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto text-center py-16">

@@ -351,7 +351,7 @@ export default function NpsForm() {
           </p>
         </div>
 
-        {business.plan === 'free' && (
+        {plan === 'free' && (
           <div className="text-center mt-6">
             <p className="text-xs text-gray-400">
               Powered by{' '}
