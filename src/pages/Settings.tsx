@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { 
   Save, Crown, Check, Mic, Video, Palette, 
-  Key, Webhook, Users, Download, 
-  MessageSquare, Zap, Lock, Settings2, CreditCard,
+  Key, Download, 
+  MessageSquare, Lock, Settings2, CreditCard,
   Receipt, ExternalLink, Loader2, AlertCircle, Shield,
   Trash2, Mail, Eye, EyeOff, Bell
 } from 'lucide-react'
@@ -43,8 +43,8 @@ export default function Settings() {
     google_reviews_star_threshold: 4,
     default_language: 'es',
   })
-  const [apiKey, setApiKey] = useState<string | null>(null)
-  const [generatingKey, setGeneratingKey] = useState(false)
+  const [_apiKey, _setApiKey] = useState<string | null>(null)
+  const [_generatingKey, _setGeneratingKey] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -119,7 +119,7 @@ export default function Settings() {
           google_reviews_star_threshold: businessData.google_reviews_star_threshold ?? 4,
           default_language: businessData.default_language ?? 'es',
         })
-        setApiKey(businessData.api_key || null)
+        _setApiKey(businessData.api_key || null)
       }
     } catch (error) {
       console.error('Error loading business:', error)
@@ -622,9 +622,6 @@ export default function Settings() {
                   {!isPro && <LockedOverlay plan="Pro" />}
                   
                   <h2 className="text-xl font-bold text-gray-900">Configuración NPS</h2>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                  />
 
                   <div className="bg-indigo-50 rounded-lg p-4">
                     <h4 className="font-medium text-indigo-900 mb-2">Enlaces NPS</h4>
@@ -1207,55 +1204,4 @@ function SaveButton({ saving }: { saving: boolean }) {
   )
 }
 
-function EmailTemplateRow({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-      <div>
-        <p className="font-medium text-gray-900 text-sm">{title}</p>
-        <p className="text-xs text-gray-500">{description}</p>
-      </div>
-      <button type="button" className="text-indigo-600 text-sm font-medium hover:text-indigo-700">
-        Editar
-      </button>
-    </div>
-  )
-}
-
-function IntegrationCard({ 
-  name, 
-  description, 
-  icon: Icon, 
-  status, 
-  disabled = false 
-}: { 
-  name: string
-  description: string
-  icon: any
-  status: string
-  disabled?: boolean
-}) {
-  return (
-    <div className={`flex items-center justify-between p-4 border border-gray-200 rounded-lg ${disabled ? 'opacity-60' : 'hover:border-gray-300'}`}>
-      <div className="flex items-center space-x-4">
-        <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-          <Icon className="h-6 w-6 text-gray-600" />
-        </div>
-        <div>
-          <p className="font-medium text-gray-900">{name}</p>
-          <p className="text-sm text-gray-500">{description}</p>
-        </div>
-      </div>
-      <button 
-        type="button"
-        disabled={disabled}
-        className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-          disabled 
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
-        }`}
-      >
-        {status}
-      </button>
-    </div>
-  )
-}
+// Removed unused EmailTemplateRow and IntegrationCard components
