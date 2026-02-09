@@ -76,7 +76,7 @@ export default function CollectionLinks() {
     if (!business) return
 
     // Check limit before creating
-    const limitCheck = await canCreateCollectionLink(business.id, business.plan as PlanType)
+    const limitCheck = await canCreateCollectionLink(business.id, business.user_id)
     if (!limitCheck.allowed) {
       toast.warning('Límite alcanzado', 'Actualiza a Pro para crear enlaces ilimitados.')
       setShowCreateModal(false)

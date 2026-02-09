@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Copy, Check, Code, Layout, Columns, List, Moon, Sun, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
+import { useUserPlan } from '../lib/useUserPlan'
 
 type WidgetLayout = 'grid' | 'carousel' | 'list'
 type WidgetTheme = 'light' | 'dark'
@@ -134,6 +135,7 @@ export default function Widget() {
   const [maxItems, setMaxItems] = useState(6)
   const [copiedWidget, setCopiedWidget] = useState(false)
   const [copiedIframe, setCopiedIframe] = useState(false)
+  const { plan } = useUserPlan()
 
   useEffect(() => {
     const loadData = async () => {
@@ -247,7 +249,7 @@ export default function Widget() {
             layout={layout}
             theme={theme}
             maxItems={maxItems}
-            isFree={business.plan === 'free'}
+            isFree={plan === 'free'}
           />
         </div>
 
@@ -320,7 +322,7 @@ export default function Widget() {
               </div>
             </div>
 
-            {business.plan === 'free' && (
+            {plan === 'free' && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                 <p className="text-sm text-amber-900">
                   ⚠️ <strong>Plan Gratis:</strong> El widget mostrará "Powered by TestimonioYa".
