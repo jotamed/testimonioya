@@ -120,7 +120,7 @@ export default function Onboarding() {
           user_id: user.id,
           business_name: businessName,
           slug,
-          plan: 'free',
+          // Plan is now stored at user level in profiles table, not here
           industry: sector,
           brand_color: brandColor,
           description: description || null,

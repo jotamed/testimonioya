@@ -12,6 +12,7 @@ import { useToast } from '../components/Toast'
 import { supabase, Business } from '../lib/supabase'
 import { PLANS } from '../lib/stripe'
 import { PlanType } from '../lib/plans'
+import { useUserPlan } from '../lib/useUserPlan'
 import TwoFactorSetup from '../components/TwoFactorSetup'
 import { SUPPORTED_LANGUAGES } from '../lib/i18n'
 
@@ -76,8 +77,9 @@ export default function Settings() {
   
   const navigate = useNavigate()
   const toast = useToast()
+  const { plan: userPlan } = useUserPlan()
 
-  const plan = (business?.plan || 'free') as PlanType
+  const plan = userPlan
   const isPro = plan === 'pro' || plan === 'premium'
   const isPremium = plan === 'premium'
 
@@ -1256,7 +1258,7 @@ Body:
 
                   <div className="grid md:grid-cols-3 gap-4">
                     {(Object.entries(PLANS) as [string, typeof PLANS[keyof typeof PLANS]][]).map(([key, planInfo]) => {
-                      const isCurrent = business?.plan === key
+                      const isCurrent = plan === key
                       const isUpgrade = !isCurrent && key !== 'free'
 
                       return (

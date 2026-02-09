@@ -41,14 +41,14 @@ serve(async (req) => {
       })
     }
 
-    // Check if user already has a Stripe customer ID
-    const { data: business } = await supabase
-      .from('businesses')
+    // Check if user already has a Stripe customer ID (now in profiles, not businesses)
+    const { data: profile } = await supabase
+      .from('profiles')
       .select('id, stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
-    let customerId = business?.stripe_customer_id
+    let customerId = profile?.stripe_customer_id
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -57,11 +57,11 @@ serve(async (req) => {
       })
       customerId = customer.id
 
-      // Save customer ID
+      // Save customer ID to user profile
       await supabase
-        .from('businesses')
+        .from('profiles')
         .update({ stripe_customer_id: customerId })
-        .eq('user_id', user.id)
+        .eq('id', user.id)
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -72,7 +72,7 @@ serve(async (req) => {
       cancel_url: `${req.headers.get('origin')}/dashboard/settings?payment=cancelled`,
       metadata: {
         supabase_user_id: user.id,
-        business_id: business?.id,
+        user_id: user.id, // CHANGED: Now we pass user_id instead of business_id
       },
     })
 
