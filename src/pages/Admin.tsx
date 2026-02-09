@@ -10,10 +10,10 @@ interface UserRow {
   user_id: string
   email: string
   created_at: string
+  plan: string  // User-level plan from profiles
   businesses: {
     id: string
     business_name: string
-    plan: string
     testimonials_count: number
     slug: string
     created_at: string
@@ -77,14 +77,26 @@ export default function Admin() {
         testimonialCounts[t.business_id] = (testimonialCounts[t.business_id] || 0) + 1
       })
 
+      // Get all user profiles to access plan information (plan is now at USER level, not business level)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, plan, email, created_at')
+
+      const profileMap = new Map<string, any>()
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile)
+      })
+
       // Group businesses by user_id
       const userMap = new Map<string, UserRow>()
       businesses?.forEach(biz => {
         if (!userMap.has(biz.user_id)) {
+          const profile = profileMap.get(biz.user_id)
           userMap.set(biz.user_id, {
             user_id: biz.user_id,
-            email: '', // We'll try to get this
-            created_at: biz.created_at,
+            email: profile?.email || '',
+            created_at: profile?.created_at || biz.created_at,
+            plan: profile?.plan || 'free',  // Plan from profiles, not businesses
             businesses: [],
             is_active: true,
           })
@@ -93,26 +105,22 @@ export default function Admin() {
         user.businesses.push({
           id: biz.id,
           business_name: biz.business_name,
-          plan: biz.plan,
           testimonials_count: testimonialCounts[biz.id] || biz.testimonials_count || 0,
           slug: biz.slug,
           created_at: biz.created_at,
         })
       })
 
-      // Try to get user emails from businesses or auth metadata
-      // Since we can't query auth.users directly from client, we'll use the business data
-      // In a real scenario, you'd have a server function for this
       const userList = Array.from(userMap.values())
 
-      // Calculate stats
+      // Calculate stats from USER plans (profiles), not business plans
       const allBusinesses = businesses || []
       const totalTestimonials = Object.values(testimonialCounts).reduce((a, b) => a + b, 0)
 
       setStats({
         totalUsers: userList.length,
-        proUsers: allBusinesses.filter(b => b.plan === 'pro').length,
-        premiumUsers: allBusinesses.filter(b => b.plan === 'premium').length,
+        proUsers: userList.filter(u => u.plan === 'pro').length,
+        premiumUsers: userList.filter(u => u.plan === 'premium').length,
         totalTestimonials,
         totalBusinesses: allBusinesses.length,
       })
@@ -125,36 +133,32 @@ export default function Admin() {
     }
   }
 
-  const changePlan = async (businessId: string, newPlan: string) => {
-    setActionLoading(businessId + '-plan')
+  const changePlan = async (userId: string, newPlan: string) => {
+    setActionLoading(userId + '-plan')
+    // Update plan at USER level (profiles table), not business level
     const { error } = await supabase
-      .from('businesses')
-      .update({ plan: newPlan })
-      .eq('id', businessId)
+      .from('profiles')
+      .update({ plan: newPlan, plan_updated_at: new Date().toISOString() })
+      .eq('id', userId)
 
     if (!error) {
-      setUsers(prev => prev.map(u => ({
-        ...u,
-        businesses: u.businesses.map(b =>
-          b.id === businessId ? { ...b, plan: newPlan } : b
-        )
-      })))
+      setUsers(prev => prev.map(u =>
+        u.user_id === userId ? { ...u, plan: newPlan } : u
+      ))
+      // Reload stats to reflect plan changes
+      loadAdminData()
     }
     setActionLoading(null)
   }
 
   const toggleUserActive = async (userId: string, currentActive: boolean) => {
     setActionLoading(userId + '-toggle')
-    // Toggle by updating all businesses for this user
-    // In production, you'd have a user-level active flag
+    // In a full implementation, you might want to disable/enable the user's account
+    // For now, we just toggle the local state as a visual indicator
     const user = users.find(u => u.user_id === userId)
     if (user) {
-      for (const biz of user.businesses) {
-        await supabase
-          .from('businesses')
-          .update({ plan: currentActive ? 'free' : user.businesses[0].plan })
-          .eq('id', biz.id)
-      }
+      // You could update a profiles.is_active column if it exists
+      // For now just toggle local state
       setUsers(prev => prev.map(u =>
         u.user_id === userId ? { ...u, is_active: !currentActive } : u
       ))
@@ -399,9 +403,7 @@ export default function Admin() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      {user.businesses.map(b => (
-                        <span key={b.id}>{planBadge(b.plan)}</span>
-                      ))}
+                      {planBadge(user.plan)}
                       <span className="text-sm text-gray-500">
                         {user.businesses.reduce((sum, b) => sum + b.testimonials_count, 0)} testimonios
                       </span>
@@ -417,7 +419,24 @@ export default function Admin() {
                   {expandedUser === user.user_id && (
                     <div className="px-6 pb-4 bg-gray-50 border-t border-gray-100">
                       <div className="pt-4 space-y-3">
-                        <p className="text-xs text-gray-500 font-mono">User ID: {user.user_id}</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs text-gray-500 font-mono">User ID: {user.user_id}</p>
+                          
+                          {/* Plan Selector - at USER level */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-gray-500">Plan:</span>
+                            <select
+                              value={user.plan}
+                              onChange={e => changePlan(user.user_id, e.target.value)}
+                              disabled={actionLoading === user.user_id + '-plan'}
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            >
+                              <option value="free">Free</option>
+                              <option value="pro">Pro</option>
+                              <option value="premium">Premium</option>
+                            </select>
+                          </div>
+                        </div>
 
                         {user.businesses.map(biz => (
                           <div key={biz.id} className="bg-white rounded-lg border border-gray-200 p-4">
@@ -425,19 +444,6 @@ export default function Admin() {
                               <div>
                                 <h4 className="font-medium text-gray-900">{biz.business_name}</h4>
                                 <p className="text-xs text-gray-500">/{biz.slug} · {biz.testimonials_count} testimonios</p>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                {/* Plan Selector */}
-                                <select
-                                  value={biz.plan}
-                                  onChange={e => changePlan(biz.id, e.target.value)}
-                                  disabled={actionLoading === biz.id + '-plan'}
-                                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                >
-                                  <option value="free">Free</option>
-                                  <option value="pro">Pro</option>
-                                  <option value="premium">Premium</option>
-                                </select>
                               </div>
                             </div>
                           </div>

@@ -18,6 +18,7 @@ export default function TestimonialForm() {
   const [brandColor, setBrandColor] = useState('#4f46e5')
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [limitReached, setLimitReached] = useState(false)
+  const [userPlan, setUserPlan] = useState<PlanType>('free')
   const [mode, setMode] = useState<TestimonialMode>('text')
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
@@ -71,6 +72,17 @@ export default function TestimonialForm() {
       setBusinessName(businessData.business_name)
       setBrandColor(businessData.brand_color)
       setWelcomeMessage(businessData.welcome_message)
+
+      // Load user plan from profiles (plan is now at user level, not business level)
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('plan')
+        .eq('id', businessData.user_id)
+        .single()
+      
+      if (profileData) {
+        setUserPlan(profileData.plan as PlanType || 'free')
+      }
 
       // Detect language with business default as fallback
       const defaultLang = (businessData.default_language || 'es') as SupportedLang
@@ -570,7 +582,7 @@ export default function TestimonialForm() {
         </div>
 
         {/* Footer */}
-        {business?.plan === 'free' && (
+        {userPlan === 'free' && (
           <div className="text-center mt-8">
             <p className="text-sm text-gray-500">
               Powered by{' '}
