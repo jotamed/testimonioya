@@ -29,9 +29,9 @@ serve(async (req) => {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
-      const businessId = session.metadata?.business_id
+      const userId = session.metadata?.user_id
       
-      if (businessId) {
+      if (userId) {
         // Determine plan from price
         const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
         const priceId = subscription.items.data[0].price.id
@@ -43,13 +43,15 @@ serve(async (req) => {
         if (priceId === proPriceId) plan = 'pro'
         else if (priceId === premiumPriceId) plan = 'premium'
 
+        // Update plan at USER level (profiles table), not business level
         await supabase
-          .from('businesses')
+          .from('profiles')
           .update({ 
             plan,
-            stripe_subscription_id: session.subscription,
+            stripe_customer_id: session.customer as string,
+            stripe_subscription_id: session.subscription as string,
           })
-          .eq('id', businessId)
+          .eq('id', userId)
       }
       break
     }
@@ -57,8 +59,9 @@ serve(async (req) => {
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription
       
+      // Update user plan to free when subscription is cancelled
       await supabase
-        .from('businesses')
+        .from('profiles')
         .update({ plan: 'free', stripe_subscription_id: null })
         .eq('stripe_subscription_id', subscription.id)
       break
@@ -75,9 +78,10 @@ serve(async (req) => {
       if (priceId === proPriceId) plan = 'pro'
       else if (priceId === premiumPriceId) plan = 'premium'
       
+      // Update user plan when subscription is updated
       if (subscription.status === 'active') {
         await supabase
-          .from('businesses')
+          .from('profiles')
           .update({ plan })
           .eq('stripe_subscription_id', subscription.id)
       }
