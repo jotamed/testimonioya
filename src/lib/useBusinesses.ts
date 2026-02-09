@@ -47,9 +47,8 @@ export function useBusinesses() {
           localStorage.setItem(CURRENT_BUSINESS_KEY, bizList[0].id)
         }
 
-        // Check if user can create more businesses (based on highest plan)
-        const highestPlan = getHighestPlan(bizList)
-        const createCheck = await canCreateBusiness(user.id, highestPlan)
+        // Check if user can create more businesses (now based on user's plan, not business)
+        const createCheck = await canCreateBusiness(user.id)
         setCanCreate(createCheck.allowed)
       }
     } catch (error) {
@@ -72,9 +71,8 @@ export function useBusinesses() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return { success: false, error: 'No autenticado' }
 
-      // Check limit
-      const highestPlan = getHighestPlan(businesses)
-      const createCheck = await canCreateBusiness(user.id, highestPlan)
+      // Check limit (now based on user's plan, not business plan)
+      const createCheck = await canCreateBusiness(user.id)
       if (!createCheck.allowed) {
         return { success: false, error: 'Has alcanzado el límite de negocios de tu plan' }
       }
@@ -88,14 +86,13 @@ export function useBusinesses() {
         .replace(/^-|-$/g, '')
         + '-' + Math.random().toString(36).substr(2, 4)
 
-      // Create business
+      // Create business (no longer set plan here, it's at user level)
       const { data, error } = await supabase
         .from('businesses')
         .insert({
           user_id: user.id,
           business_name: businessName,
           slug,
-          plan: 'free', // New businesses start as free
         })
         .select()
         .single()
@@ -126,9 +123,6 @@ export function useBusinesses() {
   }
 }
 
-// Get the highest plan among all businesses (Premium > Pro > Free)
-function getHighestPlan(businesses: Business[]): PlanType {
-  if (businesses.some(b => b.plan === 'premium')) return 'premium'
-  if (businesses.some(b => b.plan === 'pro')) return 'pro'
-  return 'free'
-}
+// DEPRECATED: This function is no longer needed.
+// Plan is now stored at user level, not business level.
+// Use useUserPlan() hook to get the user's plan.

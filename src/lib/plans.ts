@@ -122,8 +122,26 @@ export const getPlanLimits = (plan: PlanType) => PLAN_LIMITS[plan]
 // Get display info for a plan
 export const getPlanInfo = (plan: PlanType) => PLAN_INFO[plan]
 
+// Get user's plan from profiles table
+const getUserPlan = async (userId: string): Promise<PlanType> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('plan')
+    .eq('id', userId)
+    .single()
+
+  if (error || !data) {
+    console.error('Error getting user plan:', error)
+    return 'free' // Fail safe to free plan
+  }
+
+  return (data.plan as PlanType) || 'free'
+}
+
 // Check if business can receive more testimonials this month
-export const canReceiveTestimonial = async (businessId: string, plan: PlanType): Promise<{ allowed: boolean; current: number; limit: number }> => {
+// Now uses user's plan instead of business plan
+export const canReceiveTestimonial = async (businessId: string, userId: string): Promise<{ allowed: boolean; current: number; limit: number }> => {
+  const plan = await getUserPlan(userId)
   const limits = getPlanLimits(plan)
   
   if (limits.testimonialsPerMonth === Infinity) {
@@ -155,7 +173,9 @@ export const canReceiveTestimonial = async (businessId: string, plan: PlanType):
 }
 
 // Check if business can send more NPS surveys this month
-export const canSendNps = async (businessId: string, plan: PlanType): Promise<{ allowed: boolean; current: number; limit: number }> => {
+// Now uses user's plan instead of business plan
+export const canSendNps = async (businessId: string, userId: string): Promise<{ allowed: boolean; current: number; limit: number }> => {
+  const plan = await getUserPlan(userId)
   const limits = getPlanLimits(plan)
   
   if (limits.npsPerMonth === Infinity) {
@@ -186,7 +206,9 @@ export const canSendNps = async (businessId: string, plan: PlanType): Promise<{ 
 }
 
 // Check if business can create more collection links
-export const canCreateCollectionLink = async (businessId: string, plan: PlanType): Promise<{ allowed: boolean; current: number; limit: number }> => {
+// Now uses user's plan instead of business plan
+export const canCreateCollectionLink = async (businessId: string, userId: string): Promise<{ allowed: boolean; current: number; limit: number }> => {
+  const plan = await getUserPlan(userId)
   const limits = getPlanLimits(plan)
   
   if (limits.collectionLinks === Infinity) {
@@ -212,7 +234,9 @@ export const canCreateCollectionLink = async (businessId: string, plan: PlanType
 }
 
 // Check if user can create more businesses
-export const canCreateBusiness = async (userId: string, plan: PlanType): Promise<{ allowed: boolean; current: number; limit: number }> => {
+// Now uses user's plan from profiles table
+export const canCreateBusiness = async (userId: string): Promise<{ allowed: boolean; current: number; limit: number }> => {
+  const plan = await getUserPlan(userId)
   const limits = getPlanLimits(plan)
 
   const { count, error } = await supabase
@@ -242,11 +266,12 @@ export const hasFeature = (plan: PlanType, feature: keyof typeof PLAN_LIMITS.fre
 }
 
 // Get usage stats for a business
-export const getUsageStats = async (businessId: string, plan: PlanType) => {
+// Now uses user's plan instead of business plan
+export const getUsageStats = async (businessId: string, userId: string) => {
   const [testimonialCheck, linkCheck, npsCheck] = await Promise.all([
-    canReceiveTestimonial(businessId, plan),
-    canCreateCollectionLink(businessId, plan),
-    canSendNps(businessId, plan),
+    canReceiveTestimonial(businessId, userId),
+    canCreateCollectionLink(businessId, userId),
+    canSendNps(businessId, userId),
   ])
 
   return {
