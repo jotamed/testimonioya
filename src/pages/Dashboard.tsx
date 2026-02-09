@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
-import { getUsageStats, PlanType } from '../lib/plans'
+import { getUsageStats } from '../lib/plans'
+import { useUserPlan } from '../lib/useUserPlan'
 import { PLANS } from '../lib/stripe'
 import { SkeletonDashboard } from '../components/LoadingSkeleton'
 
@@ -22,6 +23,7 @@ export default function Dashboard() {
     links: { current: number; limit: number };
   } | null>(null)
   const [loading, setLoading] = useState(true)
+  const { plan, loading: planLoading } = useUserPlan()
 
   useEffect(() => {
     loadData()
@@ -99,7 +101,8 @@ export default function Dashboard() {
           thisMonth: monthCount || 0,
         })
 
-        const usageStats = await getUsageStats(businessData.id, businessData.plan as PlanType)
+        // Get usage stats using user's plan instead of business plan
+        const usageStats = await getUsageStats(businessData.id, user.id)
         setUsage(usageStats)
       }
     } catch (error) {
@@ -109,7 +112,7 @@ export default function Dashboard() {
     }
   }
 
-  if (loading) {
+  if (loading || planLoading) {
     return (
       <DashboardLayout>
         <SkeletonDashboard />
@@ -225,7 +228,7 @@ export default function Dashboard() {
         </div>
 
         {/* Plan Usage */}
-        {usage && business.plan === 'free' && (
+        {usage && plan === 'free' && (
           <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-6 text-white">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
@@ -234,7 +237,7 @@ export default function Dashboard() {
                   <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <Zap className="h-4 w-4" />
                   </div>
-                  <h3 className="font-bold text-lg">Plan {PLANS[business.plan].name}</h3>
+                  <h3 className="font-bold text-lg">Plan {PLANS[plan].name}</h3>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center space-x-3">

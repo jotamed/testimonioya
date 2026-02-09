@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send, Menu, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useBusinesses } from '../lib/useBusinesses'
+import { useUserPlan } from '../lib/useUserPlan'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -21,6 +22,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [confirmLogout, setConfirmLogout] = useState(false)
   
   const { businesses, currentBusiness, loading: bizLoading, canCreate, switchBusiness, createBusiness } = useBusinesses()
+  const { plan: userPlan } = useUserPlan()
 
   useEffect(() => {
     checkUser()
@@ -119,13 +121,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             }`}
                           >
                             <span className="font-medium">{biz.business_name}</span>
-                            <span className={`ml-2 text-xs px-2 py-0.5 rounded ${
-                              biz.plan === 'premium' ? 'bg-purple-100 text-purple-700' :
-                              biz.plan === 'pro' ? 'bg-indigo-100 text-indigo-700' :
-                              'bg-gray-100 text-gray-600'
-                            }`}>
-                              {biz.plan}
-                            </span>
                           </button>
                         ))}
                         
@@ -166,7 +161,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {currentBusiness && (
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="font-medium text-gray-900 text-sm truncate">{currentBusiness.business_name}</p>
-                        <p className="text-xs text-gray-500 truncate">{currentBusiness.plan} plan</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          Plan: <span className={`font-medium ${
+                            userPlan === 'premium' ? 'text-purple-600' :
+                            userPlan === 'pro' ? 'text-indigo-600' :
+                            'text-gray-600'
+                          }`}>{userPlan}</span>
+                        </p>
                       </div>
                     )}
                     <Link
