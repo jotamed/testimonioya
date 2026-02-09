@@ -37,11 +37,11 @@ serve(async (req) => {
         const priceId = subscription.items.data[0].price.id
         
         const proPriceId = Deno.env.get('STRIPE_PRO_PRICE_ID')
-        const premiumPriceId = Deno.env.get('STRIPE_PREMIUM_PRICE_ID')
+        const businessPriceId = Deno.env.get('STRIPE_BUSINESS_PRICE_ID')
         
         let plan = 'free'
         if (priceId === proPriceId) plan = 'pro'
-        else if (priceId === premiumPriceId) plan = 'premium'
+        else if (priceId === businessPriceId) plan = 'business'
 
         // Update plan at USER level (profiles table), not business level
         await supabase
@@ -72,11 +72,11 @@ serve(async (req) => {
       const priceId = subscription.items.data[0].price.id
       
       const proPriceId = Deno.env.get('STRIPE_PRO_PRICE_ID')
-      const premiumPriceId = Deno.env.get('STRIPE_PREMIUM_PRICE_ID')
+      const businessPriceId = Deno.env.get('STRIPE_BUSINESS_PRICE_ID')
       
       let plan = 'free'
       if (priceId === proPriceId) plan = 'pro'
-      else if (priceId === premiumPriceId) plan = 'premium'
+      else if (priceId === businessPriceId) plan = 'business'
       
       // Update user plan when subscription is updated
       if (subscription.status === 'active') {

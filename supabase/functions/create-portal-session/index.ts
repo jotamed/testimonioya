@@ -35,14 +35,14 @@ serve(async (req) => {
       throw new Error('User not authenticated')
     }
 
-    // Get business to find Stripe customer ID
-    const { data: business, error: bizError } = await supabase
-      .from('businesses')
+    // Get user profile to find Stripe customer ID
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
       .select('stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
-    if (bizError || !business?.stripe_customer_id) {
+    if (profileError || !profile?.stripe_customer_id) {
       throw new Error('No billing information found. You need an active subscription first.')
     }
 
@@ -52,7 +52,7 @@ serve(async (req) => {
 
     // Create Stripe Customer Portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: business.stripe_customer_id,
+      customer: profile.stripe_customer_id,
       return_url: finalReturnUrl,
     })
 
