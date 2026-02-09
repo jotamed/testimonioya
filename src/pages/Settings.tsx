@@ -151,25 +151,36 @@ export default function Settings() {
   }
 
   const handleUpgrade = async (priceId: string) => {
+    if (!priceId) {
+      toast.error('Error', 'Price ID no configurado')
+      return
+    }
     setUpgrading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Sesión expirada', 'Vuelve a iniciar sesión')
+        navigate('/login')
+        return
+      }
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL || 'https://wnmfanhejnrtfccemlai.supabase.co'}/functions/v1/create-checkout`,
+        'https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/create-checkout',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ priceId }),
         }
       )
-      const { url, error } = await response.json()
-      if (error) throw new Error(error)
-      window.location.href = url
+      const result = await response.json()
+      if (result.error) throw new Error(result.error)
+      if (!result.url) throw new Error('No se recibió URL de checkout')
+      window.location.href = result.url
     } catch (error: any) {
-      toast.error('Error al iniciar checkout', error.message)
+      console.error('Checkout error:', error)
+      toast.error('Error al iniciar checkout', error.message || 'Inténtalo de nuevo')
     } finally {
       setUpgrading(false)
     }
