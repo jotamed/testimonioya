@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight, Globe } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats } from '../lib/plans'
@@ -18,12 +18,8 @@ export default function Dashboard() {
     avgRating: 0,
     thisMonth: 0,
   })
-  const [reviewStats, setReviewStats] = useState({
-    total: 0,
-    approved: 0,
-    avgRating: 0,
-    googleConnected: false,
-  })
+  // reviewStats kept for internal tracking only
+  const [, setReviewStats] = useState({ total: 0, approved: 0, avgRating: 0, googleConnected: false })
   const [usage, setUsage] = useState<{
     testimonials: { current: number; limit: number };
     links: { current: number; limit: number };
@@ -63,75 +59,98 @@ export default function Dashboard() {
 
         setRecentTestimonials(testimonialsData || [])
 
-        const { count: totalCount } = await supabase
+        // Testimonial counts
+        const { count: tTotal } = await supabase
           .from('testimonials')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessData.id)
 
-        const { count: pendingCount } = await supabase
+        const { count: tPending } = await supabase
           .from('testimonials')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessData.id)
           .eq('status', 'pending')
 
-        const { count: approvedCount } = await supabase
+        const { count: tApproved } = await supabase
           .from('testimonials')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessData.id)
           .eq('status', 'approved')
 
-        const { data: ratingData } = await supabase
+        const { data: tRatings } = await supabase
           .from('testimonials')
           .select('rating')
           .eq('business_id', businessData.id)
           .eq('status', 'approved')
 
-        const avgRating = ratingData && ratingData.length > 0
-          ? ratingData.reduce((sum, t) => sum + t.rating, 0) / ratingData.length
-          : 0
-
         const startOfMonth = new Date()
         startOfMonth.setDate(1)
         startOfMonth.setHours(0, 0, 0, 0)
-        const { count: monthCount } = await supabase
+        const { count: tMonth } = await supabase
           .from('testimonials')
           .select('*', { count: 'exact', head: true })
           .eq('business_id', businessData.id)
           .gte('created_at', startOfMonth.toISOString())
 
-        setStats({
-          total: totalCount || 0,
-          pending: pendingCount || 0,
-          approved: approvedCount || 0,
-          avgRating,
-          thisMonth: monthCount || 0,
-        })
+        // Review counts (for paid plans, combine with testimonials)
+        const isPaid = plan === 'pro' || plan === 'business'
+        let rTotal = 0, rPending = 0, rApproved = 0, rMonth = 0
+        let rRatings: any[] = []
 
-        // Load review stats
-        const { count: reviewTotal } = await supabase
-          .from('external_reviews')
-          .select('*', { count: 'exact', head: true })
-          .eq('business_id', businessData.id)
+        if (isPaid) {
+          const { count: c1 } = await supabase
+            .from('external_reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('business_id', businessData.id)
+          rTotal = c1 || 0
 
-        const { count: reviewApproved } = await supabase
-          .from('external_reviews')
-          .select('*', { count: 'exact', head: true })
-          .eq('business_id', businessData.id)
-          .eq('approved', true)
+          const { count: c2 } = await supabase
+            .from('external_reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('business_id', businessData.id)
+            .eq('status', 'pending')
+          rPending = c2 || 0
 
-        const { data: reviewRatings } = await supabase
-          .from('external_reviews')
-          .select('rating')
-          .eq('business_id', businessData.id)
+          const { count: c3 } = await supabase
+            .from('external_reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('business_id', businessData.id)
+            .eq('status', 'approved')
+          rApproved = c3 || 0
 
-        const reviewAvg = reviewRatings && reviewRatings.length > 0
-          ? reviewRatings.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewRatings.length
+          const { data: rd } = await supabase
+            .from('external_reviews')
+            .select('rating')
+            .eq('business_id', businessData.id)
+            .eq('status', 'approved')
+          rRatings = rd || []
+
+          const { count: c4 } = await supabase
+            .from('external_reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('business_id', businessData.id)
+            .gte('created_at', startOfMonth.toISOString())
+          rMonth = c4 || 0
+        }
+
+        // Combined stats
+        const allRatings = [...(tRatings || []), ...rRatings]
+        const avgRating = allRatings.length > 0
+          ? allRatings.reduce((sum: number, r: any) => sum + r.rating, 0) / allRatings.length
           : 0
 
+        setStats({
+          total: (tTotal || 0) + rTotal,
+          pending: (tPending || 0) + rPending,
+          approved: (tApproved || 0) + rApproved,
+          avgRating,
+          thisMonth: (tMonth || 0) + rMonth,
+        })
+
         setReviewStats({
-          total: reviewTotal || 0,
-          approved: reviewApproved || 0,
-          avgRating: reviewAvg,
+          total: rTotal,
+          approved: rApproved,
+          avgRating: rRatings.length > 0 ? rRatings.reduce((s: number, r: any) => s + r.rating, 0) / rRatings.length : 0,
           googleConnected: !!businessData.google_place_id,
         })
 
@@ -215,15 +234,6 @@ export default function Dashboard() {
       iconColor: 'text-purple-600',
       subtitle: null,
     },
-    ...(reviewStats.total > 0 ? [{
-      label: 'Reseñas',
-      value: reviewStats.total,
-      icon: Globe,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      subtitle: `${reviewStats.approved} en widget · ${reviewStats.avgRating > 0 ? reviewStats.avgRating.toFixed(1) + '★' : ''}`,
-      subtitleColor: 'text-gray-500',
-    }] : []),
   ]
 
   return (
