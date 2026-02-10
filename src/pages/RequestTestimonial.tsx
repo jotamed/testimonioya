@@ -160,8 +160,18 @@ export default function RequestTestimonial() {
     await logRequest('whatsapp', cleaned)
     loadData()
 
-    window.open(waUrl, '_blank')
-    toast.success('¡Listo!', 'Se abrió WhatsApp con el mensaje')
+    const opened = window.open(waUrl, '_blank')
+    if (!opened) {
+      // Popup blocked or can't open - copy link instead
+      try {
+        await navigator.clipboard.writeText(waUrl)
+        toast.success('Link copiado', 'No se pudo abrir WhatsApp. El enlace se ha copiado al portapapeles.')
+      } catch {
+        toast.error('No se pudo abrir WhatsApp', 'Prueba desde el móvil o copia el enlace manualmente.')
+      }
+    } else {
+      toast.success('¡Listo!', 'Se abrió WhatsApp con el mensaje')
+    }
   }
 
   const handleCopyLink = async () => {
