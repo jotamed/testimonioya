@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send, Menu, X } from 'lucide-react'
+import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send, Menu, X, Star } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useBusinesses } from '../lib/useBusinesses'
 import { useUserPlan } from '../lib/useUserPlan'
@@ -282,6 +282,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   { to: '/dashboard/links', icon: LinkIcon, label: 'Enlaces' },
                   { to: '/dashboard/widget', icon: Code, label: 'Widget' },
                   { to: '/dashboard/nps', icon: Target, label: 'NPS' },
+                  { to: '/dashboard/reviews', icon: Star, label: 'Reseñas', badge: 'Pro' },
                   { to: '/dashboard/analytics', icon: BarChart3, label: 'Analíticas', badge: 'Business' },
                   { to: '/dashboard/settings', icon: Settings, label: 'Configuración' },
                 ].map((item) => {

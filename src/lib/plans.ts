@@ -20,6 +20,7 @@ export const PLAN_LIMITS = {
     hasApi: false,
     hasIntegrations: false,
     hasWhiteLabel: false,
+    hasReviews: false,
   },
   pro: {
     // NPS
@@ -39,6 +40,7 @@ export const PLAN_LIMITS = {
     hasApi: false,
     hasIntegrations: false,
     hasWhiteLabel: false,
+    hasReviews: true,
   },
   business: { // RENOMBRADO de premium
     // NPS
@@ -58,6 +60,7 @@ export const PLAN_LIMITS = {
     hasApi: true, // mantener flag para futuro pero no mostrar en UI
     hasIntegrations: false, // NO FUNCIONA
     hasWhiteLabel: false, // NO FUNCIONA
+    hasReviews: true,
   },
 } as const
 

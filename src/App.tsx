@@ -17,6 +17,7 @@ import CollectionLinks from './pages/CollectionLinks'
 import Settings from './pages/Settings'
 import RequestTestimonial from './pages/RequestTestimonial'
 import NpsDashboard from './pages/NpsDashboard'
+import Reviews from './pages/Reviews'
 
 // Lazy load less-used pages
 const VerticalLanding = lazy(() => import('./pages/VerticalLanding'))
@@ -80,6 +81,7 @@ function App() {
             <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
             <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
             <Route path="/dashboard/nps" element={<AuthGuard><NpsDashboard /></AuthGuard>} />
+            <Route path="/dashboard/reviews" element={<AuthGuard><Reviews /></AuthGuard>} />
             <Route path="/dashboard/request" element={<AuthGuard><RequestTestimonial /></AuthGuard>} />
             
             {/* Admin */}
