@@ -278,7 +278,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Link
-                to="/dashboard/settings"
+                to="/dashboard/settings?tab=billing"
                 className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-indigo-50 transition-colors shadow-sm"
               >
                 <span>Upgrade a Pro</span>

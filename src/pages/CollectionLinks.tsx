@@ -201,7 +201,7 @@ export default function CollectionLinks() {
           </div>
           {linkLimit && !linkLimit.allowed ? (
             <a
-              href="/dashboard/settings"
+              href="/dashboard/settings?tab=billing"
               className="btn-primary flex items-center space-x-2 bg-amber-600 hover:bg-amber-700"
             >
               <AlertTriangle className="h-5 w-5" />
