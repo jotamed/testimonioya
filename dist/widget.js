@@ -25,10 +25,11 @@
     var border = isDark ? '#374151' : '#e5e7eb';
     var initials = (t.customer_name || '?').charAt(0).toUpperCase();
     var date = new Date(t.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    var sourceBadge = t._source ? '<span style="font-size:10px;background:' + (isDark ? '#374151' : '#f3f4f6') + ';color:' + sub + ';padding:2px 6px;border-radius:4px;margin-left:6px;">' + t._source + '</span>' : '';
     return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;">' +
       '<div style="display:flex;align-items:center;gap:10px;">' +
         '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;">' + initials + '</div>' +
-        '<div><div style="font-weight:600;color:' + text + ';font-size:14px;">' + (t.customer_name || 'Anónimo') + '</div>' +
+        '<div><div style="font-weight:600;color:' + text + ';font-size:14px;">' + (t.customer_name || 'Anónimo') + sourceBadge + '</div>' +
         '<div style="font-size:12px;color:' + sub + ';">' + date + '</div></div>' +
       '</div>' +
       '<div>' + stars(t.rating) + '</div>' +
@@ -78,8 +79,22 @@
     .then(function(r) { return r.json(); })
     .then(function(biz) {
       if (!biz.length) { el.innerHTML = '<p>Negocio no encontrado</p>'; return; }
-      fetch(API + '/testimonials?business_id=eq.' + biz[0].id + '&status=eq.approved&order=created_at.desc&limit=' + max, { headers: headers })
-        .then(function(r) { return r.json(); })
-        .then(function(t) { render(t, biz[0]); });
+      var bizData = biz[0];
+      var isPaid = bizData.plan === 'pro' || bizData.plan === 'business';
+      var fetches = [
+        fetch(API + '/testimonials?business_id=eq.' + bizData.id + '&status=eq.approved&order=created_at.desc&limit=' + max, { headers: headers }).then(function(r) { return r.json(); })
+      ];
+      if (isPaid) {
+        fetches.push(fetch(API + '/external_reviews?business_id=eq.' + bizData.id + '&status=eq.approved&order=review_date.desc&limit=' + max, { headers: headers }).then(function(r) { return r.json(); }));
+      }
+      Promise.all(fetches).then(function(results) {
+        var testimonials = results[0] || [];
+        var reviews = (results[1] || []).map(function(r) {
+          return { customer_name: r.author_name, rating: r.rating, text_content: r.review_text, created_at: r.review_date || r.created_at, _source: r.platform };
+        });
+        var all = testimonials.concat(reviews);
+        all.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
+        render(all.slice(0, max), bizData);
+      });
     });
 })();

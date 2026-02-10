@@ -69,7 +69,7 @@ export default function WallOfLove() {
           .from('external_reviews')
           .select('*')
           .eq('business_id', businessData.id)
-          .eq('approved', true)
+          .eq('status', 'approved')
           .order('review_date', { ascending: false })
 
         reviewsAsTestimonials = (reviewsData || []).map((r: any) => ({
