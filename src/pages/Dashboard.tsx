@@ -5,10 +5,12 @@ import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats } from '../lib/plans'
 import { useUserPlan } from '../lib/useUserPlan'
+import { useBusinesses } from '../lib/useBusinesses'
 import { PLANS } from '../lib/stripe'
 import { SkeletonDashboard } from '../components/LoadingSkeleton'
 
 export default function Dashboard() {
+  const { currentBusiness, loading: bizLoading } = useBusinesses()
   const [business, setBusiness] = useState<Business | null>(null)
   const [recentTestimonials, setRecentTestimonials] = useState<Testimonial[]>([])
   const [stats, setStats] = useState({
@@ -28,26 +30,17 @@ export default function Dashboard() {
   const { plan, loading: planLoading } = useUserPlan()
 
   useEffect(() => {
-    if (!planLoading) {
+    if (!planLoading && !bizLoading && currentBusiness) {
       loadData()
     }
-  }, [planLoading, plan])
+  }, [planLoading, plan, bizLoading, currentBusiness])
 
   const loadData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user || !currentBusiness) return
 
-      const { data: businessData } = await supabase
-        .from('businesses')
-        .select('*')
-        .eq('user_id', user.id)
-        .then(({ data: allBiz, error: bizErr }) => {
-          if (bizErr || !allBiz?.length) return { data: null, error: bizErr }
-          const savedId = localStorage.getItem('testimonioya_current_business')
-          const biz = allBiz.find((b: any) => b.id === savedId) || allBiz[0]
-          return { data: biz, error: null }
-        })
+      const businessData = currentBusiness
 
       if (businessData) {
         setBusiness(businessData)
@@ -149,7 +142,7 @@ export default function Dashboard() {
           total: rTotal,
           approved: rApproved,
           avgRating: rRatings.length > 0 ? rRatings.reduce((s: number, r: any) => s + r.rating, 0) / rRatings.length : 0,
-          googleConnected: !!businessData.google_place_id,
+          googleConnected: !!(businessData as any).google_place_id,
         })
 
         // Get usage stats using user's plan instead of business plan
