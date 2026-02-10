@@ -5,6 +5,7 @@ import ReviewCard from '../components/ReviewCard'
 import ReviewStats from '../components/ReviewStats'
 import ReviewReplyModal from '../components/ReviewReplyModal'
 import AddReviewModal from '../components/AddReviewModal'
+import GoogleReviewsConnect from '../components/GoogleReviewsConnect'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import EmptyState from '../components/EmptyState'
 import { useToast } from '../components/Toast'
@@ -140,6 +141,17 @@ export default function Reviews() {
           )}
         </div>
 
+        {/* Google Reviews Connection */}
+        {canUseReviews && currentBusiness && (
+          <GoogleReviewsConnect
+            businessId={currentBusiness.id}
+            googlePlaceId={(currentBusiness as any).google_place_id}
+            lastSynced={(currentBusiness as any).reviews_last_synced}
+            autoSync={(currentBusiness as any).reviews_auto_sync ?? false}
+            onSync={loadReviews}
+          />
+        )}
+
         {!canUseReviews ? (
           <div className="card text-center py-12">
             <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -165,9 +177,13 @@ export default function Reviews() {
           <EmptyState
             icon={<Star className="h-12 w-12 text-gray-300" />}
             title="Sin reseñas todavía"
-            description="Añade tus primeras reseñas manualmente o conecta Google para importarlas automáticamente."
+            description={
+              (currentBusiness as any)?.google_place_id
+                ? 'Pulsa "Sincronizar ahora" arriba para importar tus reseñas de Google, o añade una manualmente.'
+                : 'Conecta Google arriba para importar reseñas automáticamente, o añade una manualmente.'
+            }
             action={{
-              label: 'Añadir primera reseña',
+              label: 'Añadir reseña manual',
               onClick: () => setShowAddModal(true),
             }}
           />
