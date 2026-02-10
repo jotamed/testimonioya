@@ -20,7 +20,12 @@ type SettingsTab = 'general' | 'notifications' | 'nps' | 'branding' | 'security'
 
 export default function Settings() {
   const [business, setBusiness] = useState<Business | null>(null)
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tab = params.get('tab')
+    const validTabs: SettingsTab[] = ['general', 'notifications', 'nps', 'branding', 'security', 'billing']
+    return validTabs.includes(tab as SettingsTab) ? (tab as SettingsTab) : 'general'
+  })
   const [formData, setFormData] = useState({
     business_name: '',
     industry: '',

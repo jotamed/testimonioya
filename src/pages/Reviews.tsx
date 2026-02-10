@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Star, Plus, Search } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import ReviewCard from '../components/ReviewCard'
@@ -162,9 +163,16 @@ export default function Reviews() {
               Centraliza las reseñas de Google, TripAdvisor y otras plataformas.
               Responde desde un solo lugar y monitoriza tu reputación online.
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 mb-6">
               Disponible en los planes <span className="font-medium text-indigo-600">Pro</span> y <span className="font-medium text-purple-600">Business</span>
             </p>
+            <Link
+              to="/dashboard/settings?tab=billing"
+              className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            >
+              <span>Ver planes y hacer upgrade</span>
+              <span>→</span>
+            </Link>
           </div>
         ) : loading ? (
           <div className="space-y-4">

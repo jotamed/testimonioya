@@ -153,7 +153,7 @@ export default function Analytics() {
               </li>
             </ul>
             <Link
-              to="/dashboard/settings"
+              to="/dashboard/settings?tab=billing"
               className="inline-flex items-center space-x-2 bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-colors"
             >
               <span>Upgrade a Business</span>
