@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight, Globe } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats } from '../lib/plans'
@@ -215,6 +215,15 @@ export default function Dashboard() {
       iconColor: 'text-purple-600',
       subtitle: null,
     },
+    ...(reviewStats.total > 0 ? [{
+      label: 'Reseñas',
+      value: reviewStats.total,
+      icon: Globe,
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      subtitle: `${reviewStats.approved} en widget · ${reviewStats.avgRating > 0 ? reviewStats.avgRating.toFixed(1) + '★' : ''}`,
+      subtitleColor: 'text-gray-500',
+    }] : []),
   ]
 
   return (
@@ -261,49 +270,7 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Reviews Summary */}
-        {reviewStats.total > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900 flex items-center space-x-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span>Reseñas externas</span>
-              </h3>
-              <Link
-                to="/dashboard/reviews"
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                Ver todas →
-              </Link>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{reviewStats.total}</p>
-                <p className="text-xs text-gray-500">Total reseñas</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{reviewStats.approved}</p>
-                <p className="text-xs text-gray-500">En widget</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">
-                  {reviewStats.avgRating > 0 ? reviewStats.avgRating.toFixed(1) : '—'}
-                </p>
-                <p className="text-xs text-gray-500">Rating medio</p>
-              </div>
-            </div>
-            {!reviewStats.googleConnected && (
-              <div className="mt-4 text-center">
-                <Link
-                  to="/dashboard/reviews"
-                  className="text-sm text-indigo-600 hover:underline"
-                >
-                  Conecta Google para importar reseñas automáticamente →
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Reviews integrated into stat cards above */}
 
         {/* Plan Usage */}
         {usage && plan === 'free' && (
