@@ -94,8 +94,14 @@ export default function Dashboard() {
           .eq('business_id', businessData.id)
           .gte('created_at', startOfMonth.toISOString())
 
-        // Review counts (for paid plans, combine with testimonials)
-        const isPaid = plan === 'pro' || plan === 'business'
+        // Review counts - fetch user plan directly to avoid stale closure
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', user.id)
+          .single()
+        const userPlan = profileData?.plan || 'free'
+        const isPaid = userPlan === 'pro' || userPlan === 'business'
         let rTotal = 0, rPending = 0, rApproved = 0, rMonth = 0
         let rRatings: any[] = []
 
