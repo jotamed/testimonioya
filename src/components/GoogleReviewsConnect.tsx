@@ -7,6 +7,7 @@ interface GoogleReviewsConnectProps {
   googlePlaceId: string | null
   googlePlaceName: string | null
   googlePlaceAddress: string | null
+  googleBusinessLocation: string | null
   lastSynced: string | null
   autoSync: boolean
   onSync: () => void
@@ -25,10 +26,12 @@ export default function GoogleReviewsConnect({
   googlePlaceId,
   googlePlaceName,
   googlePlaceAddress,
+  googleBusinessLocation,
   lastSynced,
   autoSync: _autoSync,
   onSync,
 }: GoogleReviewsConnectProps) {
+  const [connectingOAuth, setConnectingOAuth] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [results, setResults] = useState<PlaceResult[]>([])
   const [searching, setSearching] = useState(false)
@@ -55,6 +58,64 @@ export default function GoogleReviewsConnect({
       }
     )
     return res.json()
+  }
+
+  const handleConnectGoogleBusiness = async () => {
+    setConnectingOAuth(true)
+    setError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No session')
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://wnmfanhejnrtfccemlai.supabase.co'}/functions/v1/google-business-auth`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubWZhbmhlam5ydGZjY2VtbGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjY5NjMsImV4cCI6MjA4NTgwMjk2M30.bhTUh5Ks9nWjuMF4qK0og7gVuw7vlMZeaNGi5NJ0crc',
+          },
+          body: JSON.stringify({ action: 'auth_url', businessId }),
+        }
+      )
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      window.location.href = data.url
+    } catch (err: any) {
+      setError(err.message || 'Error al conectar')
+      setConnectingOAuth(false)
+    }
+  }
+
+  const handleSyncGoogleBusiness = async () => {
+    setSyncing(true)
+    setSyncResult(null)
+    setError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No session')
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL || 'https://wnmfanhejnrtfccemlai.supabase.co'}/functions/v1/google-business-auth`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubWZhbmhlam5ydGZjY2VtbGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjY5NjMsImV4cCI6MjA4NTgwMjk2M30.bhTUh5Ks9nWjuMF4qK0og7gVuw7vlMZeaNGi5NJ0crc',
+          },
+          body: JSON.stringify({ action: 'sync_reviews', businessId }),
+        }
+      )
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setSyncResult(data)
+      onSync()
+    } catch (err: any) {
+      setError(err.message || 'Error al sincronizar')
+    }
+    setSyncing(false)
   }
 
   const handleSearch = async () => {
@@ -140,6 +201,11 @@ export default function GoogleReviewsConnect({
                 </p>
               )}
               <p className="text-sm text-green-700 mt-0.5">
+                {googleBusinessLocation
+                  ? '🔗 Acceso completo — importa todas las reseñas'
+                  : '⚡ Acceso rápido — importa las 5 más relevantes'}
+              </p>
+              <p className="text-xs text-green-600 mt-0.5">
                 {lastSynced
                   ? `Última sincronización: ${new Date(lastSynced).toLocaleString('es-ES')}`
                   : 'Aún no sincronizado'}
@@ -147,8 +213,18 @@ export default function GoogleReviewsConnect({
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            {!googleBusinessLocation && (
+              <button
+                onClick={handleConnectGoogleBusiness}
+                disabled={connectingOAuth}
+                className="btn-primary text-sm flex items-center space-x-1"
+                title="Conecta con Google Business para importar TODAS las reseñas"
+              >
+                <span>{connectingOAuth ? 'Conectando...' : '🔗 Acceso completo'}</span>
+              </button>
+            )}
             <button
-              onClick={handleSync}
+              onClick={googleBusinessLocation ? handleSyncGoogleBusiness : handleSync}
               disabled={syncing}
               className="btn-secondary text-sm flex items-center space-x-1"
             >

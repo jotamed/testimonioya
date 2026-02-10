@@ -212,6 +212,7 @@ export default function Reviews() {
             googlePlaceId={(currentBusiness as any).google_place_id}
             googlePlaceName={(currentBusiness as any).google_place_name}
             googlePlaceAddress={(currentBusiness as any).google_place_address}
+            googleBusinessLocation={(currentBusiness as any).google_business_location}
             lastSynced={(currentBusiness as any).reviews_last_synced}
             autoSync={(currentBusiness as any).reviews_auto_sync ?? false}
             onSync={loadReviews}
