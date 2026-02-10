@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,7 +41,7 @@ serve(async (req) => {
       })
     }
 
-    const { action, businessId, placeId, query } = await req.json()
+    const { action, businessId, placeId, query, placeName, placeAddress } = await req.json()
 
     // Action: search for a place by name
     if (action === 'search') {
@@ -90,6 +90,8 @@ serve(async (req) => {
         .from('businesses')
         .update({
           google_place_id: placeId,
+          google_place_name: placeName,
+          google_place_address: placeAddress,
           reviews_auto_sync: true,
         })
         .eq('id', businessId)
@@ -134,29 +136,37 @@ serve(async (req) => {
       let imported = 0
       let skipped = 0
 
+      // Get existing external_ids to avoid duplicates
+      const { data: existing } = await supabaseClient
+        .from('external_reviews')
+        .select('external_id')
+        .eq('business_id', businessId)
+        .eq('platform', 'google')
+
+      const existingIds = new Set((existing || []).map((r: any) => r.external_id))
+
       for (const review of googleReviews) {
         const externalId = `google_${review.time}_${review.author_name?.replace(/\s/g, '_')}`
 
-        // Upsert — skip if already exists
+        if (existingIds.has(externalId)) {
+          skipped++
+          continue
+        }
+
         const { error: insertError } = await supabaseClient
           .from('external_reviews')
-          .upsert(
-            {
-              business_id: businessId,
-              platform: 'google',
-              author_name: review.author_name || 'Anónimo',
-              rating: review.rating,
-              review_text: review.text || null,
-              review_date: new Date(review.time * 1000).toISOString(),
-              external_id: externalId,
-            },
-            {
-              onConflict: 'business_id,platform,external_id',
-              ignoreDuplicates: true,
-            }
-          )
+          .insert({
+            business_id: businessId,
+            platform: 'google',
+            author_name: review.author_name || 'Anónimo',
+            rating: review.rating,
+            review_text: review.text || null,
+            review_date: new Date(review.time * 1000).toISOString(),
+            external_id: externalId,
+          })
 
         if (insertError) {
+          console.error('Insert error:', insertError)
           skipped++
         } else {
           imported++

@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase'
 interface GoogleReviewsConnectProps {
   businessId: string
   googlePlaceId: string | null
+  googlePlaceName: string | null
+  googlePlaceAddress: string | null
   lastSynced: string | null
   autoSync: boolean
   onSync: () => void
@@ -21,6 +23,8 @@ interface PlaceResult {
 export default function GoogleReviewsConnect({
   businessId,
   googlePlaceId,
+  googlePlaceName,
+  googlePlaceAddress,
   lastSynced,
   autoSync: _autoSync,
   onSync,
@@ -71,11 +75,17 @@ export default function GoogleReviewsConnect({
     setSearching(false)
   }
 
-  const handleConnect = async (placeId: string) => {
+  const handleConnect = async (place: PlaceResult) => {
     setConnecting(true)
     setError(null)
     try {
-      const data = await callEdgeFunction({ action: 'connect', businessId, placeId })
+      const data = await callEdgeFunction({
+        action: 'connect',
+        businessId,
+        placeId: place.place_id,
+        placeName: place.name,
+        placeAddress: place.address,
+      })
       if (data.error) throw new Error(data.error)
       // Auto-sync after connecting
       await handleSync()
@@ -120,8 +130,16 @@ export default function GoogleReviewsConnect({
               <Link2 className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="font-medium text-green-900">Google conectado</p>
-              <p className="text-sm text-green-700">
+              <p className="font-medium text-green-900">
+                Google conectado{googlePlaceName ? `: ${googlePlaceName}` : ''}
+              </p>
+              {googlePlaceAddress && (
+                <p className="text-xs text-green-600 flex items-center mt-0.5">
+                  <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                  {googlePlaceAddress}
+                </p>
+              )}
+              <p className="text-sm text-green-700 mt-0.5">
                 {lastSynced
                   ? `Última sincronización: ${new Date(lastSynced).toLocaleString('es-ES')}`
                   : 'Aún no sincronizado'}
@@ -228,7 +246,7 @@ export default function GoogleReviewsConnect({
                         )}
                       </div>
                       <button
-                        onClick={() => handleConnect(place.place_id)}
+                        onClick={() => handleConnect(place)}
                         disabled={connecting}
                         className="btn-primary text-sm whitespace-nowrap"
                       >

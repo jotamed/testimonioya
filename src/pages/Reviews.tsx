@@ -26,6 +26,7 @@ interface Review {
   reply: string | null
   replied_at: string | null
   created_at: string
+  approved: boolean
 }
 
 export default function Reviews() {
@@ -84,6 +85,37 @@ export default function Reviews() {
       )
     )
     toastSuccess('Respuesta guardada')
+  }
+
+  const handleDelete = async (reviewId: string) => {
+    if (!confirm('¿Eliminar esta reseña?')) return
+    const { error } = await supabase
+      .from('external_reviews')
+      .delete()
+      .eq('id', reviewId)
+
+    if (error) {
+      toastError('Error al eliminar')
+    } else {
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId))
+      toastSuccess('Reseña eliminada')
+    }
+  }
+
+  const handleApprove = async (reviewId: string, approved: boolean) => {
+    const { error } = await supabase
+      .from('external_reviews')
+      .update({ approved })
+      .eq('id', reviewId)
+
+    if (error) {
+      toastError('Error al actualizar')
+    } else {
+      setReviews((prev) =>
+        prev.map((r) => (r.id === reviewId ? { ...r, approved } : r))
+      )
+      toastSuccess(approved ? 'Reseña aprobada — aparecerá en tu widget' : 'Reseña retirada del widget')
+    }
   }
 
   const handleAddReview = async (review: {
@@ -147,6 +179,8 @@ export default function Reviews() {
           <GoogleReviewsConnect
             businessId={currentBusiness.id}
             googlePlaceId={(currentBusiness as any).google_place_id}
+            googlePlaceName={(currentBusiness as any).google_place_name}
+            googlePlaceAddress={(currentBusiness as any).google_place_address}
             lastSynced={(currentBusiness as any).reviews_last_synced}
             autoSync={(currentBusiness as any).reviews_auto_sync ?? false}
             onSync={loadReviews}
@@ -249,6 +283,9 @@ export default function Reviews() {
                     key={review.id}
                     review={review}
                     onReply={setReplyingTo}
+                    onDelete={handleDelete}
+                    onApprove={handleApprove}
+                    googlePlaceId={(currentBusiness as any)?.google_place_id}
                   />
                 ))
               )}
