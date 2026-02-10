@@ -28,8 +28,10 @@ export default function Dashboard() {
   const { plan, loading: planLoading } = useUserPlan()
 
   useEffect(() => {
-    loadData()
-  }, [])
+    if (!planLoading) {
+      loadData()
+    }
+  }, [planLoading, plan])
 
   const loadData = async () => {
     try {
