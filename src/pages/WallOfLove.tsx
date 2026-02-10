@@ -60,7 +60,32 @@ export default function WallOfLove() {
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
 
-      setTestimonials(testimonialsData || [])
+      // Load approved external reviews
+      const { data: reviewsData } = await supabase
+        .from('external_reviews')
+        .select('*')
+        .eq('business_id', businessData.id)
+        .eq('approved', true)
+        .order('review_date', { ascending: false })
+
+      // Merge reviews into testimonial format
+      const reviewsAsTestimonials = (reviewsData || []).map((r: any) => ({
+        id: r.id,
+        business_id: r.business_id,
+        customer_name: r.author_name,
+        customer_email: '',
+        rating: r.rating,
+        text_content: r.review_text || '',
+        status: 'approved' as const,
+        is_featured: false,
+        created_at: r.review_date || r.created_at,
+        source: r.platform,
+      }))
+
+      const allTestimonials = [...(testimonialsData || []), ...reviewsAsTestimonials]
+      allTestimonials.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+      setTestimonials(allTestimonials as Testimonial[])
     } catch (error) {
       console.error('Error loading wall:', error)
     } finally {

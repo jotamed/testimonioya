@@ -18,6 +18,12 @@ export default function Dashboard() {
     avgRating: 0,
     thisMonth: 0,
   })
+  const [reviewStats, setReviewStats] = useState({
+    total: 0,
+    approved: 0,
+    avgRating: 0,
+    googleConnected: false,
+  })
   const [usage, setUsage] = useState<{
     testimonials: { current: number; limit: number };
     links: { current: number; limit: number };
@@ -99,6 +105,34 @@ export default function Dashboard() {
           approved: approvedCount || 0,
           avgRating,
           thisMonth: monthCount || 0,
+        })
+
+        // Load review stats
+        const { count: reviewTotal } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+
+        const { count: reviewApproved } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+          .eq('approved', true)
+
+        const { data: reviewRatings } = await supabase
+          .from('external_reviews')
+          .select('rating')
+          .eq('business_id', businessData.id)
+
+        const reviewAvg = reviewRatings && reviewRatings.length > 0
+          ? reviewRatings.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewRatings.length
+          : 0
+
+        setReviewStats({
+          total: reviewTotal || 0,
+          approved: reviewApproved || 0,
+          avgRating: reviewAvg,
+          googleConnected: !!businessData.google_place_id,
         })
 
         // Get usage stats using user's plan instead of business plan
@@ -226,6 +260,50 @@ export default function Dashboard() {
             )
           })}
         </div>
+
+        {/* Reviews Summary */}
+        {reviewStats.total > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 flex items-center space-x-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                <span>Reseñas externas</span>
+              </h3>
+              <Link
+                to="/dashboard/reviews"
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Ver todas →
+              </Link>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900">{reviewStats.total}</p>
+                <p className="text-xs text-gray-500">Total reseñas</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">{reviewStats.approved}</p>
+                <p className="text-xs text-gray-500">En widget</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-yellow-600">
+                  {reviewStats.avgRating > 0 ? reviewStats.avgRating.toFixed(1) : '—'}
+                </p>
+                <p className="text-xs text-gray-500">Rating medio</p>
+              </div>
+            </div>
+            {!reviewStats.googleConnected && (
+              <div className="mt-4 text-center">
+                <Link
+                  to="/dashboard/reviews"
+                  className="text-sm text-indigo-600 hover:underline"
+                >
+                  Conecta Google para importar reseñas automáticamente →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Plan Usage */}
         {usage && plan === 'free' && (
