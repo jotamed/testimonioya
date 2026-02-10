@@ -94,52 +94,42 @@ export default function Dashboard() {
           .eq('business_id', businessData.id)
           .gte('created_at', startOfMonth.toISOString())
 
-        // Review counts - fetch user plan directly to avoid stale closure
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('plan')
-          .eq('id', user.id)
-          .single()
-        const userPlan = profileData?.plan || 'free'
-        const isPaid = userPlan === 'pro' || userPlan === 'business'
+        // Review counts - always show in dashboard (gating only applies to public widget)
         let rTotal = 0, rPending = 0, rApproved = 0, rMonth = 0
         let rRatings: any[] = []
 
-        if (isPaid) {
-          const { count: c1 } = await supabase
-            .from('external_reviews')
-            .select('*', { count: 'exact', head: true })
-            .eq('business_id', businessData.id)
-          rTotal = c1 || 0
+        const { count: c1 } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+        rTotal = c1 || 0
 
-          const { count: c2 } = await supabase
-            .from('external_reviews')
-            .select('*', { count: 'exact', head: true })
-            .eq('business_id', businessData.id)
-            .eq('status', 'pending')
-          rPending = c2 || 0
+        const { count: c2 } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+          .eq('status', 'pending')
+        rPending = c2 || 0
 
-          const { count: c3 } = await supabase
-            .from('external_reviews')
-            .select('*', { count: 'exact', head: true })
-            .eq('business_id', businessData.id)
-            .eq('status', 'approved')
-          rApproved = c3 || 0
+        const { count: c3 } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+          .eq('status', 'approved')
+        rApproved = c3 || 0
 
-          const { data: rd } = await supabase
-            .from('external_reviews')
-            .select('rating')
-            .eq('business_id', businessData.id)
-            .eq('status', 'approved')
-          rRatings = rd || []
+        const { data: rd } = await supabase
+          .from('external_reviews')
+          .select('rating')
+          .eq('business_id', businessData.id)
+        rRatings = rd || []
 
-          const { count: c4 } = await supabase
-            .from('external_reviews')
-            .select('*', { count: 'exact', head: true })
-            .eq('business_id', businessData.id)
-            .gte('created_at', startOfMonth.toISOString())
-          rMonth = c4 || 0
-        }
+        const { count: c4 } = await supabase
+          .from('external_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('business_id', businessData.id)
+          .gte('created_at', startOfMonth.toISOString())
+        rMonth = c4 || 0
 
         // Combined stats
         const allRatings = [...(tRatings || []), ...rRatings]
