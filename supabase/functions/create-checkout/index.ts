@@ -68,11 +68,12 @@ serve(async (req) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
+      allow_promotion_codes: true,
       success_url: `${req.headers.get('origin')}/dashboard/settings?payment=success`,
       cancel_url: `${req.headers.get('origin')}/dashboard/settings?payment=cancelled`,
       metadata: {
         supabase_user_id: user.id,
-        user_id: user.id, // CHANGED: Now we pass user_id instead of business_id
+        user_id: user.id,
       },
     })
 
