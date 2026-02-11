@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight } from 'lucide-react'
+import { MessageCircle, Star, TrendingUp, Link as LinkIcon, Zap, BarChart3, Clock, Send, ArrowUpRight, Target, AlertCircle } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, Testimonial } from '../lib/supabase'
 import { getUsageStats } from '../lib/plans'
@@ -20,6 +20,8 @@ export default function Dashboard() {
     avgRating: 0,
     thisMonth: 0,
   })
+  const [npsStats, setNpsStats] = useState({ total: 0, avg: 0, promoters: 0, detractors: 0, passives: 0 })
+  const [recoveryStats, setRecoveryStats] = useState({ total: 0, open: 0, inProgress: 0, resolved: 0 })
   // reviewStats kept for internal tracking only
   const [, setReviewStats] = useState({ total: 0, approved: 0, avgRating: 0, googleConnected: false })
   const [usage, setUsage] = useState<{
@@ -145,6 +147,43 @@ export default function Dashboard() {
           googleConnected: !!(businessData as any).google_place_id,
         })
 
+        // NPS stats (if unified flow active)
+        if (businessData.use_unified_flow) {
+          const { data: npsData } = await supabase
+            .from('nps_responses')
+            .select('score')
+            .eq('business_id', businessData.id)
+
+          if (npsData && npsData.length > 0) {
+            const scores = npsData.map((r: any) => r.score)
+            const avg = scores.reduce((s: number, v: number) => s + v, 0) / scores.length
+            setNpsStats({
+              total: scores.length,
+              avg: Math.round(avg * 10) / 10,
+              promoters: scores.filter((s: number) => s >= 9).length,
+              passives: scores.filter((s: number) => s >= 7 && s <= 8).length,
+              detractors: scores.filter((s: number) => s <= 6).length,
+            })
+          }
+        }
+
+        // Recovery stats (if recovery flow active)
+        if (businessData.use_recovery_flow) {
+          const { data: cases } = await supabase
+            .from('recovery_cases')
+            .select('status')
+            .eq('business_id', businessData.id)
+
+          if (cases) {
+            setRecoveryStats({
+              total: cases.length,
+              open: cases.filter((c: any) => c.status === 'open').length,
+              inProgress: cases.filter((c: any) => c.status === 'in_progress').length,
+              resolved: cases.filter((c: any) => c.status === 'resolved').length,
+            })
+          }
+        }
+
         // Get usage stats using user's plan instead of business plan
         const usageStats = await getUsageStats(businessData.id, user.id)
         setUsage(usageStats)
@@ -225,6 +264,30 @@ export default function Dashboard() {
       iconColor: 'text-purple-600',
       subtitle: null,
     },
+    // NPS stats (only if unified flow is active)
+    ...(business.use_unified_flow ? [
+      {
+        label: 'NPS Score',
+        value: npsStats.total > 0 ? `${Math.round(((npsStats.promoters - npsStats.detractors) / npsStats.total) * 100)}` : '—',
+        icon: Target,
+        iconBg: 'bg-cyan-50',
+        iconColor: 'text-cyan-600',
+        subtitle: npsStats.total > 0 ? `${npsStats.promoters}👍 ${npsStats.passives}😐 ${npsStats.detractors}👎 · ${npsStats.total} respuestas` : null,
+        subtitleColor: 'text-gray-500',
+      },
+    ] : []),
+    // Recovery stats (only if recovery flow is active)
+    ...(business.use_recovery_flow ? [
+      {
+        label: 'Casos',
+        value: recoveryStats.total,
+        icon: AlertCircle,
+        iconBg: 'bg-red-50',
+        iconColor: 'text-red-600',
+        subtitle: recoveryStats.total > 0 ? `${recoveryStats.open} abiertos · ${recoveryStats.inProgress} en curso · ${recoveryStats.resolved} resueltos` : null,
+        subtitleColor: 'text-gray-500',
+      },
+    ] : []),
   ]
 
   return (
