@@ -111,17 +111,7 @@ export default function RequestTestimonial() {
     setSending(true)
     setEmailSuccess(null)
     try {
-      // Get current session, refresh if needed
-      let session = (await supabase.auth.getSession()).data.session
-      if (!session) {
-        const { data } = await supabase.auth.refreshSession()
-        session = data.session
-      }
-      if (!session) {
-        toast.error('Sesión expirada', 'Inicia sesión de nuevo')
-        window.location.href = '/login'
-        return
-      }
+      const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubWZhbmhlam5ydGZjY2VtbGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjY5NjMsImV4cCI6MjA4NTgwMjk2M30.bhTUh5Ks9nWjuMF4qK0og7gVuw7vlMZeaNGi5NJ0crc'
 
       let successCount = 0
       for (const email of emailList) {
@@ -130,7 +120,7 @@ export default function RequestTestimonial() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
+              'Authorization': `Bearer ${ANON_KEY}`,
             },
             body: JSON.stringify({
               type: 'request_testimonial',
