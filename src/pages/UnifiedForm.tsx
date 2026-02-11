@@ -479,40 +479,27 @@ export default function UnifiedForm() {
                 </div>
               )}
 
-              {/* Feedback */}
-              {mode === 'text' && (
+              {/* Promoter: text/audio/video based on mode */}
+              {isPromoter && mode === 'text' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isPromoter
-                      ? 'Tu experiencia'
-                      : isDetractor
-                      ? '¿Qué podemos mejorar?'
-                      : 'Comentarios'}
-                    {(isPromoter || isDetractor) && <span className="text-red-500"> *</span>}
+                    Tu experiencia <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     rows={4}
                     className="input-field"
-                    placeholder={
-                      isPromoter
-                        ? 'Cuéntanos qué te gustó...'
-                        : isDetractor
-                        ? 'Cuéntanos qué podemos mejorar...'
-                        : 'Tu opinión (opcional)'
-                    }
-                    required={(isPromoter || isDetractor) && mode === 'text'}
+                    placeholder="Cuéntanos qué te gustó..."
+                    required
                   />
-                  {isPromoter && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      Tu testimonio será público (tras revisión)
-                    </p>
-                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Tu testimonio será público (tras revisión)
+                  </p>
                 </div>
               )}
 
-              {mode === 'audio' && isPromoter && (
+              {isPromoter && mode === 'audio' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Graba tu testimonio <span className="text-red-500">*</span>
@@ -522,7 +509,7 @@ export default function UnifiedForm() {
                 </div>
               )}
 
-              {mode === 'video' && isPromoter && (
+              {isPromoter && mode === 'video' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Graba tu testimonio en vídeo <span className="text-red-500">*</span>
@@ -532,7 +519,7 @@ export default function UnifiedForm() {
                 </div>
               )}
 
-              {/* For non-promoters, always show text feedback */}
+              {/* Non-promoters: always text feedback */}
               {!isPromoter && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
