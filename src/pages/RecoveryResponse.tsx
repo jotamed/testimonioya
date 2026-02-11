@@ -74,7 +74,7 @@ export default function RecoveryResponse() {
     }
 
     // Check message limit
-    if (recoveryCase.messages.length >= 5) {
+    if (recoveryCase.messages.length >= 50) {
       setError('Se ha alcanzado el límite de mensajes para este caso')
       return
     }
@@ -148,7 +148,7 @@ export default function RecoveryResponse() {
   const brandColor = business.brand_color || '#4f46e5'
   const isClosed = recoveryCase.status === 'closed'
   const isResolved = recoveryCase.status === 'resolved'
-  const maxMessagesReached = recoveryCase.messages.length >= 5
+  const maxMessagesReached = recoveryCase.messages.length >= 50
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4">
@@ -254,7 +254,6 @@ export default function RecoveryResponse() {
             </form>
 
             <p className="mt-4 text-xs text-center text-gray-500">
-              Máximo 5 mensajes por conversación. Quedan {5 - recoveryCase.messages.length} mensajes.
             </p>
           </div>
         ) : (

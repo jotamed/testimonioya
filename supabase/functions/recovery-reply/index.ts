@@ -93,8 +93,8 @@ serve(async (req) => {
     }
 
     // Check message limit (max 5 total messages)
-    if (recoveryCase.messages.length >= 5) {
-      throw new Error('Maximum 5 messages reached for this case')
+    if (recoveryCase.messages.length >= 50) {
+      throw new Error('Maximum 50 messages reached for this case')
     }
 
     // Add business reply to messages

@@ -413,10 +413,10 @@ export default function RecoveryCases() {
                 </div>
               )}
 
-              {selectedCase.messages.length >= 5 ? (
+              {selectedCase.messages.length >= 50 ? (
                 <div className="text-center py-4">
                   <p className="text-sm text-gray-600">
-                    Se ha alcanzado el límite de 5 mensajes para este caso.
+                    Se ha alcanzado el límite de mensajes para este caso.
                   </p>
                 </div>
               ) : selectedCase.status === 'closed' ? (
@@ -469,7 +469,7 @@ export default function RecoveryCases() {
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 text-right">
-                    {selectedCase.messages.length}/5 mensajes utilizados
+                    {selectedCase.messages.length} mensajes
                   </p>
                 </form>
               )}
