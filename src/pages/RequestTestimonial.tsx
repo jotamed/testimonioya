@@ -34,14 +34,16 @@ export default function RequestTestimonial() {
   const toast = useToast()
   const { plan } = useUserPlan()
 
-  const testimonialUrl = collectionSlug
+  const collectionUrl = collectionSlug
     ? `${window.location.origin}/t/${collectionSlug}`
     : ''
   const unifiedUrl = unifiedSlug
     ? `${window.location.origin}/r/${unifiedSlug}`
     : ''
-  const noCollectionLink = !loading && business && !collectionSlug
   const hasUnifiedFlow = plan && getPlanLimits(plan).hasUnifiedFlow && business?.use_unified_flow
+  // When unified flow is active, ALL channels use the unified URL
+  const testimonialUrl = (hasUnifiedFlow && unifiedUrl) ? unifiedUrl : collectionUrl
+  const noCollectionLink = !loading && business && !collectionSlug && !hasUnifiedFlow
 
   useEffect(() => {
     loadData()
