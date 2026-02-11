@@ -110,9 +110,10 @@ export default function RequestTestimonial() {
     setSending(true)
     setEmailSuccess(null)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast.error('Error', 'No autenticado')
+      // Refresh session to avoid expired JWT
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession()
+      if (sessionError || !session) {
+        toast.error('Sesión expirada', 'Por favor, recarga la página e inicia sesión de nuevo')
         return
       }
 

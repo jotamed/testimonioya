@@ -97,6 +97,18 @@ export default function Onboarding() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No hay sesión activa')
 
+      // Check for duplicate business name
+      const { data: existing } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('user_id', user.id)
+        .ilike('business_name', businessName.trim())
+        .limit(1)
+
+      if (existing && existing.length > 0) {
+        throw new Error('Ya tienes un negocio con ese nombre. Edítalo desde el dashboard o elige otro nombre.')
+      }
+
       const slug = generateSlug(businessName) + '-' + Math.random().toString(36).substr(2, 4)
       const welcomeMsg = welcomeMessages[sector] || welcomeMessages.otro
 
