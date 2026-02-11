@@ -143,7 +143,7 @@ export default function Settings() {
             .single()
           
           if (unifiedLink) {
-            setUnifiedLinkUrl(`${window.location.origin}/nps/${unifiedLink.slug}`)
+            setUnifiedLinkUrl(`${window.location.origin}/r/${unifiedLink.slug}`)
           }
         }
       }
@@ -174,7 +174,7 @@ export default function Settings() {
             .update({ is_active: true })
             .eq('business_id', business.id)
           
-          setUnifiedLinkUrl(`${window.location.origin}/nps/${existingLink.slug}`)
+          setUnifiedLinkUrl(`${window.location.origin}/r/${existingLink.slug}`)
         } else {
           // Create new unified link
           const slug = `${business.slug}-nps`
@@ -192,7 +192,7 @@ export default function Settings() {
             })
           
           if (error) throw error
-          setUnifiedLinkUrl(`${window.location.origin}/nps/${slug}`)
+          setUnifiedLinkUrl(`${window.location.origin}/r/${slug}`)
         }
         
         setFormData({ ...formData, use_unified_flow: true })
