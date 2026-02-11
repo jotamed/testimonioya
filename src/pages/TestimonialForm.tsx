@@ -321,7 +321,7 @@ export default function TestimonialForm() {
                 href={googleReviewsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full py-4 px-6 mb-4 rounded-xl font-semibold text-white text-lg transition-all hover:opacity-90 hover:scale-[1.02] flex items-center justify-center space-x-3"
+                className="w-full py-4 px-6 mb-4 rounded-xl font-semibold text-white text-lg transition-all hover:opacity-90 hover:scale-[1.02] flex items-center justify-center space-x-3"
                 style={{ backgroundColor: brandColor }}
               >
                 <span>{_('thanks.google')}</span>
@@ -329,11 +329,19 @@ export default function TestimonialForm() {
               </a>
             )}
 
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
               <p className="text-sm text-indigo-900">
                 {_('thanks.valuable', { business: businessName })}
               </p>
             </div>
+
+            {/* Close button */}
+            <button
+              onClick={() => window.close()}
+              className="w-full py-3 px-6 rounded-xl font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors text-sm"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       </div>
