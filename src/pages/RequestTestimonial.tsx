@@ -41,7 +41,7 @@ export default function RequestTestimonial() {
     ? `${window.location.origin}/r/${unifiedSlug}`
     : ''
   const noCollectionLink = !loading && business && !collectionSlug
-  const hasUnifiedFlow = plan && getPlanLimits(plan).hasUnifiedFlow
+  const hasUnifiedFlow = plan && getPlanLimits(plan).hasUnifiedFlow && business?.use_unified_flow
 
   useEffect(() => {
     loadData()
@@ -293,6 +293,21 @@ export default function RequestTestimonial() {
               <p className="text-sm text-amber-700 mt-1">
                 Sin un enlace, no se puede generar la URL del formulario de testimonios.{' '}
                 <a href="/dashboard/links" className="underline font-medium">Crear un enlace →</a>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Hint: unified flow available but not enabled */}
+        {plan && getPlanLimits(plan).hasUnifiedFlow && !business?.use_unified_flow && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-start space-x-3">
+            <Sparkles className="h-5 w-5 text-purple-600 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-purple-900">Flujo Unificado disponible</p>
+              <p className="text-sm text-purple-700 mt-1">
+                Activa el flujo unificado en{' '}
+                <a href="/dashboard/settings?tab=collection" className="underline font-medium">Configuración</a>
+                {' '}para usar esta función avanzada de NPS→Testimonio
               </p>
             </div>
           </div>

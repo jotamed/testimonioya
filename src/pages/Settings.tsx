@@ -4,7 +4,7 @@ import {
   Key, Download, 
   MessageSquare, Lock, Settings2, CreditCard,
   Receipt, ExternalLink, Loader2, AlertCircle, Shield,
-  Trash2, Mail, Eye, EyeOff, Bell
+  Trash2, Mail, Eye, EyeOff, Bell, Workflow
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import DashboardLayout from '../components/DashboardLayout'
@@ -17,14 +17,14 @@ import TwoFactorSetup from '../components/TwoFactorSetup'
 import { SUPPORTED_LANGUAGES } from '../lib/i18n'
 import { translateError } from '../lib/errorMessages'
 
-type SettingsTab = 'general' | 'notifications' | 'nps' | 'branding' | 'security' | 'billing'
+type SettingsTab = 'general' | 'notifications' | 'collection' | 'nps' | 'branding' | 'security' | 'billing'
 
 export default function Settings() {
   const [business, setBusiness] = useState<Business | null>(null)
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
     const params = new URLSearchParams(window.location.search)
     const tab = params.get('tab')
-    const validTabs: SettingsTab[] = ['general', 'notifications', 'nps', 'branding', 'security', 'billing']
+    const validTabs: SettingsTab[] = ['general', 'notifications', 'collection', 'nps', 'branding', 'security', 'billing']
     return validTabs.includes(tab as SettingsTab) ? (tab as SettingsTab) : 'general'
   })
   const [formData, setFormData] = useState({
@@ -48,6 +48,9 @@ export default function Settings() {
     google_reviews_nps_threshold: 9,
     google_reviews_star_threshold: 4,
     default_language: 'es',
+    // Flow toggles
+    use_unified_flow: false,
+    use_recovery_flow: false,
   })
   const [_apiKey, _setApiKey] = useState<string | null>(null)
   const [_generatingKey, _setGeneratingKey] = useState(false)
@@ -57,6 +60,8 @@ export default function Settings() {
   const [upgrading, setUpgrading] = useState(false)
   const [openingPortal, setOpeningPortal] = useState(false)
   const [portalError, setPortalError] = useState<string | null>(null)
+  const [unifiedLinkUrl, setUnifiedLinkUrl] = useState<string | null>(null)
+  const [creatingUnifiedLink, setCreatingUnifiedLink] = useState(false)
   
   // Security state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -124,13 +129,93 @@ export default function Settings() {
           google_reviews_nps_threshold: businessData.google_reviews_nps_threshold ?? 9,
           google_reviews_star_threshold: businessData.google_reviews_star_threshold ?? 4,
           default_language: businessData.default_language ?? 'es',
+          use_unified_flow: businessData.use_unified_flow ?? false,
+          use_recovery_flow: businessData.use_recovery_flow ?? false,
         })
         _setApiKey(businessData.api_key || null)
+        
+        // Load unified link if exists
+        if (businessData.use_unified_flow) {
+          const { data: unifiedLink } = await supabase
+            .from('unified_links')
+            .select('slug')
+            .eq('business_id', businessData.id)
+            .single()
+          
+          if (unifiedLink) {
+            setUnifiedLinkUrl(`${window.location.origin}/nps/${unifiedLink.slug}`)
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading business:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleUnifiedFlow = async (enabled: boolean) => {
+    if (!business) return
+    
+    if (enabled) {
+      // Check if unified link exists, if not create one
+      setCreatingUnifiedLink(true)
+      try {
+        const { data: existingLink } = await supabase
+          .from('unified_links')
+          .select('slug, is_active')
+          .eq('business_id', business.id)
+          .single()
+        
+        if (existingLink) {
+          // Reactivate if exists
+          await supabase
+            .from('unified_links')
+            .update({ is_active: true })
+            .eq('business_id', business.id)
+          
+          setUnifiedLinkUrl(`${window.location.origin}/nps/${existingLink.slug}`)
+        } else {
+          // Create new unified link
+          const slug = `${business.slug}-nps`
+          const { error } = await supabase
+            .from('unified_links')
+            .insert({
+              business_id: business.id,
+              slug,
+              name: 'Enlace Unificado NPS',
+              is_active: true,
+              nps_threshold_promoter: 9,
+              nps_threshold_passive: 7,
+              ask_google_review: !!business.google_reviews_url,
+              google_reviews_url: business.google_reviews_url,
+            })
+          
+          if (error) throw error
+          setUnifiedLinkUrl(`${window.location.origin}/nps/${slug}`)
+        }
+        
+        setFormData({ ...formData, use_unified_flow: true })
+      } catch (error) {
+        console.error('Error creating unified link:', error)
+        toast.error('Error', 'No se pudo crear el enlace unificado')
+        return
+      } finally {
+        setCreatingUnifiedLink(false)
+      }
+    } else {
+      // Deactivate unified link
+      try {
+        await supabase
+          .from('unified_links')
+          .update({ is_active: false })
+          .eq('business_id', business.id)
+        
+        setFormData({ ...formData, use_unified_flow: false, use_recovery_flow: false })
+        setUnifiedLinkUrl(null)
+      } catch (error) {
+        console.error('Error deactivating unified link:', error)
+      }
     }
   }
 
@@ -227,6 +312,7 @@ export default function Settings() {
   const tabs: { id: SettingsTab; label: string; icon: any; requiresPlan?: PlanType }[] = [
     { id: 'general', label: 'General', icon: Settings2 },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
+    { id: 'collection', label: 'Flujo de Recolección', icon: Workflow, requiresPlan: 'pro' },
     { id: 'nps', label: 'NPS', icon: MessageSquare, requiresPlan: 'pro' },
     { id: 'branding', label: 'Marca', icon: Palette, requiresPlan: 'pro' },
     { id: 'security', label: 'Seguridad', icon: Shield },
@@ -633,6 +719,98 @@ export default function Settings() {
                       enabled={formData.notify_monthly_report}
                       onChange={(v) => setFormData({ ...formData, notify_monthly_report: v })}
                     />
+                  </div>
+
+                  <SaveButton saving={saving} />
+                </div>
+              )}
+
+              {/* Collection Flow Tab */}
+              {activeTab === 'collection' && (
+                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
+                  {!isPro && <LockedOverlay plan="Pro" />}
+                  
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Flujo de Recolección</h2>
+                    <p className="text-sm text-gray-500 mt-1">Configura cómo recolectas feedback de tus clientes</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className={`flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 ${!isPro ? 'opacity-60' : ''}`}>
+                      <div className="flex items-start space-x-3 flex-1">
+                        <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mt-0.5">
+                          <Workflow className="h-5 w-5 text-indigo-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">Usar flujo unificado NPS→Testimonio</p>
+                          <p className="text-sm text-gray-500 mt-0.5">
+                            Pregunta primero el NPS (0-10) y luego captura testimonio de promotores o feedback de detractores
+                          </p>
+                          {formData.use_unified_flow && unifiedLinkUrl && (
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-500 mb-1.5">Tu enlace unificado:</p>
+                              <code className="block bg-white px-3 py-2 rounded text-xs text-indigo-600 border border-indigo-200 break-all">
+                                {unifiedLinkUrl}
+                              </code>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {!isPro ? (
+                        <Lock className="h-5 w-5 text-gray-400 flex-shrink-0 ml-3" />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleUnifiedFlow(!formData.use_unified_flow)}
+                          disabled={creatingUnifiedLink}
+                          className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ml-3 ${
+                            formData.use_unified_flow ? 'bg-indigo-600' : 'bg-gray-300'
+                          } ${creatingUnifiedLink ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${
+                            formData.use_unified_flow ? 'translate-x-5' : 'translate-x-0'
+                          }`} />
+                        </button>
+                      )}
+                    </div>
+
+                    {formData.use_unified_flow && (
+                      <div className={`flex items-start justify-between p-4 bg-amber-50 rounded-lg border border-amber-200 ${!isBusiness ? 'opacity-60' : ''}`}>
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center mt-0.5">
+                            <MessageSquare className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <p className="font-medium text-gray-900">Activar Recovery Flow</p>
+                              {!isBusiness && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                                  Business
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-0.5">
+                              Gestiona clientes insatisfechos con conversaciones de recuperación
+                            </p>
+                          </div>
+                        </div>
+                        {!isBusiness ? (
+                          <Lock className="h-5 w-5 text-gray-400 flex-shrink-0 ml-3" />
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, use_recovery_flow: !formData.use_recovery_flow })}
+                            className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ml-3 ${
+                              formData.use_recovery_flow ? 'bg-amber-600' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${
+                              formData.use_recovery_flow ? 'translate-x-5' : 'translate-x-0'
+                            }`} />
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <SaveButton saving={saving} />

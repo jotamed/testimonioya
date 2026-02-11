@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { MessageSquare, ArrowRight, ArrowLeft, Check, Copy, Mail, Sparkles, Upload, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { sendWelcomeEmail } from '../lib/email'
-import { getPlanLimits } from '../lib/plans'
 
 const STEPS = [
   { label: 'Tu negocio', number: 1 },
@@ -152,29 +151,6 @@ export default function Onboarding() {
         name: 'Testimonios',
         slug: linkSlug,
       })
-
-      // Get user plan from profiles
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('plan')
-        .eq('id', user.id)
-        .single()
-
-      const userPlan = (profileData?.plan as 'free' | 'pro' | 'business') || 'free'
-      const limits = getPlanLimits(userPlan)
-
-      // If Pro+ user, also create unified_link
-      if (limits.hasUnifiedFlow) {
-        const unifiedSlug = slug + '-' + Math.random().toString(36).substr(2, 6)
-        await supabase.from('unified_links').insert({
-          business_id: businessData.id,
-          name: 'Enlace unificado',
-          slug: unifiedSlug,
-          nps_threshold_promoter: 9,
-          nps_threshold_passive: 7,
-          ask_google_review: true,
-        })
-      }
 
       const origin = window.location.origin
       setShareableLink(`${origin}/t/${linkSlug}`)

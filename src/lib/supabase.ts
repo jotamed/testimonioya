@@ -37,6 +37,9 @@ export type Business = {
   default_language?: string
   // API
   api_key?: string
+  // Flow toggles
+  use_unified_flow?: boolean
+  use_recovery_flow?: boolean
   created_at: string
 }
 

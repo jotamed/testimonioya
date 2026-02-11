@@ -157,6 +157,34 @@ export default function RecoveryCases() {
     )
   }
 
+  // Check if recovery flow is enabled
+  if (!business?.use_recovery_flow) {
+    return (
+      <DashboardLayout>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-1">
+                Recovery Flow desactivado
+              </h3>
+              <p className="text-sm text-blue-700 mb-3">
+                Activa el Recovery Flow en{' '}
+                <a href="/dashboard/settings?tab=collection" className="underline font-medium">
+                  Configuración
+                </a>
+                {' '}para gestionar casos de recuperación de clientes insatisfechos.
+              </p>
+              <p className="text-xs text-blue-600">
+                El Recovery Flow requiere tener el flujo unificado activado.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
