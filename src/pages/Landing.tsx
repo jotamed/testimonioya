@@ -122,7 +122,7 @@ export default function Landing() {
     // Load TestimonioYa widget
     const script = document.createElement('script')
     script.src = 'https://testimonioya.com/widget.js'
-    script.setAttribute('data-business', 'cafe-el-aroma-yt4s')
+    script.setAttribute('data-slug', 'cafe-el-aroma-yt4s')
     script.setAttribute('data-layout', 'grid')
     script.setAttribute('data-theme', 'light')
     script.setAttribute('data-max', '6')
