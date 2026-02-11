@@ -293,9 +293,15 @@ export default function UnifiedForm() {
               </a>
             )}
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 mb-4">
               Equipo de {business.business_name}
             </p>
+            <button
+              onClick={() => window.close()}
+              className="w-full py-3 px-6 rounded-xl font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors text-sm"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       </div>

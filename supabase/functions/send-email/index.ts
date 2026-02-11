@@ -110,14 +110,6 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
             : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
           }
         </p>
-        ${data.is_unified ? `
-        <div style="text-align: center; margin: 16px 0 8px;">
-          <span style="font-size: 28px; letter-spacing: 4px; color: #9ca3af;">0 1 2 3 4 5 6 7 8 9 10</span>
-        </div>
-        <p style="text-align: center; color: #9ca3af; font-size: 13px; margin: 0 0 24px;">
-          Nada probable ← → Muy probable
-        </p>
-        ` : ''}
         <div style="text-align: center; margin: 32px 0;">
           <a href="${data.form_url}" style="background: #4f46e5; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
             ${data.is_unified ? 'Puntuar mi experiencia →' : 'Dejar mi opinión →'}
