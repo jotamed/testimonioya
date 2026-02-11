@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react'
-import { AlertCircle, Clock, MessageSquare, CheckCircle, XCircle } from 'lucide-react'
+import { AlertCircle, Clock, MessageSquare, CheckCircle, XCircle, Send, X } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, RecoveryCase } from '../lib/supabase'
 import { useUserPlan } from '../lib/useUserPlan'
 
 export default function RecoveryCases() {
-  const [_business, setBusiness] = useState<Business | null>(null)
+  const [business, setBusiness] = useState<Business | null>(null)
   const [cases, setCases] = useState<RecoveryCase[]>([])
   const [loading, setLoading] = useState(true)
   const { plan } = useUserPlan()
+  
+  // Detail modal state
+  const [selectedCase, setSelectedCase] = useState<RecoveryCase | null>(null)
+  const [replyMessage, setReplyMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -46,6 +52,87 @@ export default function RecoveryCases() {
       console.error('Error loading cases:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleReply = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!replyMessage.trim() || !selectedCase) return
+
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No hay sesión activa')
+      }
+
+      const { error: replyError } = await supabase.functions.invoke('recovery-reply', {
+        body: {
+          case_id: selectedCase.id,
+          message: replyMessage.trim(),
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+
+      if (replyError) throw replyError
+
+      // Reload the specific case to get updated messages
+      const { data: updatedCase } = await supabase
+        .from('recovery_cases')
+        .select('*')
+        .eq('id', selectedCase.id)
+        .single()
+
+      if (updatedCase) {
+        setSelectedCase(updatedCase)
+        // Also update the cases list
+        setCases(prevCases => 
+          prevCases.map(c => c.id === updatedCase.id ? updatedCase : c)
+        )
+      }
+
+      setReplyMessage('')
+      setError(null)
+    } catch (err: any) {
+      console.error('Error sending reply:', err)
+      setError(err.message || 'Error al enviar la respuesta')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const updateStatus = async (caseId: string, newStatus: 'resolved' | 'closed') => {
+    try {
+      const { error: updateError } = await supabase
+        .from('recovery_cases')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', caseId)
+
+      if (updateError) throw updateError
+
+      // Update the cases list
+      setCases(prevCases =>
+        prevCases.map(c =>
+          c.id === caseId ? { ...c, status: newStatus, updated_at: new Date().toISOString() } : c
+        )
+      )
+
+      // Close modal if case was closed, otherwise update selected case
+      if (newStatus === 'closed') {
+        setSelectedCase(null)
+      } else if (selectedCase?.id === caseId) {
+        setSelectedCase({ ...selectedCase, status: newStatus, updated_at: new Date().toISOString() })
+      }
+    } catch (err) {
+      console.error('Error updating status:', err)
+      setError('Error al actualizar el estado')
     }
   }
 
@@ -207,10 +294,7 @@ export default function RecoveryCases() {
                       <td className="py-3 px-4">
                         <button
                           className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-                          onClick={() => {
-                            // TODO: Open case detail modal
-                            alert('Case detail view - To be implemented in Phase 4')
-                          }}
+                          onClick={() => setSelectedCase(case_)}
                         >
                           Ver detalles →
                         </button>
@@ -223,6 +307,137 @@ export default function RecoveryCases() {
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      {selectedCase && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Caso: {selectedCase.customer_name || 'Anónimo'}
+                </h2>
+                {selectedCase.customer_email && (
+                  <p className="text-sm text-gray-500 mt-1">{selectedCase.customer_email}</p>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedCase(null)
+                  setReplyMessage('')
+                  setError(null)
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Modal Body - Conversation Thread */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {selectedCase.messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === 'business' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      msg.role === 'business'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    <p className="text-sm font-medium mb-1 opacity-70">
+                      {msg.role === 'business' ? business?.business_name || 'Tú' : 'Cliente'}
+                    </p>
+                    <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                    <p className={`text-xs mt-2 ${msg.role === 'business' ? 'text-indigo-100' : 'text-gray-500'}`}>
+                      {new Date(msg.created_at).toLocaleString('es-ES', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Footer - Reply Form */}
+            <div className="border-t border-gray-200 p-6 bg-gray-50">
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start space-x-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {selectedCase.messages.length >= 5 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-600">
+                    Se ha alcanzado el límite de 5 mensajes para este caso.
+                  </p>
+                </div>
+              ) : selectedCase.status === 'closed' ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-600">Este caso está cerrado.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleReply} className="space-y-4">
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    rows={3}
+                    className="input-field"
+                    placeholder="Escribe tu respuesta..."
+                    required
+                    maxLength={1000}
+                  />
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex gap-2">
+                      {selectedCase.status !== 'resolved' && (
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(selectedCase.id, 'resolved')}
+                          className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-2"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Marcar resuelto
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm('¿Cerrar este caso?')) {
+                            updateStatus(selectedCase.id, 'closed')
+                          }
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Cerrar caso
+                      </button>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={submitting || !replyMessage.trim()}
+                      className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      {submitting ? 'Enviando...' : 'Enviar'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 text-right">
+                    {selectedCase.messages.length}/5 mensajes utilizados
+                  </p>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

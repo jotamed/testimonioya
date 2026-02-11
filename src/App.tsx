@@ -32,6 +32,7 @@ const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
 const UnifiedForm = lazy(() => import('./pages/UnifiedForm'))
 const RecoveryCases = lazy(() => import('./pages/RecoveryCases'))
+const RecoveryResponse = lazy(() => import('./pages/RecoveryResponse'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Admin = lazy(() => import('./pages/Admin'))
 const BlogList = lazy(() => import('./pages/blog/BlogList'))
@@ -66,6 +67,7 @@ function App() {
             <Route path="/t/:slug" element={<TestimonialForm />} />
             <Route path="/nps/:slug" element={<NpsForm />} />
             <Route path="/r/:slug" element={<UnifiedForm />} />
+            <Route path="/recovery/:caseId" element={<RecoveryResponse />} />
             <Route path="/wall/:slug" element={<WallOfLove />} />
             <Route path="/onboarding" element={<Onboarding />} />
             
