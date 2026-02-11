@@ -284,14 +284,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <ul className="space-y-1">
                 {[
                   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', onClick: () => setSidebarOpen(false) },
-                  { to: '/dashboard/testimonials', icon: MessageCircle, label: 'Testimonios' },
-                  { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio' },
                   { to: '/dashboard/links', icon: LinkIcon, label: 'Enlaces' },
-                  { to: '/dashboard/widget', icon: Code, label: 'Widget' },
-                  { to: '/dashboard/nps', icon: Target, label: 'NPS' },
-                  ...(userPlan === 'business' && currentBusiness?.use_recovery_flow ? [{ to: '/dashboard/recovery', icon: AlertCircle, label: 'Casos', badge: 'Business' as const }] : []),
+                  { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio' },
+                  { to: '/dashboard/testimonials', icon: MessageCircle, label: 'Testimonios' },
+                  ...(userPlan !== 'free' && currentBusiness?.use_recovery_flow ? [{ to: '/dashboard/recovery', icon: AlertCircle, label: 'Casos' }] : []),
                   { to: '/dashboard/reviews', icon: Star, label: 'Reseñas', badge: 'Pro' },
+                  { to: '/dashboard/nps', icon: Target, label: 'NPS' },
                   { to: '/dashboard/analytics', icon: BarChart3, label: 'Analíticas', badge: 'Business' },
+                  { to: '/dashboard/widget', icon: Code, label: 'Widget' },
                   { to: '/dashboard/settings', icon: Settings, label: 'Configuración' },
                 ].map((item) => {
                   const Icon = item.icon
