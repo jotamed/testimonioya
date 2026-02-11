@@ -70,27 +70,20 @@ export default function RecoveryCases() {
         throw new Error('Sesión expirada. Recarga la página e inténtalo de nuevo.')
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recovery-reply`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({
-            case_id: selectedCase.id,
-            message: replyMessage.trim(),
-          }),
-        }
-      )
+      const { data, error: fnError } = await supabase.functions.invoke('recovery-reply', {
+        body: {
+          case_id: selectedCase.id,
+          message: replyMessage.trim(),
+        },
+      })
 
-      const text = await response.text()
-      let result: any = {}
-      try { result = text ? JSON.parse(text) : {} } catch { result = { error: text || `Error ${response.status}` } }
-      if (!response.ok) {
-        throw new Error(result.error || `Error ${response.status}`)
+      if (fnError) {
+        // Try to extract error message from response
+        let errMsg = fnError.message || 'Error desconocido'
+        try {
+          if (typeof data === 'object' && data?.error) errMsg = data.error
+        } catch {}
+        throw new Error(errMsg)
       }
 
       // Reload the specific case to get updated messages
