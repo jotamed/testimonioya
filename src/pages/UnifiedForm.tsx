@@ -1,13 +1,16 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { MessageSquare, Send, AlertTriangle, ExternalLink, Star } from 'lucide-react'
+import { MessageSquare, Send, AlertTriangle, ExternalLink, Star, Type, Mic, Video } from 'lucide-react'
 import { supabase, Business, UnifiedLink } from '../lib/supabase'
 import { getPlanLimits } from '../lib/plans'
 import { detectLanguage, t, SupportedLang } from '../lib/i18n'
+import AudioRecorder from '../components/AudioRecorder'
+import VideoRecorder from '../components/VideoRecorder'
 
 type NpsScore = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 type FlowStep = 'score' | 'feedback' | 'thanks'
 type Category = 'detractor' | 'passive' | 'promoter'
+type TestimonialMode = 'text' | 'audio' | 'video'
 
 export default function UnifiedForm() {
   const { slug } = useParams()
@@ -24,6 +27,11 @@ export default function UnifiedForm() {
   const [customerEmail, setCustomerEmail] = useState('')
   const [feedback, setFeedback] = useState('')
   const [rating, setRating] = useState(5)
+  const [mode, setMode] = useState<TestimonialMode>('text')
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
+  const [isPaidPlan, setIsPaidPlan] = useState(false)
+  const [allowAudio, setAllowAudio] = useState(false)
   
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -84,6 +92,9 @@ export default function UnifiedForm() {
 
       const plan = (profileData?.plan as 'free' | 'pro' | 'business') || 'free'
       setUserPlan(plan)
+      const paid = plan === 'pro' || plan === 'business'
+      setIsPaidPlan(paid)
+      setAllowAudio(paid && (bizData.allow_audio_testimonials !== false))
 
       // Check if plan has NPS/unified flow
       const limits = getPlanLimits(plan)
@@ -125,6 +136,23 @@ export default function UnifiedForm() {
     setStep('feedback')
   }
 
+  const uploadMedia = async (blob: Blob, type: 'audio' | 'video'): Promise<string | null> => {
+    try {
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webm`
+      const filePath = `testimonials/${link?.business_id}/${fileName}`
+      const bucket = type === 'video' ? 'video-testimonials' : 'audio-testimonials'
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, blob, { contentType: blob.type, cacheControl: '3600' })
+      if (uploadError) throw uploadError
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath)
+      return publicUrl
+    } catch (err) {
+      console.error(`Error uploading ${type}:`, err)
+      return null
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (score === null || !business || !link || !category) return
@@ -161,14 +189,21 @@ export default function UnifiedForm() {
       if (npsError) throw npsError
 
       // For promoters: also create testimonial
-      if (category === 'promoter' && feedback.trim()) {
+      if (category === 'promoter' && (feedback.trim() || audioBlob || videoBlob)) {
+        let audioUrl: string | null = null
+        let videoUrl: string | null = null
+        if (audioBlob) audioUrl = await uploadMedia(audioBlob, 'audio')
+        if (videoBlob) videoUrl = await uploadMedia(videoBlob, 'video')
+
         await supabase
           .from('testimonials')
           .insert({
             business_id: business.id,
             customer_name: customerName,
             customer_email: customerEmail || null,
-            text_content: feedback,
+            text_content: feedback || null,
+            audio_url: audioUrl,
+            video_url: videoUrl,
             rating,
             source: 'nps',
             status: 'pending',
@@ -413,40 +448,111 @@ export default function UnifiedForm() {
                 </div>
               )}
 
+              {/* Mode selector - only for promoters with paid plan */}
+              {isPromoter && isPaidPlan && allowAudio && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    ¿Cómo quieres dejar tu testimonio?
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { key: 'text' as const, icon: Type, label: 'Texto' },
+                      { key: 'audio' as const, icon: Mic, label: 'Audio' },
+                      { key: 'video' as const, icon: Video, label: 'Vídeo' },
+                    ]).map(({ key, icon: Icon, label }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setMode(key)}
+                        className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
+                          mode === key
+                            ? 'border-transparent text-white'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                        }`}
+                        style={mode === key ? { backgroundColor: color } : {}}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span className="font-medium text-sm">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Feedback */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {isPromoter
-                    ? 'Tu experiencia'
-                    : isDetractor
-                    ? '¿Qué podemos mejorar?'
-                    : 'Comentarios'}
-                  {(isPromoter || isDetractor) && <span className="text-red-500"> *</span>}
-                </label>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  rows={4}
-                  className="input-field"
-                  placeholder={
-                    isPromoter
-                      ? 'Cuéntanos qué te gustó...'
+              {mode === 'text' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isPromoter
+                      ? 'Tu experiencia'
                       : isDetractor
-                      ? 'Cuéntanos qué podemos mejorar...'
-                      : 'Tu opinión (opcional)'
-                  }
-                  required={isPromoter || isDetractor}
-                />
-                {isPromoter && (
-                  <p className="mt-1 text-xs text-gray-500">
-                    Tu testimonio será público (tras revisión)
-                  </p>
-                )}
-              </div>
+                      ? '¿Qué podemos mejorar?'
+                      : 'Comentarios'}
+                    {(isPromoter || isDetractor) && <span className="text-red-500"> *</span>}
+                  </label>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    rows={4}
+                    className="input-field"
+                    placeholder={
+                      isPromoter
+                        ? 'Cuéntanos qué te gustó...'
+                        : isDetractor
+                        ? 'Cuéntanos qué podemos mejorar...'
+                        : 'Tu opinión (opcional)'
+                    }
+                    required={(isPromoter || isDetractor) && mode === 'text'}
+                  />
+                  {isPromoter && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Tu testimonio será público (tras revisión)
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {mode === 'audio' && isPromoter && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Graba tu testimonio <span className="text-red-500">*</span>
+                  </label>
+                  <AudioRecorder onAudioReady={setAudioBlob} brandColor={color} maxDuration={120} />
+                  <p className="mt-2 text-xs text-gray-500">Máximo 2 minutos</p>
+                </div>
+              )}
+
+              {mode === 'video' && isPromoter && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Graba tu testimonio en vídeo <span className="text-red-500">*</span>
+                  </label>
+                  <VideoRecorder onVideoReady={setVideoBlob} brandColor={color} maxDuration={60} />
+                  <p className="mt-2 text-xs text-gray-500">Máximo 1 minuto</p>
+                </div>
+              )}
+
+              {/* For non-promoters, always show text feedback */}
+              {!isPromoter && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {isDetractor ? '¿Qué podemos mejorar?' : 'Comentarios'}
+                    {isDetractor && <span className="text-red-500"> *</span>}
+                  </label>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    rows={4}
+                    className="input-field"
+                    placeholder={isDetractor ? 'Cuéntanos qué podemos mejorar...' : 'Tu opinión (opcional)'}
+                    required={isDetractor}
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || (isPromoter && mode === 'audio' && !audioBlob) || (isPromoter && mode === 'video' && !videoBlob)}
                 className="w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center space-x-2 transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: color }}
               >

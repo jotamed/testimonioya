@@ -310,6 +310,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <Icon className="h-5 w-5" />
                         <span className="font-medium">{item.label}</span>
                         {item.badge && (
+                          (item.badge === 'Pro' && userPlan === 'free') ||
+                          (item.badge === 'Business' && userPlan !== 'business')
+                        ) && (
                           <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">{item.badge}</span>
                         )}
                       </Link>
