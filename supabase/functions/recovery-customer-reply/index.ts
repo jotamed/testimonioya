@@ -106,16 +106,12 @@ serve(async (req) => {
     }
 
     // Send notification email to business owner
-    // Get user email from profile
     // @ts-ignore
     const userId = recoveryCase.businesses.user_id
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('id', userId)
-      .single()
+    const { data: { user: ownerUser } } = await supabase.auth.admin.getUserById(userId)
 
-    if (profile?.email && RESEND_API_KEY) {
+    if (ownerUser?.email && RESEND_API_KEY) {
+      const profile = { email: ownerUser.email }
       // @ts-ignore
       const businessName = recoveryCase.businesses.business_name
 
