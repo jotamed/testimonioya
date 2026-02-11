@@ -77,12 +77,9 @@ export default function RecoveryCases() {
         },
       })
 
-      if (fnError) {
-        // Try to extract error message from response
-        let errMsg = fnError.message || 'Error desconocido'
-        try {
-          if (typeof data === 'object' && data?.error) errMsg = data.error
-        } catch {}
+      // supabase SDK returns data even on error status codes
+      if (fnError || data?.error) {
+        const errMsg = data?.error || fnError?.message || 'Error desconocido'
         throw new Error(errMsg)
       }
 

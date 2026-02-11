@@ -180,9 +180,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error: any) {
-    console.error('Recovery reply error:', error)
+    console.error('Recovery reply error:', error?.message, error?.stack)
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal error' }),
+      JSON.stringify({ error: error.message || 'Internal error', stack: error?.stack?.split('\n')[0] }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
