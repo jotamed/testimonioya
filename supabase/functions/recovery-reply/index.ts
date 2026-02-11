@@ -42,29 +42,23 @@ serve(async (req) => {
       throw new Error('RESEND_API_KEY not configured')
     }
 
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      throw new Error('Missing authorization header')
-    }
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Use anon client to verify user token (service client can have issues with user JWTs)
-    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
-    const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    })
-    const { data: { user }, error: userError } = await anonClient.auth.getUser(token)
-    
-    if (userError || !user) {
-      throw new Error(`Unauthorized: ${userError?.message || 'no user'}`)
-    }
 
-    const { case_id, message } = await req.json() as {
+    const { case_id, message, user_token } = await req.json() as {
       case_id: string
       message: string
+      user_token?: string
+    }
+
+    // Get user token from body (preferred) or auth header
+    const token = user_token || req.headers.get('Authorization')?.replace('Bearer ', '')
+    if (!token) {
+      throw new Error('Missing user token')
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    if (userError || !user) {
+      throw new Error(`Unauthorized: ${userError?.message || 'no user'}`)
     }
 
     if (!case_id || !message?.trim()) {
