@@ -70,17 +70,23 @@ export default function RecoveryCases() {
         throw new Error('Sesión expirada. Recarga la página e inténtalo de nuevo.')
       }
 
-      const { data, error: fnError } = await supabase.functions.invoke('recovery-reply', {
-        body: {
+      const resp = await fetch('https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/recovery-reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubWZhbmhlam5ydGZjY2VtbGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjY5NjMsImV4cCI6MjA4NTgwMjk2M30.bhTUh5Ks9nWjuMF4qK0og7gVuw7vlMZeaNGi5NJ0crc',
+        },
+        body: JSON.stringify({
           case_id: selectedCase.id,
           message: replyMessage.trim(),
-        },
+        }),
       })
 
-      // supabase SDK returns data even on error status codes
-      if (fnError || data?.error) {
-        const errMsg = data?.error || fnError?.message || 'Error desconocido'
-        throw new Error(errMsg)
+      let result: any = {}
+      try { result = await resp.json() } catch { result = {} }
+      if (!resp.ok) {
+        throw new Error(result.error || `Error ${resp.status}: ${resp.statusText}`)
       }
 
       // Reload the specific case to get updated messages
