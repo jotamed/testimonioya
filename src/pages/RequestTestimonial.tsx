@@ -137,12 +137,17 @@ export default function RequestTestimonial() {
           })
 
           const result = await response.json()
-          if (!result.error) {
+          console.log(`Email to ${email}:`, response.status, result)
+          if (response.ok && !result.error) {
             successCount++
             await logRequest('email', email)
+          } else {
+            console.error(`Email failed for ${email}:`, result)
+            toast.error('Error', `No se pudo enviar a ${email}: ${result.error || result.message || 'Error desconocido'}`)
           }
         } catch (e) {
           console.error(`Error sending to ${email}:`, e)
+          toast.error('Error', `Error enviando a ${email}`)
         }
       }
 
