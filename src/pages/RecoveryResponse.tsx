@@ -83,17 +83,26 @@ export default function RecoveryResponse() {
     setError(null)
 
     try {
-      // Use edge function to validate token and add reply
-      const { data, error: replyError } = await supabase.functions.invoke('recovery-customer-reply', {
-        body: {
+      // Use direct fetch to avoid SDK sending expired JWT in Authorization header
+      const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubWZhbmhlam5ydGZjY2VtbGFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMjY5NjMsImV4cCI6MjA4NTgwMjk2M30.bhTUh5Ks9nWjuMF4qK0og7gVuw7vlMZeaNGi5NJ0crc'
+      const resp = await fetch('https://wnmfanhejnrtfccemlai.supabase.co/functions/v1/recovery-customer-reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${anonKey}`,
+          'apikey': anonKey,
+        },
+        body: JSON.stringify({
           case_id: caseId,
           token,
           message: replyMessage.trim(),
-        },
+        }),
       })
 
-      if (replyError || data?.error) {
-        throw new Error(replyError?.message || data?.error || 'Error al enviar')
+      let data: any = {}
+      try { data = await resp.json() } catch {}
+      if (!resp.ok || data?.error) {
+        throw new Error(data?.error || `Error ${resp.status}`)
       }
 
       setSubmitted(true)

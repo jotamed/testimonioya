@@ -55,13 +55,20 @@ serve(async (req) => {
     // Get recovery case
     const { data: recoveryCase, error: caseError } = await supabase
       .from('recovery_cases')
-      .select('*, businesses!inner(business_name, user_id)')
+      .select('*')
       .eq('id', case_id)
       .single()
 
     if (caseError || !recoveryCase) {
       throw new Error('Case not found')
     }
+
+    // Get business info
+    const { data: biz } = await supabase
+      .from('businesses')
+      .select('business_name, user_id')
+      .eq('id', recoveryCase.business_id)
+      .single()
 
     // Validate HMAC token
     if (!recoveryCase.customer_email) {
@@ -107,13 +114,13 @@ serve(async (req) => {
 
     // Send notification email to business owner
     // @ts-ignore
-    const userId = recoveryCase.businesses.user_id
+    const userId = biz.user_id
     const { data: { user: ownerUser } } = await supabase.auth.admin.getUserById(userId)
 
     if (ownerUser?.email && RESEND_API_KEY) {
       const profile = { email: ownerUser.email }
       // @ts-ignore
-      const businessName = recoveryCase.businesses.business_name
+      const businessName = biz.business_name
 
       const emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
