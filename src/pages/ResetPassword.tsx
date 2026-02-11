@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MessageSquare, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { translateError } from '../lib/errorMessages'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -66,7 +67,7 @@ export default function ResetPassword() {
       }, 2000)
     } catch (err: any) {
       console.error('Update password error:', err)
-      setError(err.message || 'Error al actualizar la contraseña')
+      setError(translateError(err.message))
     } finally {
       setLoading(false)
     }

@@ -15,6 +15,7 @@ import { PlanType } from '../lib/plans'
 import { useUserPlan } from '../lib/useUserPlan'
 import TwoFactorSetup from '../components/TwoFactorSetup'
 import { SUPPORTED_LANGUAGES } from '../lib/i18n'
+import { translateError } from '../lib/errorMessages'
 
 type SettingsTab = 'general' | 'notifications' | 'nps' | 'branding' | 'security' | 'billing'
 
@@ -262,7 +263,7 @@ export default function Settings() {
       setNewPassword('')
       setConfirmNewPassword('')
     } catch (err: any) {
-      setPasswordError(err.message || 'Error al cambiar la contraseña')
+      setPasswordError(translateError(err.message))
     } finally {
       setChangingPassword(false)
     }

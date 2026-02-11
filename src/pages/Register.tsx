@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MessageSquare, Check, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { translateError } from '../lib/errorMessages'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -18,7 +19,7 @@ export default function Register() {
         redirectTo: `${window.location.origin}/onboarding`,
       },
     })
-    if (error) setError(error.message)
+    if (error) setError(translateError(error.message))
   }
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -52,7 +53,7 @@ export default function Register() {
       // If auto-confirmed, redirect to onboarding
       navigate('/onboarding')
     } catch (err: any) {
-      setError(err.message || 'Error al crear cuenta')
+      setError(translateError(err.message))
     } finally {
       setLoading(false)
     }

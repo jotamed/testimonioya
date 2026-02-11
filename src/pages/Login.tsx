@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MessageSquare } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { translateError } from '../lib/errorMessages'
 import TwoFactorVerify from '../components/TwoFactorVerify'
 
 export default function Login() {
@@ -36,7 +37,7 @@ export default function Login() {
 
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión')
+      setError(translateError(err.message))
     } finally {
       setLoading(false)
     }
@@ -49,7 +50,7 @@ export default function Login() {
         redirectTo: `${window.location.origin}/dashboard`,
       },
     })
-    if (error) setError(error.message)
+    if (error) setError(translateError(error.message))
   }
 
   if (needs2FA) {
