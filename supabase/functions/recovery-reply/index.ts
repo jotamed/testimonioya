@@ -50,10 +50,16 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    
+    // Use anon client to verify user token (service client can have issues with user JWTs)
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
+    const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    })
+    const { data: { user }, error: userError } = await anonClient.auth.getUser(token)
     
     if (userError || !user) {
-      throw new Error('Unauthorized')
+      throw new Error(`Unauthorized: ${userError?.message || 'no user'}`)
     }
 
     const { case_id, message } = await req.json() as {
