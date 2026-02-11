@@ -490,9 +490,9 @@ export default function UnifiedForm() {
             <MessageSquare className="h-8 w-8" style={{ color: brandColor }} />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-            ¿Qué probabilidad hay de que recomiendes {business.business_name}?
+            Puntúa tu experiencia con {business.business_name}
           </h1>
-          <p className="text-gray-600">Tu opinión es muy importante para nosotros</p>
+          <p className="text-gray-600">Del 0 al 10, ¿nos recomendarías a un amigo o colega?</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">

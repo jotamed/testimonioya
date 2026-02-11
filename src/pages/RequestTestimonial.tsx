@@ -152,6 +152,7 @@ export default function RequestTestimonial() {
                 business_name: business.business_name,
                 logo_url: business.logo_url,
                 form_url: testimonialUrl,
+                is_unified: !!hasUnifiedFlow,
               },
             }),
           })

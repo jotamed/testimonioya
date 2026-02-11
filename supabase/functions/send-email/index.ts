@@ -90,7 +90,9 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
   }),
 
   request_testimonial: (data) => ({
-    subject: `¿Qué tal tu experiencia con ${data.business_name}?`,
+    subject: data.is_unified
+      ? `${data.business_name} quiere saber tu opinión`
+      : `¿Qué tal tu experiencia con ${data.business_name}?`,
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 32px;">
@@ -103,11 +105,22 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
           ¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋
         </p>
         <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-          Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?
+          ${data.is_unified
+            ? `En <strong>${data.business_name}</strong> queremos mejorar cada día. ¿Nos ayudas puntuando tu experiencia del 0 al 10? Solo toma 30 segundos.`
+            : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
+          }
         </p>
+        ${data.is_unified ? `
+        <div style="text-align: center; margin: 16px 0 8px;">
+          <span style="font-size: 28px; letter-spacing: 4px; color: #9ca3af;">0 1 2 3 4 5 6 7 8 9 10</span>
+        </div>
+        <p style="text-align: center; color: #9ca3af; font-size: 13px; margin: 0 0 24px;">
+          Nada probable ← → Muy probable
+        </p>
+        ` : ''}
         <div style="text-align: center; margin: 32px 0;">
           <a href="${data.form_url}" style="background: #4f46e5; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
-            Dejar mi opinión →
+            ${data.is_unified ? 'Puntuar mi experiencia →' : 'Dejar mi opinión →'}
           </a>
         </div>
         <p style="color: #9ca3af; font-size: 13px; text-align: center;">
