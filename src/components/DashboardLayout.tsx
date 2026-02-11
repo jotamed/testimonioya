@@ -34,6 +34,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) {
       navigate('/login')
+      return
+    }
+    // Proactively refresh session to avoid JWT expiry during API calls
+    const expiresAt = session.expires_at ? session.expires_at * 1000 : 0
+    const fiveMinutes = 5 * 60 * 1000
+    if (expiresAt - Date.now() < fiveMinutes) {
+      await supabase.auth.refreshSession()
     }
     setAuthLoading(false)
   }

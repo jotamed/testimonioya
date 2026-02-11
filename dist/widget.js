@@ -75,12 +75,18 @@
     }
   }
 
-  fetch(API + '/businesses?slug=eq.' + slug + '&select=id,business_name,brand_color,plan', { headers: headers })
+  fetch(API + '/businesses?slug=eq.' + slug + '&select=id,business_name,brand_color,user_id', { headers: headers })
     .then(function(r) { return r.json(); })
     .then(function(biz) {
       if (!biz.length) { el.innerHTML = '<p>Negocio no encontrado</p>'; return; }
       var bizData = biz[0];
-      var isPaid = bizData.plan === 'pro' || bizData.plan === 'business';
+      // Fetch user plan from profiles table
+      return fetch(API + '/profiles?id=eq.' + bizData.user_id + '&select=plan', { headers: headers })
+        .then(function(r) { return r.json(); })
+        .then(function(profiles) {
+          var userPlan = (profiles && profiles.length > 0) ? profiles[0].plan : 'free';
+          bizData.plan = userPlan;
+          var isPaid = userPlan === 'pro' || userPlan === 'business';
       var fetches = [
         fetch(API + '/testimonials?business_id=eq.' + bizData.id + '&status=eq.approved&order=created_at.desc&limit=' + max, { headers: headers }).then(function(r) { return r.json(); })
       ];
@@ -96,5 +102,6 @@
         all.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
         render(all.slice(0, max), bizData);
       });
+        });
     });
 })();

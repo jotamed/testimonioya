@@ -36,13 +36,17 @@ export default function WallOfLove() {
       setBusiness(businessData)
 
       // Fetch owner's plan from profiles
+      let fetchedPlan = 'free'
       if (businessData.user_id) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('plan')
           .eq('id', businessData.user_id)
           .single()
-        if (profile?.plan) setOwnerPlan(profile.plan)
+        if (profile?.plan) {
+          fetchedPlan = profile.plan
+          setOwnerPlan(profile.plan)
+        }
       }
       
       updateSEO({
@@ -61,7 +65,7 @@ export default function WallOfLove() {
         .order('created_at', { ascending: false })
 
       // Load approved external reviews (paid plans only)
-      const isPaid = ownerPlan === 'pro' || ownerPlan === 'business'
+      const isPaid = fetchedPlan === 'pro' || fetchedPlan === 'business'
       let reviewsAsTestimonials: any[] = []
 
       if (isPaid) {

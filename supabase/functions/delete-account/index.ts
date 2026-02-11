@@ -43,58 +43,77 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get user's business
-    const { data: business } = await adminClient
+    // Get ALL user's businesses (Business plan allows up to 5)
+    const { data: businesses } = await adminClient
       .from('businesses')
       .select('id')
       .eq('user_id', user.id)
-      .single()
 
-    if (business) {
-      // Delete all testimonials
-      await adminClient
-        .from('testimonials')
-        .delete()
-        .eq('business_id', business.id)
+    if (businesses && businesses.length > 0) {
+      for (const business of businesses) {
+        // Delete all testimonials
+        await adminClient
+          .from('testimonials')
+          .delete()
+          .eq('business_id', business.id)
 
-      // Delete all NPS responses
-      await adminClient
-        .from('nps_responses')
-        .delete()
-        .eq('business_id', business.id)
+        // Delete all NPS responses
+        await adminClient
+          .from('nps_responses')
+          .delete()
+          .eq('business_id', business.id)
 
-      // Delete all collection links
-      await adminClient
-        .from('collection_links')
-        .delete()
-        .eq('business_id', business.id)
+        // Delete all collection links
+        await adminClient
+          .from('collection_links')
+          .delete()
+          .eq('business_id', business.id)
 
-      // Delete the business
-      await adminClient
-        .from('businesses')
-        .delete()
-        .eq('id', business.id)
+        // Delete testimonial requests
+        await adminClient
+          .from('testimonial_requests')
+          .delete()
+          .eq('business_id', business.id)
 
-      // Delete files from storage
-      const { data: files } = await adminClient.storage
-        .from('audio-testimonials')
-        .list(`testimonials/${business.id}`)
-      
-      if (files && files.length > 0) {
-        const filePaths = files.map(f => `testimonials/${business.id}/${f.name}`)
-        await adminClient.storage.from('audio-testimonials').remove(filePaths)
-      }
+        // Delete external reviews
+        await adminClient
+          .from('external_reviews')
+          .delete()
+          .eq('business_id', business.id)
 
-      // Video files too
-      const { data: videoFiles } = await adminClient.storage
-        .from('video-testimonials')
-        .list(`testimonials/${business.id}`)
-      
-      if (videoFiles && videoFiles.length > 0) {
-        const videoPaths = videoFiles.map(f => `testimonials/${business.id}/${f.name}`)
-        await adminClient.storage.from('video-testimonials').remove(videoPaths)
+        // Delete the business
+        await adminClient
+          .from('businesses')
+          .delete()
+          .eq('id', business.id)
+
+        // Delete files from storage
+        const { data: files } = await adminClient.storage
+          .from('audio-testimonials')
+          .list(`testimonials/${business.id}`)
+        
+        if (files && files.length > 0) {
+          const filePaths = files.map(f => `testimonials/${business.id}/${f.name}`)
+          await adminClient.storage.from('audio-testimonials').remove(filePaths)
+        }
+
+        // Video files too
+        const { data: videoFiles } = await adminClient.storage
+          .from('video-testimonials')
+          .list(`testimonials/${business.id}`)
+        
+        if (videoFiles && videoFiles.length > 0) {
+          const videoPaths = videoFiles.map(f => `testimonials/${business.id}/${f.name}`)
+          await adminClient.storage.from('video-testimonials').remove(videoPaths)
+        }
       }
     }
+
+    // Delete user profile
+    await adminClient
+      .from('profiles')
+      .delete()
+      .eq('id', user.id)
 
     // Delete the user account
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id)

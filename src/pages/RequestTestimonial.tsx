@@ -32,6 +32,7 @@ export default function RequestTestimonial() {
   const testimonialUrl = collectionSlug
     ? `${window.location.origin}/t/${collectionSlug}`
     : ''
+  const noCollectionLink = !loading && business && !collectionSlug
 
   useEffect(() => {
     loadData()
@@ -138,7 +139,6 @@ export default function RequestTestimonial() {
           })
 
           const result = await response.json()
-          console.log(`Email to ${email}:`, response.status, result)
           if (response.ok && !result.error) {
             successCount++
             await logRequest('email', email)
@@ -255,6 +255,20 @@ export default function RequestTestimonial() {
             Solicita testimonios a tus clientes por el canal que prefieras
           </p>
         </div>
+
+        {/* Warning: no collection link */}
+        {noCollectionLink && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start space-x-3">
+            <span className="text-amber-600 text-xl">⚠️</span>
+            <div>
+              <p className="font-medium text-amber-900">No tienes un enlace de recolección activo</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Sin un enlace, no se puede generar la URL del formulario de testimonios.{' '}
+                <a href="/dashboard/links" className="underline font-medium">Crear un enlace →</a>
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tabs Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

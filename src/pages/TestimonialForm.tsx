@@ -99,7 +99,7 @@ export default function TestimonialForm() {
         setMode('text')
       }
 
-      const limitCheck = await canReceiveTestimonial(businessData.id, businessData.plan as PlanType)
+      const limitCheck = await canReceiveTestimonial(businessData.id, businessData.user_id)
       if (!limitCheck.allowed) {
         setLimitReached(true)
       }

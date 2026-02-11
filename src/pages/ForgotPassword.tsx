@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { translateError } from '../lib/errorMessages'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -22,8 +23,7 @@ export default function ForgotPassword() {
       if (error) throw error
       setSent(true)
     } catch (err: any) {
-      console.error('Reset password error:', err)
-      setError(err.message || 'Error al enviar el email')
+      setError(translateError(err.message))
     } finally {
       setLoading(false)
     }
