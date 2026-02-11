@@ -86,7 +86,9 @@ export default function RecoveryCases() {
         }
       )
 
-      const result = await response.json()
+      const text = await response.text()
+      let result: any = {}
+      try { result = text ? JSON.parse(text) : {} } catch { result = { error: text || `Error ${response.status}` } }
       if (!response.ok) {
         throw new Error(result.error || `Error ${response.status}`)
       }

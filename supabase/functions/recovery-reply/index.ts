@@ -65,10 +65,10 @@ serve(async (req) => {
       throw new Error('case_id and message are required')
     }
 
-    // Get recovery case and verify ownership
+    // Get recovery case
     const { data: recoveryCase, error: caseError } = await supabase
       .from('recovery_cases')
-      .select('*, businesses!inner(business_name, user_id)')
+      .select('*')
       .eq('id', case_id)
       .single()
 
@@ -76,8 +76,14 @@ serve(async (req) => {
       throw new Error('Case not found')
     }
 
-    // @ts-ignore - nested select
-    if (recoveryCase.businesses.user_id !== user.id) {
+    // Verify ownership via business
+    const { data: biz } = await supabase
+      .from('businesses')
+      .select('business_name, user_id')
+      .eq('id', recoveryCase.business_id)
+      .single()
+
+    if (!biz || biz.user_id !== user.id) {
       throw new Error('Unauthorized - not your case')
     }
 
@@ -119,8 +125,7 @@ serve(async (req) => {
       const token = await generateHmacToken(case_id, recoveryCase.customer_email)
       const recoveryUrl = `${APP_URL}/recovery/${case_id}?token=${token}`
       
-      // @ts-ignore - nested select
-      const businessName = recoveryCase.businesses.business_name
+      const businessName = biz.business_name
 
       const emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
