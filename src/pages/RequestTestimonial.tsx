@@ -24,12 +24,13 @@ export default function RequestTestimonial() {
   const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [emailSuccess, setEmailSuccess] = useState<{ count: number; total: number } | null>(null)
+  const [collectionSlug, setCollectionSlug] = useState<string | null>(null)
   const [requests, setRequests] = useState<TestimonialRequest[]>([])
   const [loading, setLoading] = useState(true)
   const toast = useToast()
 
-  const testimonialUrl = business
-    ? `${window.location.origin}/t/${business.slug}`
+  const testimonialUrl = collectionSlug
+    ? `${window.location.origin}/t/${collectionSlug}`
     : ''
 
   useEffect(() => {
@@ -54,6 +55,18 @@ export default function RequestTestimonial() {
 
       if (biz) {
         setBusiness(biz)
+
+        // Get the collection link slug for the testimonial URL
+        const { data: links } = await supabase
+          .from('collection_links')
+          .select('slug')
+          .eq('business_id', biz.id)
+          .eq('is_active', true)
+          .limit(1)
+
+        if (links && links.length > 0) {
+          setCollectionSlug(links[0].slug)
+        }
 
         const { data: reqs } = await supabase
           .from('testimonial_requests')
