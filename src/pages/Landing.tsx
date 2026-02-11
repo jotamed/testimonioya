@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import {
   MessageSquare, Star, ArrowRight, Check, ChevronDown,
   Send, Smartphone, Globe, BarChart3, Zap, Shield,
@@ -110,10 +111,17 @@ function useFadeIn() {
 }
 
 export default function Landing() {
+  const navigate = useNavigate()
   const heroVisual = useFadeIn()
   const benefitsSection = useFadeIn()
   const howItWorks = useFadeIn()
   const widgetSection = useFadeIn()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate('/dashboard', { replace: true })
+    })
+  }, [navigate])
 
   useEffect(() => {
     updateSEO({
