@@ -1169,7 +1169,8 @@ export default function Settings() {
                   <div className="grid md:grid-cols-3 gap-4">
                     {(Object.entries(PLANS) as [string, typeof PLANS[keyof typeof PLANS]][]).map(([key, planInfo]) => {
                       const isCurrent = plan === key
-                      const isUpgrade = !isCurrent && key !== 'free'
+                      const planOrder = { free: 0, pro: 1, business: 2 } as const
+                      const isUpgrade = !isCurrent && key !== 'free' && (planOrder[key as keyof typeof planOrder] || 0) > (planOrder[plan as keyof typeof planOrder] || 0)
 
                       return (
                         <div
