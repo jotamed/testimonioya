@@ -73,10 +73,14 @@ export default function Register() {
             <p className="text-gray-600 mb-4">
               Hemos enviado un enlace de confirmación a <span className="font-medium">{email}</span>.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-4">
               Haz clic en el enlace del email para activar tu cuenta y empezar a recolectar testimonios.
-              Revisa tu carpeta de spam si no lo ves.
             </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
+              <p className="text-sm text-amber-800">
+                ⚠️ <strong>¿No lo ves?</strong> Revisa tu carpeta de <strong>spam</strong> o correo no deseado.
+              </p>
+            </div>
             <Link
               to="/login"
               className="text-indigo-600 hover:text-indigo-700 font-medium"
