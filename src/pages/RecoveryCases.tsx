@@ -63,22 +63,24 @@ export default function RecoveryCases() {
     setError(null)
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) {
-        throw new Error('No hay sesión activa')
+      // Refresh session to ensure valid JWT
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+      const session = refreshedSession
+      if (refreshError || !session?.access_token) {
+        throw new Error('Sesión expirada. Recarga la página e inténtalo de nuevo.')
       }
 
-      const { error: replyError } = await supabase.functions.invoke('recovery-reply', {
+      const { data: replyData, error: replyError } = await supabase.functions.invoke('recovery-reply', {
         body: {
           case_id: selectedCase.id,
           message: replyMessage.trim(),
         },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
       })
 
-      if (replyError) throw replyError
+      if (replyError) {
+        const errMsg = replyData?.error || replyError.message || 'Error desconocido'
+        throw new Error(errMsg)
+      }
 
       // Reload the specific case to get updated messages
       const { data: updatedCase } = await supabase
