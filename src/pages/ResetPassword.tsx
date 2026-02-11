@@ -44,6 +44,11 @@ export default function ResetPassword() {
       return
     }
 
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
+      setError('La contraseña debe incluir mayúscula, minúscula, número y carácter especial')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -168,8 +173,11 @@ export default function ResetPassword() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="input-field"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Abc123!..."
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Mín. 6 caracteres con mayúscula, minúscula, número y carácter especial
+              </p>
             </div>
 
             <div>

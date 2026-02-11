@@ -246,6 +246,10 @@ export default function Settings() {
       setPasswordError('La contraseña debe tener al menos 6 caracteres')
       return
     }
+    if (!/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^a-zA-Z0-9]/.test(newPassword)) {
+      setPasswordError('Debe incluir mayúscula, minúscula, número y carácter especial')
+      return
+    }
 
     setChangingPassword(true)
     try {
@@ -753,7 +757,7 @@ export default function Settings() {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             className="input-field pr-10"
-                            placeholder="Mínimo 6 caracteres"
+                            placeholder="Abc123!..."
                             minLength={6}
                             required
                           />

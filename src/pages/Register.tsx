@@ -164,8 +164,11 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="input-field"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Abc123!..."
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Mín. 6 caracteres con mayúscula, minúscula, número y carácter especial
+              </p>
             </div>
 
             <button
