@@ -118,7 +118,7 @@ export default function RequestTestimonial() {
               data: {
                 business_name: business.business_name,
                 logo_url: business.logo_url,
-                testimonial_url: testimonialUrl,
+                form_url: testimonialUrl,
               },
             }),
           })
