@@ -20,6 +20,7 @@ export default function TestimonialForm() {
   const [limitReached, setLimitReached] = useState(false)
   const [userPlan, setUserPlan] = useState<PlanType>('free')
   const [mode, setMode] = useState<TestimonialMode>('text')
+  const [isPaidPlan, setIsPaidPlan] = useState(false)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
   const [formData, setFormData] = useState({
@@ -95,7 +96,10 @@ export default function TestimonialForm() {
         noIndex: true,
       })
       
-      if (!businessData.allow_audio_testimonials) {
+      // Audio/video only for paid plans
+      const paidPlan = profileData?.plan === 'pro' || profileData?.plan === 'business'
+      setIsPaidPlan(paidPlan)
+      if (!paidPlan || !businessData.allow_audio_testimonials) {
         setMode('text')
       }
 
@@ -451,32 +455,36 @@ export default function TestimonialForm() {
                     <Type className="h-5 w-5" />
                     <span className="font-medium text-sm">{_('form.mode.text')}</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode('audio')}
-                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
-                      mode === 'audio'
-                        ? 'border-transparent text-white'
-                        : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
-                    }`}
-                    style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
-                  >
-                    <Mic className="h-5 w-5" />
-                    <span className="font-medium text-sm">{_('form.mode.audio')}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode('video')}
-                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
-                      mode === 'video'
-                        ? 'border-transparent text-white'
-                        : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
-                    }`}
-                    style={mode === 'video' ? { backgroundColor: brandColor } : {}}
-                  >
-                    <Video className="h-5 w-5" />
-                    <span className="font-medium text-sm">{_('form.mode.video')}</span>
-                  </button>
+                  {isPaidPlan && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setMode('audio')}
+                        className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
+                          mode === 'audio'
+                            ? 'border-transparent text-white'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                        }`}
+                        style={mode === 'audio' ? { backgroundColor: brandColor } : {}}
+                      >
+                        <Mic className="h-5 w-5" />
+                        <span className="font-medium text-sm">{_('form.mode.audio')}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMode('video')}
+                        className={`flex flex-col items-center justify-center space-y-1 px-3 py-3 rounded-xl border-2 transition-all ${
+                          mode === 'video'
+                            ? 'border-transparent text-white'
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'
+                        }`}
+                        style={mode === 'video' ? { backgroundColor: brandColor } : {}}
+                      >
+                        <Video className="h-5 w-5" />
+                        <span className="font-medium text-sm">{_('form.mode.video')}</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
