@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { MessageSquare, Send, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabase, Business } from '../lib/supabase'
 import { detectLanguage, t, SupportedLang } from '../lib/i18n'
+import { getPlanLimits } from '../lib/plans'
 
 type NpsScore = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 type NpsCategory = 'detractor' | 'passive' | 'promoter'
@@ -17,6 +18,7 @@ export default function NpsForm() {
   const { slug } = useParams()
   const [business, setBusiness] = useState<Business | null>(null)
   const [ownerPlan, setOwnerPlan] = useState<string>('free')
+  const [hasNps, setHasNps] = useState(true)
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState<'score' | 'feedback' | 'thanks'>('score')
   const [score, setScore] = useState<NpsScore | null>(null)
@@ -53,7 +55,11 @@ export default function NpsForm() {
           .select('plan')
           .eq('id', data.user_id)
           .single()
-        if (profile?.plan) setOwnerPlan(profile.plan)
+        if (profile?.plan) {
+          setOwnerPlan(profile.plan)
+          const limits = getPlanLimits(profile.plan as 'free' | 'pro' | 'business')
+          setHasNps(limits.hasNps)
+        }
       }
       const defaultLang = (data.default_language || 'es') as SupportedLang
       setLang(detectLanguage(defaultLang))
@@ -126,6 +132,28 @@ export default function NpsForm() {
           <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{_('notfound.title')}</h1>
           <p className="text-gray-600">{_('notfound.message')}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasNps) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-200 text-center">
+          <div className="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="h-8 w-8 text-indigo-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Funcionalidad Premium</h1>
+          <p className="text-gray-600 mb-6">
+            El sistema NPS está disponible en planes Pro y Business.
+          </p>
+          <a
+            href="https://testimonioya.com"
+            className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+          >
+            Ver planes →
+          </a>
         </div>
       </div>
     )

@@ -4,7 +4,7 @@ import { supabase } from './supabase'
 export const PLAN_LIMITS = {
   free: {
     // NPS
-    npsPerMonth: 25,
+    npsPerMonth: 0, // NO NPS at all for Free
     // Testimonials (from promoters)
     testimonialsPerMonth: 15, // era 10
     collectionLinks: 2, // era 1
@@ -15,6 +15,9 @@ export const PLAN_LIMITS = {
     hasAudioTestimonials: false,
     hasVideoTestimonials: false,
     hasEmailAutomation: false,
+    hasNps: false, // NO NPS for Free
+    hasUnifiedFlow: false, // NO unified flow for Free
+    hasRecoveryFlow: false, // NO recovery for Free
     hasNpsDashboard: false, // Only basic score
     hasAnalytics: false,
     hasApi: false,
@@ -35,6 +38,9 @@ export const PLAN_LIMITS = {
     hasAudioTestimonials: true,
     hasVideoTestimonials: true,
     hasEmailAutomation: false, // NO FUNCIONA
+    hasNps: true, // NPS enabled for Pro
+    hasUnifiedFlow: true, // Unified flow for Pro
+    hasRecoveryFlow: false, // NO recovery for Pro
     hasNpsDashboard: true, // Full dashboard
     hasAnalytics: true, // MOVIDO de business a pro
     hasApi: false,
@@ -55,6 +61,9 @@ export const PLAN_LIMITS = {
     hasAudioTestimonials: true,
     hasVideoTestimonials: true,
     hasEmailAutomation: false, // NO FUNCIONA
+    hasNps: true, // NPS enabled for Business
+    hasUnifiedFlow: true, // Unified flow for Business
+    hasRecoveryFlow: true, // Recovery flow for Business
     hasNpsDashboard: true,
     hasAnalytics: true,
     hasApi: true, // mantener flag para futuro pero no mostrar en UI
@@ -76,11 +85,10 @@ export const PLAN_INFO = {
       '15 testimonios/mes',
       '2 enlaces',
       'Muro público',
-      'NPS básico',
       'Solo texto',
       'Branding TestimonioYa',
     ],
-    limitations: [],
+    limitations: ['Sin NPS', 'Sin flujo unificado'],
   },
   pro: {
     name: 'Pro',
@@ -92,7 +100,8 @@ export const PLAN_INFO = {
       'Sin branding',
       'Audio + Video',
       'Widget embebible',
-      'NPS dashboard completo',
+      'NPS completo',
+      'Flujo unificado NPS→Testimonio',
       'Analytics',
       'QR + Google Reviews redirect',
       '1 negocio',
@@ -106,6 +115,8 @@ export const PLAN_INFO = {
     description: 'Para agencias y multi-negocio',
     features: [
       'Todo lo de Pro',
+      'Recovery Flow (detractores)',
+      'Gestión de casos',
       'Hasta 5 negocios',
       'Analytics avanzados',
       'Soporte prioritario',

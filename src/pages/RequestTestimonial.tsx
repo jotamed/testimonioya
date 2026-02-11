@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Mail, MessageCircle, Link as LinkIcon, Copy, Check, ExternalLink, Send, Clock, CheckCircle2, Star } from 'lucide-react'
+import { Mail, MessageCircle, Link as LinkIcon, Copy, Check, ExternalLink, Send, Clock, CheckCircle2, Star, Sparkles } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business } from '../lib/supabase'
 import { useToast } from '../components/Toast'
+import { useUserPlan } from '../lib/useUserPlan'
+import { getPlanLimits } from '../lib/plans'
 
-type Channel = 'email' | 'whatsapp' | 'link'
+type Channel = 'email' | 'whatsapp' | 'link' | 'unified'
 
 interface TestimonialRequest {
   id: string
@@ -22,17 +24,24 @@ export default function RequestTestimonial() {
   const [emails, setEmails] = useState('')
   const [phone, setPhone] = useState('')
   const [copied, setCopied] = useState(false)
+  const [copiedUnified, setCopiedUnified] = useState(false)
   const [sending, setSending] = useState(false)
   const [emailSuccess, setEmailSuccess] = useState<{ count: number; total: number } | null>(null)
   const [collectionSlug, setCollectionSlug] = useState<string | null>(null)
+  const [unifiedSlug, setUnifiedSlug] = useState<string | null>(null)
   const [requests, setRequests] = useState<TestimonialRequest[]>([])
   const [loading, setLoading] = useState(true)
   const toast = useToast()
+  const { plan } = useUserPlan()
 
   const testimonialUrl = collectionSlug
     ? `${window.location.origin}/t/${collectionSlug}`
     : ''
+  const unifiedUrl = unifiedSlug
+    ? `${window.location.origin}/r/${unifiedSlug}`
+    : ''
   const noCollectionLink = !loading && business && !collectionSlug
+  const hasUnifiedFlow = plan && getPlanLimits(plan).hasUnifiedFlow
 
   useEffect(() => {
     loadData()
@@ -67,6 +76,18 @@ export default function RequestTestimonial() {
 
         if (links && links.length > 0) {
           setCollectionSlug(links[0].slug)
+        }
+
+        // Get unified link slug (Pro+ only)
+        const { data: unifiedLinks } = await supabase
+          .from('unified_links')
+          .select('slug')
+          .eq('business_id', biz.id)
+          .eq('is_active', true)
+          .limit(1)
+
+        if (unifiedLinks && unifiedLinks.length > 0) {
+          setUnifiedSlug(unifiedLinks[0].slug)
         }
 
         const { data: reqs } = await supabase
@@ -201,10 +222,22 @@ export default function RequestTestimonial() {
     }
   }
 
+  const handleCopyUnified = async () => {
+    try {
+      await navigator.clipboard.writeText(unifiedUrl)
+      setCopiedUnified(true)
+      setTimeout(() => setCopiedUnified(false), 2000)
+      toast.success('¡Copiado!', 'Enlace unificado copiado al portapapeles')
+    } catch {
+      toast.error('Error', 'No se pudo copiar')
+    }
+  }
+
   const tabs: { key: Channel; label: string; icon: typeof Mail; color: string; activeColor: string }[] = [
     { key: 'email', label: 'Email', icon: Mail, color: 'text-gray-500', activeColor: 'text-indigo-600 border-indigo-600 bg-indigo-50' },
     { key: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: 'text-gray-500', activeColor: 'text-green-600 border-green-600 bg-green-50' },
     { key: 'link', label: 'Enlace', icon: LinkIcon, color: 'text-gray-500', activeColor: 'text-indigo-600 border-indigo-600 bg-indigo-50' },
+    ...(hasUnifiedFlow ? [{ key: 'unified' as Channel, label: 'Enlace Unificado', icon: Sparkles, color: 'text-gray-500', activeColor: 'text-purple-600 border-purple-600 bg-purple-50' }] : []),
   ]
 
   if (loading) {
@@ -440,6 +473,68 @@ export default function RequestTestimonial() {
                     Comparte este enlace donde quieras: redes sociales, QR, tu web, etc.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* Unified Link Tab (Pro+) */}
+            {activeTab === 'unified' && hasUnifiedFlow && (
+              <div className="space-y-5">
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-start space-x-3">
+                    <Sparkles className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-purple-900 mb-1">
+                        Flujo Unificado NPS→Testimonio
+                      </h3>
+                      <p className="text-sm text-purple-700">
+                        Este enlace inteligente primero pregunta el NPS (0-10) y luego:
+                      </p>
+                      <ul className="text-sm text-purple-700 mt-2 space-y-1 ml-4">
+                        <li>• <strong>9-10 (promotores):</strong> Pide testimonio público</li>
+                        <li>• <strong>7-8 (pasivos):</strong> Agradece y pide feedback opcional</li>
+                        <li>• <strong>0-6 (detractores):</strong> Captura feedback privado{plan === 'business' ? ' y crea caso de recuperación' : ''}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {!unifiedSlug ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <p className="text-sm text-amber-800">
+                      No tienes un enlace unificado activo. Se creará automáticamente al configurar tu negocio.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tu enlace unificado
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={unifiedUrl}
+                          className="flex-1 min-w-0 px-4 py-3 border border-purple-200 rounded-xl bg-purple-50 text-purple-900 text-sm font-mono truncate"
+                        />
+                        <button
+                          onClick={handleCopyUnified}
+                          className={`inline-flex items-center space-x-2 px-5 py-3 rounded-xl font-medium text-sm transition-all active:scale-[0.98] shadow-sm ${
+                            copiedUnified
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-purple-600 text-white hover:bg-purple-700'
+                          }`}
+                        >
+                          {copiedUnified ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          <span>{copiedUnified ? '¡Copiado!' : 'Copiar'}</span>
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Usa este enlace para capturar tanto NPS como testimonios en un solo flujo.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>

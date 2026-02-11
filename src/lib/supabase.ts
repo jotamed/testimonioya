@@ -77,3 +77,36 @@ export type CollectionLink = {
   submissions_count: number
   created_at: string
 }
+
+export type UnifiedLink = {
+  id: string
+  business_id: string
+  slug: string
+  name: string
+  is_active: boolean
+  views_count: number
+  nps_threshold_promoter: number
+  nps_threshold_passive: number
+  ask_google_review: boolean
+  google_reviews_url: string | null
+  created_at: string
+}
+
+export type RecoveryMessage = {
+  role: 'customer' | 'business'
+  text: string
+  created_at: string
+}
+
+export type RecoveryCase = {
+  id: string
+  business_id: string
+  nps_response_id: string
+  status: 'open' | 'in_progress' | 'resolved' | 'closed'
+  customer_name: string | null
+  customer_email: string | null
+  messages: RecoveryMessage[]
+  resolved_score: number | null
+  created_at: string
+  updated_at: string
+}

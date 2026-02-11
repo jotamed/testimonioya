@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { TrendingUp, TrendingDown, Minus, MessageSquare, Calendar, Filter } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, MessageSquare, Calendar, Filter, AlertCircle } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { supabase, Business, NpsResponse } from '../lib/supabase'
+import { useUserPlan } from '../lib/useUserPlan'
+import { getPlanLimits } from '../lib/plans'
 
 interface NpsStats {
   total: number
@@ -18,6 +20,8 @@ export default function NpsDashboard() {
   const [stats, setStats] = useState<NpsStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [dateFilter, setDateFilter] = useState<'7d' | '30d' | '90d' | 'all'>('30d')
+  const { plan } = useUserPlan()
+  const hasNps = plan && getPlanLimits(plan).hasNps
 
   useEffect(() => {
     loadData()
@@ -98,6 +102,40 @@ export default function NpsDashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!hasNps) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-amber-900 mb-1">
+                  NPS disponible en planes Pro y Business
+                </h3>
+                <p className="text-sm text-amber-700 mb-4">
+                  El sistema NPS completo está disponible en planes Pro y Business. Actualiza tu plan para acceder a:
+                </p>
+                <ul className="text-sm text-amber-700 space-y-1 ml-4 mb-4">
+                  <li>• Dashboard NPS completo con métricas</li>
+                  <li>• Flujo unificado NPS→Testimonio</li>
+                  <li>• Análisis de tendencias</li>
+                  <li>• Respuestas ilimitadas</li>
+                </ul>
+                <a
+                  href="/dashboard/settings"
+                  className="inline-block px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium"
+                >
+                  Ver planes →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   if (loading) {

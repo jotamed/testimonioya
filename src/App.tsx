@@ -30,6 +30,8 @@ const Analytics = lazy(() => import('./pages/Analytics'))
 const TestimonialForm = lazy(() => import('./pages/TestimonialForm'))
 const WallOfLove = lazy(() => import('./pages/WallOfLove'))
 const NpsForm = lazy(() => import('./pages/NpsForm'))
+const UnifiedForm = lazy(() => import('./pages/UnifiedForm'))
+const RecoveryCases = lazy(() => import('./pages/RecoveryCases'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Admin = lazy(() => import('./pages/Admin'))
 const BlogList = lazy(() => import('./pages/blog/BlogList'))
@@ -63,6 +65,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/t/:slug" element={<TestimonialForm />} />
             <Route path="/nps/:slug" element={<NpsForm />} />
+            <Route path="/r/:slug" element={<UnifiedForm />} />
             <Route path="/wall/:slug" element={<WallOfLove />} />
             <Route path="/onboarding" element={<Onboarding />} />
             
@@ -82,6 +85,7 @@ function App() {
             <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
             <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
             <Route path="/dashboard/nps" element={<AuthGuard><NpsDashboard /></AuthGuard>} />
+            <Route path="/dashboard/recovery" element={<AuthGuard><RecoveryCases /></AuthGuard>} />
             <Route path="/dashboard/reviews" element={<AuthGuard><Reviews /></AuthGuard>} />
             <Route path="/auth/google-business/callback" element={<GoogleBusinessCallback />} />
             <Route path="/dashboard/request" element={<AuthGuard><RequestTestimonial /></AuthGuard>} />
