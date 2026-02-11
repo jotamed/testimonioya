@@ -99,6 +99,23 @@ export function useBusinesses() {
 
       if (error) throw error
 
+      // Auto-create a collection link for the new business
+      if (data) {
+        const linkSlug = businessName
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          + '-' + Math.random().toString(36).substr(2, 6)
+
+        await supabase.from('collection_links').insert({
+          business_id: data.id,
+          name: 'Testimonios',
+          slug: linkSlug,
+        })
+      }
+
       // Reload and switch to new business
       await loadBusinesses()
       if (data) {

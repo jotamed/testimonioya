@@ -199,10 +199,12 @@ export default function Onboarding() {
         body: {
           type: 'request_testimonial',
           to: userEmail,
-          business_name: businessName,
-          form_url: shareableLink,
-          customer_name: userEmail.split('@')[0],
-          logo_url: logoUrl || undefined,
+          data: {
+            business_name: businessName,
+            form_url: shareableLink,
+            customer_name: userEmail.split('@')[0],
+            logo_url: logoUrl || undefined,
+          },
         },
       })
     } catch {

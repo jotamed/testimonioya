@@ -197,6 +197,11 @@ serve(async (req) => {
       throw new Error('Invalid email type or missing recipient')
     }
 
+    // Validate form_url for request_testimonial — don't send with broken link
+    if (type === 'request_testimonial' && (!data?.form_url || data.form_url.trim() === '')) {
+      throw new Error('form_url is required for request_testimonial emails')
+    }
+
     // Check notification preferences
     if (userId && !(await shouldSendEmail(type, userId))) {
       return new Response(JSON.stringify({ success: true, skipped: true, reason: 'notification_disabled' }), {
