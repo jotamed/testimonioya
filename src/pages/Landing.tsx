@@ -119,13 +119,18 @@ export default function Landing() {
       image: 'https://testimonioya.com/og-image.png',
     })
 
-    // Load TestimonioYa widget
+    // Set widget data attributes on the container div
+    const widgetEl = document.getElementById('testimonioya-widget')
+    if (widgetEl) {
+      widgetEl.setAttribute('data-slug', 'clinica-estetica-lumina')
+      widgetEl.setAttribute('data-layout', 'grid')
+      widgetEl.setAttribute('data-theme', 'light')
+      widgetEl.setAttribute('data-max', '6')
+    }
+
+    // Load TestimonioYa widget script
     const script = document.createElement('script')
     script.src = 'https://testimonioya.com/widget.js'
-    script.setAttribute('data-slug', 'cafe-el-aroma-yt4s')
-    script.setAttribute('data-layout', 'grid')
-    script.setAttribute('data-theme', 'light')
-    script.setAttribute('data-max', '6')
     script.async = true
     document.body.appendChild(script)
 
@@ -222,12 +227,12 @@ export default function Landing() {
                   {/* Dashboard header */}
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                        CA
+                      <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                        CL
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">Café El Aroma</div>
-                        <div className="text-xs text-gray-500">testimonioya.com/cafe-el-aroma</div>
+                        <div className="text-sm font-semibold text-gray-900">Clínica Estética Lumina</div>
+                        <div className="text-xs text-gray-500">testimonioya.com/clinica-estetica-lumina</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -270,10 +275,10 @@ export default function Landing() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center space-x-2">
                           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
-                            MC
+                            LM
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-900">María C.</div>
+                            <div className="text-sm font-semibold text-gray-900">Laura M.</div>
                             <div className="flex text-yellow-400">
                               {'★★★★★'.split('').map((s, i) => <span key={i} className="text-xs">{s}</span>)}
                             </div>
@@ -284,7 +289,7 @@ export default function Landing() {
                           <span className="hidden sm:inline">Google</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 leading-relaxed">"El mejor café de la zona. Ambiente acogedor..."</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">"Resultados increíbles desde la primera sesión..."</p>
                     </div>
 
                     {/* Testimonial item 2 */}
@@ -292,10 +297,10 @@ export default function Landing() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center space-x-2">
                           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
-                            JP
+                            PG
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-900">Juan P.</div>
+                            <div className="text-sm font-semibold text-gray-900">Patricia G.</div>
                             <div className="flex text-yellow-400">
                               {'★★★★★'.split('').map((s, i) => <span key={i} className="text-xs">{s}</span>)}
                             </div>
@@ -306,7 +311,7 @@ export default function Landing() {
                           <span className="hidden sm:inline">Google</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 leading-relaxed">"Personal súper amable y café de calidad..."</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">"Trato exquisito y resultados muy naturales..."</p>
                     </div>
                   </div>
                 </div>
@@ -508,7 +513,7 @@ export default function Landing() {
                   <div className="bg-white rounded-2xl p-3 space-y-2">
                     <div className="text-center">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 mx-auto mb-2" />
-                      <div className="text-[10px] font-bold text-gray-900">Café El Aroma</div>
+                      <div className="text-[10px] font-bold text-gray-900">Clínica Estética Lumina</div>
                       <div className="text-[8px] text-gray-500">te pide tu opinión</div>
                     </div>
                     <div className="flex justify-center space-x-1 my-3">
@@ -582,13 +587,13 @@ export default function Landing() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full mb-4">
               <Check className="h-4 w-4 mr-1.5" />
-              Testimonios reales de nuestro producto
+              Widget de ejemplo
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Mira cómo funciona el widget
+              Así se ve en tu web
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Esto es lo que ven tus visitantes cuando añades TestimonioYa a tu web. Testimonios reales de Café El Aroma (nuestro negocio de prueba).
+              Esto es lo que ven tus visitantes cuando añades TestimonioYa. Un widget elegante con los testimonios de tus clientes.
             </p>
           </div>
 
