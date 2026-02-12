@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import {
-  MessageSquare, Star, ArrowRight, Check, ChevronDown,
-  Send, Smartphone, Globe, BarChart3, Zap, Shield,
-  Mail, ExternalLink, Sparkles, Clock, TrendingUp, Users
+  MessageSquare, ArrowRight, Check, ChevronDown,
+  Send, Smartphone, Globe, BarChart3, Zap,
+  Mail, ExternalLink, Sparkles, Clock, TrendingUp, Users,
+  Gauge, ThumbsUp, ThumbsDown
 } from 'lucide-react'
 import { updateSEO } from '../lib/seo'
 
@@ -81,6 +82,14 @@ const faqs = [
   {
     q: '¿Puedo cancelar en cualquier momento?',
     a: 'Sí, sin permanencia ni letra pequeña. Puedes pasar al plan gratuito cuando quieras y conservas tus testimonios.',
+  },
+  {
+    q: '¿Qué es el flujo NPS y cómo me ayuda?',
+    a: 'NPS (Net Promoter Score) mide la satisfacción de tus clientes del 0 al 10. Los que puntúan 9-10 (promotores) pasan automáticamente a dejar un testimonio público y se redirigen a Google Reviews. Los que puntúan bajo te dejan feedback privado. Así solo publicas lo mejor y detectas problemas antes de que lleguen a Google.',
+  },
+  {
+    q: '¿Qué es el Recovery Flow del plan Business?',
+    a: 'Cuando un cliente puntúa bajo en el NPS, el Recovery Flow te permite responderle directamente, gestionar su caso y convertir una experiencia negativa en positiva. Es como un sistema de atención al cliente integrado que te ayuda a recuperar clientes insatisfechos.',
   },
 ]
 
@@ -200,7 +209,7 @@ export default function Landing() {
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Pide testimonios por email o WhatsApp. Los mejores van directo a Google. Los negativos se quedan como feedback privado.
+              Mide la satisfacción de tus clientes con NPS. Convierte a los promotores en reseñas de Google. Los detractores se quedan como feedback privado.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
@@ -266,8 +275,8 @@ export default function Landing() {
                       <div className="text-xs text-gray-600 mt-1">Media</div>
                     </div>
                     <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
-                      <div className="text-2xl sm:text-3xl font-bold text-purple-600">78%</div>
-                      <div className="text-xs text-gray-600 mt-1">Respuestas</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-purple-600">72</div>
+                      <div className="text-xs text-gray-600 mt-1">NPS Score</div>
                     </div>
                     <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
                       <div className="text-2xl sm:text-3xl font-bold text-orange-600">8</div>
@@ -385,36 +394,42 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Benefit 2: Filter */}
+            {/* Benefit 2: NPS Flow */}
             <div className="group bg-gradient-to-b from-white to-green-50/30 rounded-2xl border-2 border-gray-200 p-8 hover:border-green-300 hover:shadow-xl transition-all">
               <div className="h-16 w-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                <Star className="h-8 w-8 text-white fill-white" />
+                <Gauge className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
-                Filtro inteligente
+                NPS inteligente
               </h3>
               <p className="text-gray-600 leading-relaxed mb-6">
-                4-5 estrellas → Google Reviews automáticamente. 1-3 estrellas → Feedback privado solo para ti.
+                Mide satisfacción con NPS (0-10). Promotores → testimonio + Google. Detractores → feedback privado solo para ti.
               </p>
               
-              {/* Visual: Rating flow */}
+              {/* Visual: NPS flow */}
               <div className="bg-white rounded-lg p-4 border border-gray-200 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex text-yellow-400 text-sm">★★★★★</div>
+                  <div className="flex items-center space-x-2">
+                    <ThumbsUp className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700">9-10 Promotor</span>
+                  </div>
                   <div className="flex items-center space-x-1">
                     <div className="text-xs text-green-600 font-medium">→ Google</div>
                     <ExternalLink className="h-3 w-3 text-green-600" />
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex text-gray-300 text-sm">★★★<span className="text-yellow-400">★★</span></div>
-                  <div className="flex items-center space-x-1">
-                    <div className="text-xs text-green-600 font-medium">→ Google</div>
-                    <ExternalLink className="h-3 w-3 text-green-600" />
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-yellow-600">😐</span>
+                    <span className="text-xs font-semibold text-yellow-700">7-8 Pasivo</span>
                   </div>
+                  <div className="text-xs text-yellow-600 font-medium">→ Testimonio</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex text-gray-300 text-sm">★★<span className="text-red-400">★★★</span></div>
+                  <div className="flex items-center space-x-2">
+                    <ThumbsDown className="h-4 w-4 text-red-400" />
+                    <span className="text-xs font-semibold text-red-500">0-6 Detractor</span>
+                  </div>
                   <div className="text-xs text-gray-500 font-medium">→ Privado</div>
                 </div>
               </div>
@@ -515,9 +530,9 @@ export default function Landing() {
                 <div className="h-20 w-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-white text-3xl font-bold shadow-xl">
                   2
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Pide testimonios</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Envía NPS</h3>
                 <p className="text-gray-600 mb-6">
-                  Envía solicitudes por email o WhatsApp. Tus clientes responden en 30 segundos desde su móvil.
+                  Envía una encuesta NPS por email o WhatsApp. Los promotores pasan al testimonio automáticamente. Los detractores te dan feedback privado.
                 </p>
                 
                 {/* Visual: Phone mockup */}
@@ -645,7 +660,7 @@ export default function Landing() {
             {[
               { icon: Smartphone, label: 'WhatsApp nativo', desc: 'El canal #1 en España', color: 'from-green-500 to-emerald-600' },
               { icon: Zap, label: 'Automático', desc: 'Envía y olvídate', color: 'from-yellow-500 to-orange-600' },
-              { icon: Shield, label: 'Filtro inteligente', desc: 'Solo publicas lo bueno', color: 'from-blue-500 to-indigo-600' },
+              { icon: Gauge, label: 'NPS inteligente', desc: 'Mide y segmenta clientes', color: 'from-blue-500 to-indigo-600' },
               { icon: BarChart3, label: 'Analytics', desc: 'Métricas en tiempo real', color: 'from-purple-500 to-pink-600' },
             ].map((item, i) => (
               <div key={i} className="text-center p-6 rounded-2xl bg-white border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all group">
