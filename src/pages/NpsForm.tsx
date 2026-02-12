@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom'
 import { MessageSquare, Send, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabase, Business } from '../lib/supabase'
 import { detectLanguage, t, SupportedLang } from '../lib/i18n'
-import { getPlanLimits } from '../lib/plans'
+// Plan gating removed from public forms — gate only in dashboard
+// import { getPlanLimits } from '../lib/plans'
 
 type NpsScore = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 type NpsCategory = 'detractor' | 'passive' | 'promoter'
@@ -57,8 +58,9 @@ export default function NpsForm() {
           .single()
         if (profile?.plan) {
           setOwnerPlan(profile.plan)
-          const limits = getPlanLimits(profile.plan as 'free' | 'pro' | 'business')
-          setHasNps(limits.hasNps)
+          // NPS form is public-facing: if the link exists, always allow the customer to use it.
+          // Plan gating should only happen in the dashboard when creating NPS links.
+          setHasNps(true)
         }
       }
       const defaultLang = (data.default_language || 'es') as SupportedLang

@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { MessageSquare, Send, AlertTriangle, ExternalLink, Star, Type, Mic, Video } from 'lucide-react'
 import { supabase, Business, UnifiedLink } from '../lib/supabase'
-import { getPlanLimits } from '../lib/plans'
+// Plan gating removed from public forms — gate only in dashboard
+// import { getPlanLimits } from '../lib/plans'
 import { detectLanguage, t, SupportedLang } from '../lib/i18n'
 import AudioRecorder from '../components/AudioRecorder'
 import VideoRecorder from '../components/VideoRecorder'
@@ -36,7 +37,7 @@ export default function UnifiedForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
-  const [upgradeRequired, setUpgradeRequired] = useState(false)
+  const [upgradeRequired] = useState(false)
   const [lang, setLang] = useState<SupportedLang>('es')
 
   const _ = useMemo(() => (key: string, vars?: Record<string, string>) => t(lang, key, vars), [lang])
@@ -96,13 +97,10 @@ export default function UnifiedForm() {
       setIsPaidPlan(paid)
       setAllowAudio(paid && (bizData.allow_audio_testimonials !== false))
 
-      // Check if plan has NPS/unified flow
-      const limits = getPlanLimits(plan)
-      if (!limits.hasNps || !limits.hasUnifiedFlow) {
-        setUpgradeRequired(true)
-        setLoading(false)
-        return
-      }
+      // Public-facing form: if the collection link exists, always allow the customer to use it.
+      // Plan gating should only happen in the dashboard when creating/activating these links.
+      // const limits = getPlanLimits(plan)
+      // upgradeRequired is never set for public forms
 
       // Set language
       const defaultLang = (bizData.default_language || 'es') as SupportedLang
