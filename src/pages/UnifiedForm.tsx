@@ -4,7 +4,7 @@ import { MessageSquare, Send, AlertTriangle, ExternalLink, Star, Type, Mic, Vide
 import { supabase, Business, UnifiedLink } from '../lib/supabase'
 // Plan gating removed from public forms — gate only in dashboard
 // import { getPlanLimits } from '../lib/plans'
-import { detectLanguage, t, SupportedLang } from '../lib/i18n'
+import { t, SupportedLang } from '../lib/i18n'
 import AudioRecorder from '../components/AudioRecorder'
 import VideoRecorder from '../components/VideoRecorder'
 
@@ -102,9 +102,9 @@ export default function UnifiedForm() {
       // const limits = getPlanLimits(plan)
       // upgradeRequired is never set for public forms
 
-      // Set language
+      // Set language — use business default for consistency (no browser detection)
       const defaultLang = (bizData.default_language || 'es') as SupportedLang
-      setLang(detectLanguage(defaultLang))
+      setLang(defaultLang)
 
       // Increment view count
       await supabase

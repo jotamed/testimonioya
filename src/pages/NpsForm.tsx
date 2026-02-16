@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { MessageSquare, Send, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabase, Business } from '../lib/supabase'
-import { detectLanguage, t, SupportedLang } from '../lib/i18n'
+import { t, SupportedLang } from '../lib/i18n'
 // Plan gating removed from public forms — gate only in dashboard
 // import { getPlanLimits } from '../lib/plans'
 
@@ -63,8 +63,9 @@ export default function NpsForm() {
           setHasNps(true)
         }
       }
+      // Use business default language for consistency (no browser detection)
       const defaultLang = (data.default_language || 'es') as SupportedLang
-      setLang(detectLanguage(defaultLang))
+      setLang(defaultLang)
     } catch (error) {
       console.error('Error loading business:', error)
       setBusiness(null)

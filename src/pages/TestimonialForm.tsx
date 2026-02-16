@@ -4,7 +4,7 @@ import { Star, Send, MessageSquare, AlertTriangle, Type, Mic, Video, ExternalLin
 import { supabase, CollectionLink, Business } from '../lib/supabase'
 import { canReceiveTestimonial, PlanType } from '../lib/plans'
 import { updateSEO } from '../lib/seo'
-import { detectLanguage, t, SupportedLang } from '../lib/i18n'
+import { t, SupportedLang } from '../lib/i18n'
 import AudioRecorder from '../components/AudioRecorder'
 import VideoRecorder from '../components/VideoRecorder'
 
@@ -85,9 +85,9 @@ export default function TestimonialForm() {
         setUserPlan(profileData.plan as PlanType || 'free')
       }
 
-      // Detect language with business default as fallback
+      // Use business default language for consistency (no browser detection)
       const defaultLang = (businessData.default_language || 'es') as SupportedLang
-      setLang(detectLanguage(defaultLang))
+      setLang(defaultLang)
 
       updateSEO({
         title: `Deja tu testimonio para ${businessData.business_name}`,
