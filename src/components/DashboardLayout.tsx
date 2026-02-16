@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { MessageSquare, LayoutDashboard, MessageCircle, Link as LinkIcon, Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target, Send, Menu, X, Star, AlertCircle } from 'lucide-react'
+import { MessageSquare, LayoutDashboard, MessageCircle,  Settings, Code, LogOut, ChevronDown, Plus, Building2, BarChart3, Target,  Menu, X, Star, AlertCircle, MessageSquarePlus } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useBusinesses } from '../lib/useBusinesses'
 import { useUserPlan } from '../lib/useUserPlan'
@@ -284,8 +284,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <ul className="space-y-1">
                 {[
                   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', onClick: () => setSidebarOpen(false) },
-                  { to: '/dashboard/links', icon: LinkIcon, label: 'Enlaces' },
-                  { to: '/dashboard/request', icon: Send, label: 'Pedir Testimonio' },
+                  { to: '/dashboard/solicitudes', icon: MessageSquarePlus, label: 'Solicitudes' },
                   { to: '/dashboard/testimonials', icon: MessageCircle, label: 'Testimonios' },
                   ...(userPlan !== 'free' && currentBusiness?.use_recovery_flow ? [{ to: '/dashboard/recovery', icon: AlertCircle, label: 'Casos' }] : []),
                   { to: '/dashboard/reviews', icon: Star, label: 'Reseñas', badge: 'Pro' },

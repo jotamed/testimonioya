@@ -79,6 +79,9 @@ export type CollectionLink = {
   views_count: number
   submissions_count: number
   created_at: string
+  whatsapp_message: string | null
+  email_subject: string | null
+  email_message: string | null
 }
 
 export type UnifiedLink = {

@@ -13,9 +13,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Testimonials from './pages/Testimonials'
-import CollectionLinks from './pages/CollectionLinks'
+import Solicitudes from './pages/Solicitudes'
 import Settings from './pages/Settings'
-import RequestTestimonial from './pages/RequestTestimonial'
 import NpsDashboard from './pages/NpsDashboard'
 import Reviews from './pages/Reviews'
 import GoogleBusinessCallback from './pages/GoogleBusinessCallback'
@@ -82,7 +81,7 @@ function App() {
             {/* Protected routes */}
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
             <Route path="/dashboard/testimonials" element={<AuthGuard><Testimonials /></AuthGuard>} />
-            <Route path="/dashboard/links" element={<AuthGuard><CollectionLinks /></AuthGuard>} />
+            <Route path="/dashboard/solicitudes" element={<AuthGuard><Solicitudes /></AuthGuard>} />
             <Route path="/dashboard/settings" element={<AuthGuard><Settings /></AuthGuard>} />
             <Route path="/dashboard/widget" element={<AuthGuard><Widget /></AuthGuard>} />
             <Route path="/dashboard/analytics" element={<AuthGuard><Analytics /></AuthGuard>} />
@@ -90,7 +89,6 @@ function App() {
             <Route path="/dashboard/recovery" element={<AuthGuard><RecoveryCases /></AuthGuard>} />
             <Route path="/dashboard/reviews" element={<AuthGuard><Reviews /></AuthGuard>} />
             <Route path="/auth/google-business/callback" element={<GoogleBusinessCallback />} />
-            <Route path="/dashboard/request" element={<AuthGuard><RequestTestimonial /></AuthGuard>} />
             
             {/* Admin */}
             <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
