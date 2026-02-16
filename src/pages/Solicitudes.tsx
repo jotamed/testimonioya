@@ -15,7 +15,7 @@ export default function Solicitudes() {
   const [showEditModal, setShowEditModal] = useState<CollectionLink | null>(null)
   const [showQRModal, setShowQRModal] = useState<{ url: string; name: string } | null>(null)
   const [showSendModal, setShowSendModal] = useState<{ solicitud: CollectionLink; channel: 'email' | 'whatsapp' } | null>(null)
-  const [newSolicitud, setNewSolicitud] = useState({ name: '', message: '', email_subject: '', email_message: '' })
+  const [newSolicitud, setNewSolicitud] = useState({ name: '', message: '', email_subject: '' })
   const [sendData, setSendData] = useState({ recipient: '' })
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
@@ -120,12 +120,11 @@ export default function Solicitudes() {
           slug,
           whatsapp_message: newSolicitud.message || null,
           email_subject: newSolicitud.email_subject || null,
-          email_message: newSolicitud.email_message || null,
         })
 
       if (error) throw error
 
-      setNewSolicitud({ name: '', message: '', email_subject: '', email_message: '' })
+      setNewSolicitud({ name: '', message: '', email_subject: '' })
       setShowCreateModal(false)
       toast.success('¡Solicitud creada!', 'Ya puedes empezar a enviarla')
       loadData()
@@ -146,7 +145,6 @@ export default function Solicitudes() {
           name: showEditModal.name,
           whatsapp_message: showEditModal.whatsapp_message || null,
           email_subject: showEditModal.email_subject || null,
-          email_message: showEditModal.email_message || null,
         })
         .eq('id', showEditModal.id)
 
@@ -261,7 +259,7 @@ export default function Solicitudes() {
               form_url: url,
               custom_message: baseMessage,
               custom_subject: solicitud.email_subject || null,
-              custom_body: solicitud.email_message || null,
+              custom_body: baseMessage || null,
             },
           }),
         })
@@ -358,7 +356,6 @@ export default function Solicitudes() {
                   name: '', 
                   message: business ? getDefaultMessage(business.business_name) : '',
                   email_subject: '',
-                  email_message: '',
                 })
                 setShowCreateModal(true)
               }}
@@ -385,7 +382,6 @@ export default function Solicitudes() {
                   name: '', 
                   message: business ? getDefaultMessage(business.business_name) : '',
                   email_subject: '',
-                  email_message: '',
                 })
                 setShowCreateModal(true)
               }}
@@ -509,7 +505,7 @@ export default function Solicitudes() {
                 <button
                   onClick={() => {
                     setShowCreateModal(false)
-                    setNewSolicitud({ name: '', message: '', email_subject: '', email_message: '' })
+                    setNewSolicitud({ name: '', message: '', email_subject: '' })
                   }}
                   className="p-1 text-gray-400 hover:text-gray-600"
                 >
@@ -536,57 +532,40 @@ export default function Solicitudes() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Mensaje WhatsApp
+                      Asunto del email
+                    </label>
+                    <input
+                      type="text"
+                      value={newSolicitud.email_subject}
+                      onChange={(e) => setNewSolicitud({...newSolicitud, email_subject: e.target.value})}
+                      className="input-field"
+                      placeholder={business ? `¿Qué tal tu experiencia con ${business.business_name}?` : ''}
+                    />
+                    <p className="text-xs text-gray-400 mt-1.5">
+                      Solo se usa cuando envías por email
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Mensaje
                     </label>
                     <textarea
                       value={newSolicitud.message}
                       onChange={(e) => setNewSolicitud({...newSolicitud, message: e.target.value})}
                       className="input-field resize-none"
-                      rows={4}
+                      rows={5}
                       placeholder={business ? getDefaultMessage(business.business_name) : ''}
                     />
                     <p className="text-xs text-gray-400 mt-1.5">
-                      El enlace se añade automáticamente al enviar
-                    </p>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-3">📧 Personalización de email</p>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Asunto del email
-                        </label>
-                        <input
-                          type="text"
-                          value={newSolicitud.email_subject}
-                          onChange={(e) => setNewSolicitud({...newSolicitud, email_subject: e.target.value})}
-                          className="input-field"
-                          placeholder={business ? `¿Qué tal tu experiencia con ${business.business_name}?` : ''}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Cuerpo del email
-                        </label>
-                        <textarea
-                          value={newSolicitud.email_message}
-                          onChange={(e) => setNewSolicitud({...newSolicitud, email_message: e.target.value})}
-                          className="input-field resize-none"
-                          rows={3}
-                          placeholder={business ? `Gracias por elegir ${business.business_name}. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?` : ''}
-                        />
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1.5">
-                      Déjalo vacío para usar el mensaje por defecto
+                      Este mensaje se usa tanto para WhatsApp como para Email. El enlace se añade automáticamente.
                     </p>
                   </div>
 
                   {/* Preview */}
                   {business && (
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Vista previa WhatsApp</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Vista previa</p>
                       <div className="bg-white rounded-lg p-3 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
                         {newSolicitud.message || getDefaultMessage(business.business_name)}
                         {'\n\n'}
@@ -601,7 +580,7 @@ export default function Solicitudes() {
                     type="button"
                     onClick={() => {
                       setShowCreateModal(false)
-                      setNewSolicitud({ name: '', message: '', email_subject: '', email_message: '' })
+                      setNewSolicitud({ name: '', message: '', email_subject: '' })
                     }}
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                   >
@@ -648,56 +627,39 @@ export default function Solicitudes() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Mensaje WhatsApp
+                      Asunto del email
+                    </label>
+                    <input
+                      type="text"
+                      value={showEditModal.email_subject || ''}
+                      onChange={(e) => setShowEditModal({...showEditModal, email_subject: e.target.value})}
+                      className="input-field"
+                      placeholder={business ? `¿Qué tal tu experiencia con ${business.business_name}?` : ''}
+                    />
+                    <p className="text-xs text-gray-400 mt-1.5">
+                      Solo se usa cuando envías por email
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Mensaje
                     </label>
                     <textarea
                       value={showEditModal.whatsapp_message || (business ? getDefaultMessage(business.business_name) : '')}
                       onChange={(e) => setShowEditModal({...showEditModal, whatsapp_message: e.target.value})}
                       className="input-field resize-none"
-                      rows={4}
+                      rows={5}
                     />
                     <p className="text-xs text-gray-400 mt-1.5">
-                      El enlace se añade automáticamente al enviar
-                    </p>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-3">📧 Personalización de email</p>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Asunto del email
-                        </label>
-                        <input
-                          type="text"
-                          value={showEditModal.email_subject || ''}
-                          onChange={(e) => setShowEditModal({...showEditModal, email_subject: e.target.value})}
-                          className="input-field"
-                          placeholder={business ? `¿Qué tal tu experiencia con ${business.business_name}?` : ''}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Cuerpo del email
-                        </label>
-                        <textarea
-                          value={showEditModal.email_message || ''}
-                          onChange={(e) => setShowEditModal({...showEditModal, email_message: e.target.value})}
-                          className="input-field resize-none"
-                          rows={3}
-                          placeholder={business ? `Gracias por elegir ${business.business_name}. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?` : ''}
-                        />
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1.5">
-                      Déjalo vacío para usar el mensaje por defecto
+                      Este mensaje se usa tanto para WhatsApp como para Email. El enlace se añade automáticamente.
                     </p>
                   </div>
 
                   {/* Preview */}
                   {business && (
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Vista previa WhatsApp</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Vista previa</p>
                       <div className="bg-white rounded-lg p-3 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
                         {showEditModal.whatsapp_message || getDefaultMessage(business.business_name)}
                         {'\n\n'}
@@ -761,22 +723,27 @@ export default function Solicitudes() {
                 {business && (
                   <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-200">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                      {showSendModal.channel === 'email' ? 'Email que recibirá' : 'Mensaje'}
+                      Vista previa — {showSendModal.channel === 'email' ? 'Email' : 'WhatsApp'}
                     </p>
                     {showSendModal.channel === 'email' ? (
                       <div className="bg-white rounded-lg p-3 text-sm text-gray-700 space-y-2">
-                        <p className="font-medium text-gray-900">
-                          Asunto: {showSendModal.solicitud.email_subject || `¿Qué tal tu experiencia con ${business.business_name}?`}
+                        <p className="font-medium text-gray-900 text-xs">
+                          📧 Asunto: {showSendModal.solicitud.email_subject || `¿Qué tal tu experiencia con ${business.business_name}?`}
                         </p>
                         <hr className="border-gray-200" />
+                        <div className="text-center mb-2">
+                          <span className="font-semibold text-gray-900">{business.business_name}</span>
+                        </div>
                         <p className="whitespace-pre-line leading-relaxed">
-                          {showSendModal.solicitud.email_message || `Gracias por elegir ${business.business_name}. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`}
+                          ¡Hola! 👋{'\n\n'}
+                          {getSolicitudMessage(showSendModal.solicitud)}
                         </p>
                         <div className="text-center mt-3">
                           <span className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-medium">
                             Dejar mi opinión →
                           </span>
                         </div>
+                        <p className="text-center text-xs text-gray-400 mt-2">Solo toma un minuto. ¡Gracias! 🙏</p>
                       </div>
                     ) : (
                       <div className="bg-white rounded-lg p-3 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
