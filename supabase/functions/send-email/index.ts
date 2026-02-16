@@ -89,43 +89,56 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
     `, `${data.dashboard_url}/settings`),
   }),
 
-  request_testimonial: (data) => ({
-    subject: data.is_unified
+  request_testimonial: (data) => {
+    // Use custom subject if provided, otherwise default
+    const defaultSubject = data.is_unified
       ? `${data.business_name} quiere saber tu opinión`
-      : `¿Qué tal tu experiencia con ${data.business_name}?`,
-    html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <div style="text-align: center; margin-bottom: 32px;">
-          ${data.logo_url
-            ? `<img src="${data.logo_url}" alt="${data.business_name}" style="max-height: 60px; max-width: 200px; margin-bottom: 12px;" />`
-            : `<h1 style="color: #111827; font-size: 24px; margin: 0;">${data.business_name}</h1>`
-          }
-        </div>
-        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
-          ¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋
-        </p>
-        <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-          ${data.is_unified
-            ? `En <strong>${data.business_name}</strong> queremos mejorar cada día. ¿Nos ayudas puntuando tu experiencia del 0 al 10? Solo toma 30 segundos.`
-            : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
-          }
-        </p>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="${data.form_url}" style="background: #4f46e5; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
-            ${data.is_unified ? 'Puntuar mi experiencia →' : 'Dejar mi opinión →'}
-          </a>
-        </div>
-        <p style="color: #9ca3af; font-size: 13px; text-align: center;">
-          Solo toma un minuto. ¡Gracias! 🙏
-        </p>
-        <div style="border-top: 1px solid #e5e7eb; margin-top: 40px; padding-top: 24px; text-align: center;">
-          <p style="color: #d1d5db; font-size: 11px; margin: 0;">
-            Enviado por ${data.business_name} a través de <a href="${APP_URL}" style="color: #9ca3af;">TestimonioYa</a>
+      : `¿Qué tal tu experiencia con ${data.business_name}?`
+    const subject = data.custom_subject || defaultSubject
+
+    // Use custom body if provided, otherwise default
+    const defaultBody = data.is_unified
+      ? `En <strong>${data.business_name}</strong> queremos mejorar cada día. ¿Nos ayudas puntuando tu experiencia del 0 al 10? Solo toma 30 segundos.`
+      : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
+    const bodyHtml = data.custom_body
+      ? data.custom_body.replace(/\n/g, '<br/>')
+      : defaultBody
+
+    const ctaText = data.is_unified ? 'Puntuar mi experiencia →' : 'Dejar mi opinión →'
+
+    return {
+      subject,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            ${data.logo_url
+              ? `<img src="${data.logo_url}" alt="${data.business_name}" style="max-height: 60px; max-width: 200px; margin-bottom: 12px;" />`
+              : `<h1 style="color: #111827; font-size: 24px; margin: 0;">${data.business_name}</h1>`
+            }
+          </div>
+          <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
+            ¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋
           </p>
+          <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+            ${bodyHtml}
+          </p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${data.form_url}" style="background: #4f46e5; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+              ${ctaText}
+            </a>
+          </div>
+          <p style="color: #9ca3af; font-size: 13px; text-align: center;">
+            Solo toma un minuto. ¡Gracias! 🙏
+          </p>
+          <div style="border-top: 1px solid #e5e7eb; margin-top: 40px; padding-top: 24px; text-align: center;">
+            <p style="color: #d1d5db; font-size: 11px; margin: 0;">
+              Enviado por ${data.business_name} a través de <a href="${APP_URL}" style="color: #9ca3af;">TestimonioYa</a>
+            </p>
+          </div>
         </div>
-      </div>
-    `,
-  }),
+      `,
+    }
+  },
 
   nps_received: (data) => ({
     subject: `📊 Nueva respuesta NPS: ${data.score}/10 ${data.score >= 9 ? '🎉' : data.score >= 7 ? '👍' : '⚠️'}`,
