@@ -27,6 +27,7 @@ export default function Settings() {
     const validTabs: SettingsTab[] = ['general', 'notifications', 'collection', 'nps', 'branding', 'security', 'billing']
     return validTabs.includes(tab as SettingsTab) ? (tab as SettingsTab) : 'general'
   })
+  const [billingAnnual, setBillingAnnual] = useState(true)
   const [formData, setFormData] = useState({
     business_name: '',
     industry: '',
@@ -1166,6 +1167,28 @@ export default function Settings() {
                 <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
                   <h2 className="text-xl font-bold text-gray-900">Plan y Facturación</h2>
 
+                  {/* Billing Toggle */}
+                  <div className="flex justify-center">
+                    <div className="inline-flex items-center bg-gray-100 rounded-full p-1">
+                      <button
+                        onClick={() => setBillingAnnual(false)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          !billingAnnual ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600'
+                        }`}
+                      >
+                        Mensual
+                      </button>
+                      <button
+                        onClick={() => setBillingAnnual(true)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          billingAnnual ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600'
+                        }`}
+                      >
+                        Anual <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold ml-1">-20%</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid md:grid-cols-3 gap-4">
                     {(Object.entries(PLANS) as [string, typeof PLANS[keyof typeof PLANS]][]).map(([key, planInfo]) => {
                       const isCurrent = plan === key
@@ -1187,9 +1210,17 @@ export default function Settings() {
                               </span>
                             )}
                           </div>
-                          <p className="text-2xl font-bold text-gray-900 mb-4">
-                            €{planInfo.price}<span className="text-sm font-normal text-gray-500">/mes</span>
+                          <p className="text-2xl font-bold text-gray-900 mb-1">
+                            {billingAnnual && planInfo.annualMonthlyPrice > 0 && (
+                              <span className="text-sm line-through text-gray-400 mr-1">€{planInfo.monthlyPrice}</span>
+                            )}
+                            €{billingAnnual && planInfo.annualMonthlyPrice > 0 ? planInfo.annualMonthlyPrice : planInfo.monthlyPrice}
+                            <span className="text-sm font-normal text-gray-500">/mes</span>
                           </p>
+                          {billingAnnual && planInfo.annualPrice > 0 && (
+                            <p className="text-xs text-gray-500 mb-4">Facturado €{planInfo.annualPrice}/año</p>
+                          )}
+                          {(!billingAnnual || planInfo.annualPrice === 0) && <div className="mb-4" />}
                           <ul className="space-y-2 mb-5 text-sm">
                             {planInfo.features.map((f, i) => (
                               <li key={i} className="flex items-center text-gray-600">
@@ -1198,10 +1229,10 @@ export default function Settings() {
                               </li>
                             ))}
                           </ul>
-                          {isUpgrade && planInfo.priceId && (
+                          {isUpgrade && (billingAnnual ? planInfo.annualPriceId : planInfo.monthlyPriceId) && (
                             <button
                               type="button"
-                              onClick={() => handleUpgrade(planInfo.priceId!)}
+                              onClick={() => handleUpgrade((billingAnnual ? planInfo.annualPriceId : planInfo.monthlyPriceId)!)}
                               disabled={upgrading}
                               className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-50"
                             >

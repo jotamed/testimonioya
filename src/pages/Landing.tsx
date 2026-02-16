@@ -12,7 +12,9 @@ import { updateSEO } from '../lib/seo'
 const pricingPlans = [
   {
     name: 'Gratis',
-    price: '0',
+    monthlyPrice: '0',
+    annualMonthlyPrice: '0',
+    annualPrice: '0',
     period: 'para siempre',
     description: 'Para empezar a recoger testimonios',
     features: [
@@ -24,10 +26,13 @@ const pricingPlans = [
     ],
     cta: 'Empezar gratis',
     highlighted: false,
+    savingsPercent: 0,
   },
   {
     name: 'Pro',
-    price: '19',
+    monthlyPrice: '19',
+    annualMonthlyPrice: '15',
+    annualPrice: '180',
     period: '/mes',
     description: 'Para negocios que quieren crecer',
     features: [
@@ -43,10 +48,13 @@ const pricingPlans = [
     ],
     cta: 'Empezar con Pro',
     highlighted: true,
+    savingsPercent: 21,
   },
   {
     name: 'Business',
-    price: '49',
+    monthlyPrice: '49',
+    annualMonthlyPrice: '39',
+    annualPrice: '468',
     period: '/mes',
     description: 'Para agencias y multi-negocio',
     features: [
@@ -59,6 +67,7 @@ const pricingPlans = [
     ],
     cta: 'Contactar ventas',
     highlighted: false,
+    savingsPercent: 20,
   },
 ]
 
@@ -125,6 +134,7 @@ export default function Landing() {
   const benefitsSection = useFadeIn()
   const howItWorks = useFadeIn()
   const widgetSection = useFadeIn()
+  const [billingAnnual, setBillingAnnual] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -716,7 +726,28 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Precios simples y transparentes
             </h2>
-            <p className="text-gray-600">Empieza gratis. Crece cuando lo necesites.</p>
+            <p className="text-gray-600 mb-8">Empieza gratis. Crece cuando lo necesites.</p>
+            
+            {/* Billing Toggle */}
+            <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+              <button
+                onClick={() => setBillingAnnual(false)}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  !billingAnnual ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Mensual
+              </button>
+              <button
+                onClick={() => setBillingAnnual(true)}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  billingAnnual ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Anual
+                <span className="ml-1.5 bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">-20%</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -738,12 +769,24 @@ export default function Landing() {
                   {plan.name}
                 </h3>
                 <div className="my-4">
+                  {billingAnnual && plan.savingsPercent > 0 && (
+                    <div className="mb-1">
+                      <span className={`text-lg line-through ${plan.highlighted ? 'text-indigo-300' : 'text-gray-400'}`}>
+                        €{plan.monthlyPrice}
+                      </span>
+                    </div>
+                  )}
                   <span className={`text-5xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>
-                    €{plan.price}
+                    €{billingAnnual ? plan.annualMonthlyPrice : plan.monthlyPrice}
                   </span>
                   <span className={`text-sm ${plan.highlighted ? 'text-indigo-200' : 'text-gray-500'}`}>
-                    {plan.period}
+                    {plan.monthlyPrice === '0' ? plan.period : '/mes'}
                   </span>
+                  {billingAnnual && plan.savingsPercent > 0 && (
+                    <div className={`text-xs mt-1 ${plan.highlighted ? 'text-indigo-200' : 'text-gray-500'}`}>
+                      Facturado €{plan.annualPrice}/año
+                    </div>
+                  )}
                 </div>
                 <p className={`text-sm mb-6 ${plan.highlighted ? 'text-indigo-100' : 'text-gray-500'}`}>
                   {plan.description}

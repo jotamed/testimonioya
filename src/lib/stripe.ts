@@ -16,8 +16,11 @@ export const getStripe = () => {
 export const PLANS = {
   free: {
     name: 'Gratis',
-    price: 0,
-    priceId: null,
+    monthlyPrice: 0,
+    annualPrice: 0,
+    annualMonthlyPrice: 0,
+    monthlyPriceId: null as string | null,
+    annualPriceId: null as string | null,
     features: [
       '15 testimonios/mes',
       '2 enlaces de recolección',
@@ -29,8 +32,11 @@ export const PLANS = {
   },
   pro: {
     name: 'Pro',
-    price: 19,
-    priceId: import.meta.env.VITE_STRIPE_PRO_PRICE_ID || '',
+    monthlyPrice: 19,
+    annualPrice: 180,
+    annualMonthlyPrice: 15,
+    monthlyPriceId: import.meta.env.VITE_STRIPE_PRO_PRICE_ID || '',
+    annualPriceId: import.meta.env.VITE_STRIPE_PRO_ANNUAL_PRICE_ID || '',
     features: [
       'Testimonios ilimitados',
       'Enlaces ilimitados',
@@ -45,8 +51,11 @@ export const PLANS = {
   },
   business: {
     name: 'Business',
-    price: 49,
-    priceId: import.meta.env.VITE_STRIPE_BUSINESS_PRICE_ID || '',
+    monthlyPrice: 49,
+    annualPrice: 468,
+    annualMonthlyPrice: 39,
+    monthlyPriceId: import.meta.env.VITE_STRIPE_BUSINESS_PRICE_ID || '',
+    annualPriceId: import.meta.env.VITE_STRIPE_BUSINESS_ANNUAL_PRICE_ID || '',
     features: [
       'Todo lo de Pro',
       'Hasta 5 negocios',

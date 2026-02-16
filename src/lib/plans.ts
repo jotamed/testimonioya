@@ -80,6 +80,8 @@ export const PLAN_INFO = {
   free: {
     name: 'Gratis',
     price: 0,
+    annualPrice: 0,
+    annualMonthlyPrice: 0,
     description: 'Para probar el sistema',
     features: [
       '15 testimonios/mes',
@@ -93,6 +95,8 @@ export const PLAN_INFO = {
   pro: {
     name: 'Pro',
     price: 19,
+    annualPrice: 180,
+    annualMonthlyPrice: 15,
     description: 'Para negocios que quieren crecer',
     features: [
       'Testimonios ilimitados',
@@ -112,6 +116,8 @@ export const PLAN_INFO = {
   business: { // RENOMBRADO de premium
     name: 'Business',
     price: 49,
+    annualPrice: 468,
+    annualMonthlyPrice: 39,
     description: 'Para agencias y multi-negocio',
     features: [
       'Todo lo de Pro',

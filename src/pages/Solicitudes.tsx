@@ -760,12 +760,31 @@ export default function Solicitudes() {
 
                 {business && (
                   <div className="bg-gray-50 rounded-xl p-4 mb-5 border border-gray-200">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mensaje</p>
-                    <div className="bg-white rounded-lg p-3 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                      {getSolicitudMessage(showSendModal.solicitud)}
-                      {'\n\n'}
-                      <span className="text-indigo-600 underline">{getFullUrl(showSendModal.solicitud.slug)}</span>
-                    </div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                      {showSendModal.channel === 'email' ? 'Email que recibirá' : 'Mensaje'}
+                    </p>
+                    {showSendModal.channel === 'email' ? (
+                      <div className="bg-white rounded-lg p-3 text-sm text-gray-700 space-y-2">
+                        <p className="font-medium text-gray-900">
+                          Asunto: {showSendModal.solicitud.email_subject || `¿Qué tal tu experiencia con ${business.business_name}?`}
+                        </p>
+                        <hr className="border-gray-200" />
+                        <p className="whitespace-pre-line leading-relaxed">
+                          {showSendModal.solicitud.email_message || `Gracias por elegir ${business.business_name}. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`}
+                        </p>
+                        <div className="text-center mt-3">
+                          <span className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-medium">
+                            Dejar mi opinión →
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-lg p-3 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                        {getSolicitudMessage(showSendModal.solicitud)}
+                        {'\n\n'}
+                        <span className="text-indigo-600 underline">{getFullUrl(showSendModal.solicitud.slug)}</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
