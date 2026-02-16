@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const FROM_EMAIL = 'TestimonioYa <hola@testimonioya.com>'
+const DEFAULT_FROM_EMAIL = 'TestimonioYa <hola@testimonioya.com>'
 const APP_URL = 'https://testimonioya.com'
 
 const corsHeaders = {
@@ -235,7 +235,9 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: FROM_EMAIL,
+        from: (type === 'request_testimonial' && data.business_name)
+          ? `${data.business_name} <hola@testimonioya.com>`
+          : DEFAULT_FROM_EMAIL,
         to: [to],
         subject: template.subject,
         html: template.html,
