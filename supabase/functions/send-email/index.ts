@@ -96,15 +96,17 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
       : `¿Qué tal tu experiencia con ${data.business_name}?`
     const subject = data.custom_subject || defaultSubject
 
-    // Use custom body if provided, otherwise default
-    const defaultBody = data.is_unified
-      ? `En <strong>${data.business_name}</strong> queremos mejorar cada día. ¿Nos ayudas puntuando tu experiencia del 0 al 10? Solo toma 30 segundos.`
-      : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
-    const bodyHtml = data.custom_body
-      ? data.custom_body.replace(/\n/g, '<br/>')
-      : defaultBody
-
     const ctaText = data.is_unified ? 'Puntuar mi experiencia →' : 'Dejar mi opinión →'
+
+    // If custom_body is provided, use it as the FULL message (no extra greeting)
+    const hasCustomBody = data.custom_body && data.custom_body.trim().length > 0
+    const bodyHtml = hasCustomBody
+      ? data.custom_body.replace(/\n/g, '<br/>')
+      : `¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋<br/><br/>${
+          data.is_unified
+            ? `En <strong>${data.business_name}</strong> queremos mejorar cada día. ¿Nos ayudas puntuando tu experiencia del 0 al 10? Solo toma 30 segundos.`
+            : `Gracias por elegir <strong>${data.business_name}</strong>. Tu opinión nos importa mucho — ¿podrías dedicarnos un minuto para contarnos cómo fue tu experiencia?`
+        }`
 
     return {
       subject,
@@ -116,9 +118,6 @@ const templates: Record<EmailType, (data: any) => { subject: string; html: strin
               : `<h1 style="color: #111827; font-size: 24px; margin: 0;">${data.business_name}</h1>`
             }
           </div>
-          <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 8px;">
-            ¡Hola${data.customer_name ? `, ${data.customer_name}` : ''}! 👋
-          </p>
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
             ${bodyHtml}
           </p>

@@ -735,7 +735,6 @@ export default function Solicitudes() {
                           <span className="font-semibold text-gray-900">{business.business_name}</span>
                         </div>
                         <p className="whitespace-pre-line leading-relaxed">
-                          ¡Hola! 👋{'\n\n'}
                           {getSolicitudMessage(showSendModal.solicitud)}
                         </p>
                         <div className="text-center mt-3">
