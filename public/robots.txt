@@ -1,9 +1,19 @@
 User-agent: *
 Allow: /
+Allow: /blog
+Allow: /blog/
 
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /admin
-Disallow: /login
-Disallow: /register
+Disallow: /admin/
+Disallow: /settings
+Disallow: /api/
 
+# Testimonial submission forms (public but not for crawlers)
+Disallow: /t/
+Disallow: /nps/
+Disallow: /r/
+
+# Sitemap
 Sitemap: https://testimonioya.com/sitemap.xml

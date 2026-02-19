@@ -80,6 +80,7 @@ export default function Settings() {
   const [mfaLoading, setMfaLoading] = useState(true)
   const [showMfaSetup, setShowMfaSetup] = useState(false)
   const [disablingMfa, setDisablingMfa] = useState(false)
+  const [exportingData, setExportingData] = useState(false)
   
   const navigate = useNavigate()
   const toast = useToast()
@@ -353,6 +354,77 @@ export default function Settings() {
       setPasswordError(translateError(err.message))
     } finally {
       setChangingPassword(false)
+    }
+  }
+
+  // Export user data (GDPR)
+  const handleExportData = async () => {
+    setExportingData(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Fetch all user businesses
+      const { data: businesses } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('user_id', user.id)
+
+      const businessIds = (businesses || []).map((b: any) => b.id)
+
+      // Fetch testimonials for all businesses
+      const { data: testimonials } = businessIds.length > 0
+        ? await supabase
+            .from('testimonials')
+            .select('*')
+            .in('business_id', businessIds)
+        : { data: [] }
+
+      // Fetch NPS responses
+      const { data: npsResponses } = businessIds.length > 0
+        ? await supabase
+            .from('nps_responses')
+            .select('*')
+            .in('business_id', businessIds)
+        : { data: [] }
+
+      // Fetch reviews (imported from Google, etc.)
+      const { data: reviews } = businessIds.length > 0
+        ? await supabase
+            .from('reviews')
+            .select('*')
+            .in('business_id', businessIds)
+        : { data: [] }
+
+      const exportData = {
+        exported_at: new Date().toISOString(),
+        user: {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at,
+        },
+        businesses: businesses || [],
+        testimonials: testimonials || [],
+        nps_responses: npsResponses || [],
+        reviews: reviews || [],
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `testimonioya-datos-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      toast.success('Datos exportados correctamente')
+    } catch (error: any) {
+      console.error('Error exporting data:', error)
+      toast.error('Error al exportar datos', error.message)
+    } finally {
+      setExportingData(false)
     }
   }
 
@@ -1076,6 +1148,44 @@ export default function Settings() {
                         <p className="text-xs text-gray-500 mt-0.5">Para cambiar tu email, contacta a soporte</p>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Export Data (GDPR) */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <Download className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Exportar mis datos</h2>
+                        <p className="text-sm text-gray-500">Descarga todos tus datos (RGPD / GDPR)</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-gray-600 mb-4">
+                      Descarga un archivo JSON con toda tu información: negocios, testimonios,
+                      respuestas NPS y reseñas importadas. Puedes solicitar esta exportación
+                      en cualquier momento de acuerdo al Reglamento General de Protección de Datos.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handleExportData}
+                      disabled={exportingData}
+                      className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {exportingData ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Exportando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          <span>Descargar mis datos</span>
+                        </>
+                      )}
+                    </button>
                   </div>
 
                   {/* Delete Account */}

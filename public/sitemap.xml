@@ -2,42 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://testimonioya.com/</loc>
-    <lastmod>2026-02-08</lastmod>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://testimonioya.com/register</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://testimonioya.com/login</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://testimonioya.com/blog</loc>
-    <lastmod>2026-02-08</lastmod>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://testimonioya.com/blog/como-conseguir-testimonios-clientes-web</loc>
     <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://testimonioya.com/blog/mejores-widgets-testimonios-2026</loc>
     <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://testimonioya.com/blog/wall-of-love-que-es-como-crear</loc>
     <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://testimonioya.com/blog/guia-nps-medir-satisfaccion-clientes</loc>
     <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://testimonioya.com/blog/social-proof-testimonios-aumentan-ventas</loc>
     <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://testimonioya.com/legal</loc>
-    <lastmod>2026-02-08</lastmod>
+    <loc>https://testimonioya.com/legal/privacy</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://testimonioya.com/legal/terms</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://testimonioya.com/legal/cookies</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
   </url>
 </urlset>

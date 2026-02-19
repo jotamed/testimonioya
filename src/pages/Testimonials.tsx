@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Star, Check, X, Mic, Sparkles } from 'lucide-react'
+import { Star, Check, X, Mic, Video, Sparkles } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useToast } from '../components/Toast'
 import { supabase, Business, Testimonial } from '../lib/supabase'
@@ -242,6 +242,27 @@ export default function Testimonials() {
                       <div className="flex items-center space-x-1.5 text-indigo-600 mb-3">
                         <Mic className="h-4 w-4" />
                         <span className="text-sm font-medium">Testimonio en audio</span>
+                      </div>
+                    )}
+
+                    {/* Video player */}
+                    {testimonial.video_url && (
+                      <div className="mb-3">
+                        <video
+                          src={testimonial.video_url}
+                          controls
+                          playsInline
+                          className="w-full rounded-lg max-h-64 bg-black"
+                          preload="metadata"
+                        />
+                      </div>
+                    )}
+
+                    {/* Video-only badge */}
+                    {testimonial.video_url && !testimonial.text_content && !testimonial.audio_url && (
+                      <div className="flex items-center space-x-1.5 text-indigo-600 mb-3">
+                        <Video className="h-4 w-4" />
+                        <span className="text-sm font-medium">Testimonio en video</span>
                       </div>
                     )}
 

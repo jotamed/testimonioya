@@ -7,7 +7,7 @@
     <!-- SEO -->
     <title>TestimonioYa - Recolecta testimonios de clientes por WhatsApp</title>
     <meta name="description" content="Consigue más reseñas en Google sin esfuerzo. Pide testimonios por email o WhatsApp, filtra los mejores y redirige a Google Reviews automáticamente." />
-    <meta name="keywords" content="testimonios, reseñas, WhatsApp, opiniones clientes, social proof, reputación online" />
+    <meta name="keywords" content="testimonios clientes, reseñas Google, reputación online, social proof, NPS, opiniones clientes, WhatsApp reseñas, wall of love, widget testimonios, pymes" />
     <link rel="canonical" href="https://testimonioya.com" />
 
     <!-- Open Graph -->
@@ -55,9 +55,94 @@
         }
       }(window.location))
     </script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://testimonioya.com/#organization",
+          "name": "TestimonioYa",
+          "url": "https://testimonioya.com",
+          "logo": "https://testimonioya.com/og-image.png",
+          "description": "Plataforma SaaS para recolectar testimonios de clientes por WhatsApp y email, filtrar los mejores y redirigir a Google Reviews automaticamente.",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "email": "hola@testimonioya.com"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://testimonioya.com/#software",
+          "name": "TestimonioYa",
+          "url": "https://testimonioya.com",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR",
+            "description": "Plan gratuito disponible. Planes Pro y Business desde 19 euros/mes."
+          },
+          "description": "Recolecta testimonios y resenas de clientes por WhatsApp y email. Filtra los mejores automaticamente y redirige a Google Reviews. Incluye NPS, wall of love y widget embebible.",
+          "featureList": [
+            "Recoleccion de testimonios por WhatsApp y email",
+            "Filtrado automatico de resenas positivas",
+            "Redireccion automatica a Google Reviews",
+            "Encuestas NPS personalizadas",
+            "Wall of Love publico",
+            "Widget embebible en cualquier web",
+            "Testimonios en texto, audio y video",
+            "Dashboard con analytics"
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
+        <h1>TestimonioYa - Recolecta testimonios de clientes por WhatsApp</h1>
+        <p>
+          TestimonioYa es la plataforma SaaS para pequenas y medianas empresas que quieren
+          conseguir mas resenas en Google sin esfuerzo. Pide testimonios por email o WhatsApp,
+          filtra los mejores automaticamente y redirige a tus clientes satisfechos a Google Reviews.
+        </p>
+        <h2>Por que TestimonioYa?</h2>
+        <ul>
+          <li>Recolecta testimonios en texto, audio y video de tus clientes</li>
+          <li>Encuestas NPS integradas para medir la satisfaccion del cliente</li>
+          <li>Filtrado automatico: las resenas negativas se quedan como feedback privado</li>
+          <li>Wall of Love publico para mostrar tus mejores testimonios</li>
+          <li>Widget embebible en tu web con un clic</li>
+          <li>Dashboard con estadisticas y analisis de sentimiento</li>
+          <li>Compatible con Google Reviews, Trustpilot y mas plataformas</li>
+        </ul>
+        <h2>Precios</h2>
+        <p>
+          Empieza gratis. Planes de pago desde 19 euros por mes.
+          Prueba gratuita disponible, sin tarjeta de credito.
+        </p>
+        <h2>Sectores que usan TestimonioYa</h2>
+        <p>
+          Restaurantes, clinicas dentales, academias, gimnasios, tiendas online, consultorias,
+          inmobiliarias, peluquerias y cualquier negocio que quiera mejorar su reputacion online
+          y conseguir mas resenas en Google.
+        </p>
+        <p>
+          <a href="/register">Crear cuenta gratis</a> |
+          <a href="/login">Iniciar sesion</a> |
+          <a href="/blog">Blog sobre testimonios y resenas</a> |
+          <a href="/legal/privacy">Politica de privacidad</a> |
+          <a href="/legal/terms">Terminos de uso</a>
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

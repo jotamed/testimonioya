@@ -122,6 +122,13 @@ export default function TestimonialForm() {
 
   const uploadMedia = async (blob: Blob, type: 'audio' | 'video'): Promise<string | null> => {
     try {
+      // File size limits: 100MB for video, 20MB for audio
+      const maxSizeBytes = type === 'video' ? 100 * 1024 * 1024 : 20 * 1024 * 1024
+      if (blob.size > maxSizeBytes) {
+        const maxMB = type === 'video' ? 100 : 20
+        throw new Error(`El archivo ${type === 'video' ? 'de vídeo' : 'de audio'} es demasiado grande. Máximo ${maxMB}MB.`)
+      }
+
       const extension = 'webm'
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`
       const filePath = `testimonials/${link?.business_id}/${fileName}`
