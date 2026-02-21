@@ -117,6 +117,32 @@ const verticals: Record<string, {
     ],
     keywords: ['opiniones clínica', 'reseñas médico', 'testimonios centro salud'],
   },
+  gimnasios: {
+    slug: 'gimnasios',
+    name: 'Gimnasios y Centros Deportivos',
+    emoji: '💪',
+    headline: 'Reseñas para Gimnasios que Convierten Visitantes en Socios',
+    subheadline: 'Cada transformación de tus socios es un cliente potencial convencido. Convierte resultados en reseñas de Google.',
+    problems: [
+      'Tus socios consiguen transformaciones increíbles pero nunca dejan reseña',
+      'Los nuevos visitantes comparan gimnasios por reseñas de Google y tienes pocas',
+      'Pedir una reseña después de entrenar se siente incómodo',
+      'La competencia tiene cientos de opiniones y tú solo tienes 15',
+      'Las historias de éxito se pierden en grupos de WhatsApp',
+    ],
+    testimonials: [
+      { name: 'Carlos Hernández', biz: 'Gimnasio PowerFit', text: 'En 4 meses pasamos de 23 a 156 reseñas en Google. Las consultas de nuevos socios se triplicaron. TestimonioYa fue clave.', rating: 5 },
+      { name: 'Laura Jiménez', biz: 'CrossFit Valencia', text: 'Enviamos el enlace cuando alguien consigue un PR o completa un reto. El socio está eufórico y escribe testimonios brutales.', rating: 5 },
+      { name: 'Miguel Torres', biz: 'Yoga Studio Namaste', text: 'Nuestro muro con 80 testimonios de bienestar y cambio personal genera más confianza que cualquier anuncio.', rating: 5 },
+    ],
+    useCases: [
+      'Cuando un socio completa un reto o programa de 12 semanas',
+      'Al cumplir 1 año como socio',
+      'Después de conseguir un PR o logro importante',
+      'Al renovar la membresía o referir a un amigo',
+    ],
+    keywords: ['reseñas gimnasio', 'testimonios centro deportivo', 'opiniones gym', 'social proof fitness'],
+  },
   belleza: {
     slug: 'belleza',
     name: 'Belleza y Estética',
