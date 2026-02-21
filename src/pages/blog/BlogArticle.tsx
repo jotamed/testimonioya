@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { MessageSquare, Clock, ArrowLeft, ArrowRight, Home, ChevronRight, User } from 'lucide-react'
+import { MessageSquare, Clock, ArrowRight, Home, ChevronRight, User } from 'lucide-react'
 import { updateSEO } from '../../lib/seo'
 import { articles, getRelatedArticles } from './blogData'
 
