@@ -1,3 +1,8 @@
+export interface BlogArticleGradient {
+  gradient: string  // Tailwind gradient classes
+  icon: string      // Emoji or icon
+}
+
 export interface BlogArticle {
   slug: string
   title: string
@@ -5,7 +10,7 @@ export interface BlogArticle {
   keyword: string
   date: string
   readTime: string
-  image: string
+  visual: BlogArticleGradient
   content: string
 }
 
@@ -17,7 +22,10 @@ export const articles: BlogArticle[] = [
     keyword: 'testimonios clientes web',
     date: '2026-02-05',
     readTime: '7 min',
-    image: '💬',
+    visual: {
+      gradient: 'from-blue-500 via-indigo-500 to-purple-600',
+      icon: '💬'
+    },
     content: `## Por qué los testimonios de clientes en tu web son tu mejor vendedor
 
 Imagina que entras a una web por primera vez. No conoces la marca. No sabes si el producto funciona. ¿Qué haces? Exacto: buscas lo que dicen otros clientes.
@@ -121,7 +129,10 @@ Gratis para empezar. Sin tarjeta de crédito. [Crea tu cuenta en 30 segundos →
     keyword: 'widget testimonios',
     date: '2026-02-03',
     readTime: '8 min',
-    image: '⭐',
+    visual: {
+      gradient: 'from-amber-400 via-orange-500 to-red-500',
+      icon: '⭐'
+    },
     content: `## ¿Qué es un widget de testimonios y por qué lo necesitas?
 
 Un **widget de testimonios** es un componente visual que puedes insertar en tu web para mostrar las opiniones de tus clientes. Puede ser un carrusel, una cuadrícula, un badge flotante o un muro completo.
@@ -242,7 +253,10 @@ Gratis para empezar. Sin tarjeta de crédito.
     keyword: 'wall of love testimonios',
     date: '2026-02-01',
     readTime: '6 min',
-    image: '❤️',
+    visual: {
+      gradient: 'from-pink-500 via-rose-500 to-red-500',
+      icon: '❤️'
+    },
     content: `## ¿Qué es un Wall of Love?
 
 Un **Wall of Love** (muro de amor) es una página web dedicada exclusivamente a mostrar todos los testimonios positivos de tus clientes. Piensa en ello como un mural gigante donde tus mejores reseñas brillan juntas.
@@ -370,7 +384,10 @@ Sin código. Sin diseño. Sin mantenimiento.
     keyword: 'NPS satisfacción clientes',
     date: '2026-01-28',
     readTime: '9 min',
-    image: '📊',
+    visual: {
+      gradient: 'from-emerald-400 via-teal-500 to-cyan-600',
+      icon: '📊'
+    },
     content: `## ¿Qué es el NPS y por qué debería importarte?
 
 El **NPS** (Net Promoter Score) es la métrica más utilizada en el mundo para medir la **satisfacción de tus clientes**. La usan Apple, Amazon, Tesla, Airbnb y miles de empresas más.
@@ -510,7 +527,10 @@ TestimonioYa incluye un sistema NPS completo: envía la encuesta, clasifica auto
     keyword: 'social proof ventas',
     date: '2026-01-25',
     readTime: '8 min',
-    image: '🚀',
+    visual: {
+      gradient: 'from-violet-500 via-purple-500 to-fuchsia-600',
+      icon: '🚀'
+    },
     content: `## ¿Qué es el social proof y por qué mueve millones?
 
 **Social proof** (prueba social) es un principio psicológico simple: cuando no sabemos qué hacer, miramos qué hacen los demás. Es la razón por la que eliges el restaurante lleno en vez del vacío. La razón por la que miras las reseñas antes de comprar en Amazon.
