@@ -267,7 +267,7 @@ export default function Dashboard() {
     // NPS stats (only if unified flow is active)
     ...(business.use_unified_flow ? [
       {
-        label: 'NPS Score',
+        label: 'Satisfacción',
         value: npsStats.total > 0 ? `${Math.round(((npsStats.promoters - npsStats.detractors) / npsStats.total) * 100)}` : '—',
         icon: Target,
         iconBg: 'bg-cyan-50',

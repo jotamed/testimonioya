@@ -22,7 +22,7 @@ const pricingPlans = [
       '2 enlaces de recogida',
       'Muro público',
       'Branding TestimonioYa',
-      '❌ Sin NPS',
+      '❌ Sin encuesta de satisfacción',
     ],
     cta: 'Empezar gratis',
     highlighted: false,
@@ -41,8 +41,8 @@ const pricingPlans = [
       'Sin branding',
       'Audio + Video',
       'Widget embebible',
-      '✅ NPS completo',
-      '✅ Flujo unificado NPS→Testimonio',
+      '✅ Encuesta de satisfacción',
+      '✅ Flujo: pregunta + testimonio',
       'Analytics',
       'Google Reviews redirect',
     ],
@@ -59,7 +59,7 @@ const pricingPlans = [
     description: 'Para agencias y multi-negocio',
     features: [
       'Todo lo de Pro',
-      '✅ Recovery Flow (recupera detractores)',
+      '✅ Recovery Flow (recupera clientes insatisfechos)',
       'Gestión de casos',
       'Hasta 5 negocios',
       'Analytics avanzados',
@@ -93,12 +93,12 @@ const faqs = [
     a: 'Sí, sin permanencia ni letra pequeña. Puedes pasar al plan gratuito cuando quieras y conservas tus testimonios.',
   },
   {
-    q: '¿Qué es el flujo NPS y cómo me ayuda?',
-    a: 'NPS (Net Promoter Score) mide la satisfacción de tus clientes del 0 al 10. Los que puntúan 9-10 (promotores) pasan automáticamente a dejar un testimonio público y se redirigen a Google Reviews. Los que puntúan bajo te dejan feedback privado. Así solo publicas lo mejor y detectas problemas antes de que lleguen a Google.',
+    q: '¿Cómo funciona la encuesta de satisfacción?',
+    a: 'Envías una pregunta rápida a tus clientes (del 0 al 10, ¿nos recomendarías?). Los que puntúan alto pasan automáticamente a dejar un testimonio público y se redirigen a Google Reviews. Los que puntúan bajo te dejan feedback privado. Así solo publicas lo mejor y detectas problemas antes de que lleguen a Google.',
   },
   {
     q: '¿Qué es el Recovery Flow del plan Business?',
-    a: 'Cuando un cliente puntúa bajo en el NPS, el Recovery Flow te permite responderle directamente, gestionar su caso y convertir una experiencia negativa en positiva. Es como un sistema de atención al cliente integrado que te ayuda a recuperar clientes insatisfechos.',
+    a: 'Cuando un cliente puntúa bajo en la encuesta de satisfacción, el Recovery Flow te permite responderle directamente, gestionar su caso y convertir una experiencia negativa en positiva. Es como un sistema de atención al cliente integrado que te ayuda a recuperar clientes insatisfechos.',
   },
 ]
 
@@ -219,7 +219,7 @@ export default function Landing() {
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Mide la satisfacción de tus clientes con NPS. Convierte a los promotores en reseñas de Google. Los detractores se quedan como feedback privado.
+              Pregunta a tus clientes si están contentos. Los que sí → reseña en Google. Los que no → te lo dicen en privado, no en público.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
@@ -259,7 +259,7 @@ export default function Landing() {
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
                     <div className="flex items-center space-x-3">
                       <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                        CL
+                        💆
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-gray-900">Clínica Estética Lumina</div>
@@ -286,7 +286,7 @@ export default function Landing() {
                     </div>
                     <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
                       <div className="text-2xl sm:text-3xl font-bold text-purple-600">72</div>
-                      <div className="text-xs text-gray-600 mt-1">NPS Score</div>
+                      <div className="text-xs text-gray-600 mt-1">Satisfacción</div>
                     </div>
                     <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
                       <div className="text-2xl sm:text-3xl font-bold text-orange-600">8</div>
@@ -410,10 +410,10 @@ export default function Landing() {
                 <Gauge className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
-                NPS inteligente
+                Filtro inteligente
               </h3>
               <p className="text-gray-600 leading-relaxed mb-6">
-                Mide satisfacción con NPS (0-10). Promotores → testimonio + Google. Detractores → feedback privado solo para ti.
+                Pregunta a tus clientes si están contentos (0-10). Los contentos → testimonio + Google. Los insatisfechos → feedback privado solo para ti.
               </p>
               
               {/* Visual: NPS flow */}
@@ -540,9 +540,9 @@ export default function Landing() {
                 <div className="h-20 w-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-white text-3xl font-bold shadow-xl">
                   2
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Envía NPS</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Pregunta si están contentos</h3>
                 <p className="text-gray-600 mb-6">
-                  Envía una encuesta NPS por email o WhatsApp. Los promotores pasan al testimonio automáticamente. Los detractores te dan feedback privado.
+                  Envía una pregunta rápida por email o WhatsApp. Los clientes contentos pasan al testimonio automáticamente. Los insatisfechos te dan feedback privado.
                 </p>
                 
                 {/* Visual: Phone mockup */}
@@ -670,7 +670,7 @@ export default function Landing() {
             {[
               { icon: Smartphone, label: 'WhatsApp nativo', desc: 'El canal #1 en España', color: 'from-green-500 to-emerald-600' },
               { icon: Zap, label: 'Automático', desc: 'Envía y olvídate', color: 'from-yellow-500 to-orange-600' },
-              { icon: Gauge, label: 'NPS inteligente', desc: 'Mide y segmenta clientes', color: 'from-blue-500 to-indigo-600' },
+              { icon: Gauge, label: 'Filtro inteligente', desc: 'Separa contentos de insatisfechos', color: 'from-blue-500 to-indigo-600' },
               { icon: BarChart3, label: 'Analytics', desc: 'Métricas en tiempo real', color: 'from-purple-500 to-pink-600' },
             ].map((item, i) => (
               <div key={i} className="text-center p-6 rounded-2xl bg-white border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all group">

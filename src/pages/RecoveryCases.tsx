@@ -159,7 +159,7 @@ export default function RecoveryCases() {
                 Feature disponible en plan Business
               </h3>
               <p className="text-sm text-amber-700">
-                El Recovery Flow para gestionar clientes detractores está disponible solo en el plan Business.
+                El Recovery Flow para gestionar clientes clientes insatisfechos está disponible solo en el plan Business.
               </p>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function RecoveryCases() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Casos de Recuperación</h1>
           <p className="text-gray-500 mt-1">
-            Gestiona clientes detractores y mejora su experiencia
+            Gestiona clientes clientes insatisfechos y mejora su experiencia
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export default function RecoveryCases() {
               No hay casos aún
             </h3>
             <p className="text-gray-500">
-              Los casos de recuperación aparecerán cuando recibas respuestas NPS de detractores.
+              Los casos de recuperación aparecerán cuando recibas respuestas NPS de clientes insatisfechos.
             </p>
           </div>
         ) : (

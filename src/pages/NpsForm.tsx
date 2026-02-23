@@ -149,7 +149,7 @@ export default function NpsForm() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Funcionalidad Premium</h1>
           <p className="text-gray-600 mb-6">
-            El sistema NPS está disponible en planes Pro y Business.
+            La encuesta de satisfacción está disponible en planes Pro y Business.
           </p>
           <a
             href="https://testimonioya.com"

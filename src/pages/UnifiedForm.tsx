@@ -269,7 +269,7 @@ export default function UnifiedForm() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Funcionalidad Premium</h1>
           <p className="text-gray-600 mb-6">
-            El flujo unificado NPS→Testimonio está disponible en planes Pro y Business.
+            El flujo unificado de satisfacción + testimonio está disponible en planes Pro y Business.
           </p>
           <a
             href="https://testimonioya.com"

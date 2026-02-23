@@ -113,14 +113,14 @@ export default function NpsDashboard() {
               <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-amber-900 mb-1">
-                  NPS disponible en planes Pro y Business
+                  Encuesta de satisfacción disponible en planes Pro y Business
                 </h3>
                 <p className="text-sm text-amber-700 mb-4">
-                  El sistema NPS completo está disponible en planes Pro y Business. Actualiza tu plan para acceder a:
+                  La encuesta de satisfacción está disponible en planes Pro y Business. Actualiza tu plan para acceder a:
                 </p>
                 <ul className="text-sm text-amber-700 space-y-1 ml-4 mb-4">
-                  <li>• Dashboard NPS completo con métricas</li>
-                  <li>• Flujo unificado NPS→Testimonio</li>
+                  <li>• Dashboard de satisfacción con métricas</li>
+                  <li>• Flujo unificado: pregunta + testimonio</li>
                   <li>• Análisis de tendencias</li>
                   <li>• Respuestas ilimitadas</li>
                 </ul>
@@ -143,7 +143,7 @@ export default function NpsDashboard() {
       <DashboardLayout>
         <div className="text-center py-12">
           <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-gray-600">Cargando datos NPS...</p>
+          <p className="text-gray-600">Cargando datos de satisfacción...</p>
         </div>
       </DashboardLayout>
     )
@@ -169,7 +169,7 @@ export default function NpsDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">NPS Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Satisfacción</h1>
             <p className="text-gray-600 mt-1">Net Promoter Score de {business.business_name}</p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
@@ -190,7 +190,7 @@ export default function NpsDashboard() {
         {/* NPS Score Hero with Gauge */}
         <div className={`rounded-2xl border-2 p-4 sm:p-8 ${npsBg}`}>
           <div className="flex flex-col items-center">
-            <p className="text-sm font-medium text-gray-600 mb-4">Tu NPS Score</p>
+            <p className="text-sm font-medium text-gray-600 mb-4">Tu índice de satisfacción</p>
             {/* Semi-circle gauge */}
             <div className="relative w-36 sm:w-48 h-[72px] sm:h-24 mb-2">
               <svg viewBox="0 0 200 100" className="w-full h-full">
@@ -234,9 +234,9 @@ export default function NpsDashboard() {
                 <div className="bg-green-500 transition-all" style={{ width: `${(stats.promoters / stats.total) * 100}%` }} />
               </div>
               <div className="flex justify-between text-xs mt-1.5 text-gray-500">
-                <span className="text-red-600">{Math.round((stats.detractors / stats.total) * 100)}% detractores</span>
+                <span className="text-red-600">{Math.round((stats.detractors / stats.total) * 100)}% insatisfechos</span>
                 <span className="text-amber-600">{Math.round((stats.passives / stats.total) * 100)}% pasivos</span>
-                <span className="text-green-600">{Math.round((stats.promoters / stats.total) * 100)}% promotores</span>
+                <span className="text-green-600">{Math.round((stats.promoters / stats.total) * 100)}% contentos</span>
               </div>
             </div>
           )}
@@ -248,7 +248,7 @@ export default function NpsDashboard() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-green-600" />
-                <span className="font-medium text-gray-900">Promotores</span>
+                <span className="font-medium text-gray-900">Clientes contentos</span>
               </div>
               <span className="text-2xl font-bold text-green-600">{stats.promoters}</span>
             </div>
@@ -288,7 +288,7 @@ export default function NpsDashboard() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <TrendingDown className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-gray-900">Detractores</span>
+                <span className="font-medium text-gray-900">Clientes insatisfechos</span>
               </div>
               <span className="text-2xl font-bold text-red-600">{stats.detractors}</span>
             </div>

@@ -185,7 +185,7 @@ export default function Settings() {
             .insert({
               business_id: business.id,
               slug,
-              name: 'Enlace Unificado NPS',
+              name: 'Enlace Unificado Satisfacción',
               is_active: true,
               nps_threshold_promoter: 9,
               nps_threshold_passive: 7,
@@ -315,7 +315,7 @@ export default function Settings() {
     { id: 'general', label: 'General', icon: Settings2 },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'collection', label: 'Flujo de Recolección', icon: Workflow, requiresPlan: 'pro' },
-    { id: 'nps', label: 'NPS', icon: MessageSquare, requiresPlan: 'pro' },
+    { id: 'nps', label: 'Satisfacción', icon: MessageSquare, requiresPlan: 'pro' },
     { id: 'branding', label: 'Marca', icon: Palette, requiresPlan: 'pro' },
     { id: 'security', label: 'Seguridad', icon: Shield },
     { id: 'billing', label: 'Plan', icon: Crown },
@@ -684,7 +684,7 @@ export default function Settings() {
                     <div className="grid md:grid-cols-2 gap-6 mt-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Recomendar Google Reviews a partir de puntuación NPS:
+                          Recomendar Google Reviews a partir de puntuación de satisfacción:
                         </label>
                         <select
                           value={formData.google_reviews_nps_threshold}
@@ -696,7 +696,7 @@ export default function Settings() {
                           ))}
                         </select>
                         <p className="mt-1 text-xs text-gray-500">
-                          Clientes con NPS ≥ este valor verán la sugerencia de Google Reviews
+                          Clientes con puntuación ≥ este valor verán la sugerencia de Google Reviews
                         </p>
                       </div>
                       <div>
@@ -767,8 +767,8 @@ export default function Settings() {
                     
                     <ToggleRow
                       icon={MessageSquare}
-                      label="Respuesta NPS recibida"
-                      description="Recibe un email cuando alguien responde tu encuesta NPS"
+                      label="Respuesta de satisfacción recibida"
+                      description="Recibe un email cuando alguien responde tu encuesta de satisfacción"
                       enabled={formData.notify_nps_response}
                       onChange={(v) => setFormData({ ...formData, notify_nps_response: v })}
                     />
@@ -815,9 +815,9 @@ export default function Settings() {
                           <Workflow className="h-5 w-5 text-indigo-600" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">Usar flujo unificado NPS→Testimonio</p>
+                          <p className="font-medium text-gray-900">Usar flujo unificado: pregunta + testimonio</p>
                           <p className="text-sm text-gray-500 mt-0.5">
-                            Pregunta primero el NPS (0-10) y luego captura testimonio de promotores o feedback de detractores
+                            Pregunta primero la satisfacción (0-10) y luego captura testimonio de clientes contentos o feedback de insatisfechos
                           </p>
                           {formData.use_unified_flow && unifiedLinkUrl && (
                             <div className="mt-3">
@@ -895,10 +895,10 @@ export default function Settings() {
                 <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 relative">
                   {!isPro && <LockedOverlay plan="Pro" />}
                   
-                  <h2 className="text-xl font-bold text-gray-900">Configuración NPS</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Configuración de satisfacción</h2>
 
                   <div className="bg-indigo-50 rounded-lg p-4">
-                    <h4 className="font-medium text-indigo-900 mb-2">Enlaces NPS</h4>
+                    <h4 className="font-medium text-indigo-900 mb-2">Enlaces de satisfacción</h4>
                     <code className="block bg-white px-3 py-2 rounded text-sm text-indigo-600 border border-indigo-200 break-all overflow-hidden">
                       {window.location.origin}/nps/{business?.slug}
                     </code>

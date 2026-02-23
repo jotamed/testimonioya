@@ -16,7 +16,7 @@ export default function ZeroNegativeGuarantee({
         <div className="max-w-6xl mx-auto flex items-center justify-center space-x-3">
           <Shield className="h-5 w-5" />
           <p className="font-medium">
-            Cero testimonios malos. <span className="font-normal opacity-90">Solo los promotores (NPS 9-10) dejan testimonio público.</span>
+            Cero testimonios malos. <span className="font-normal opacity-90">Solo los clientes contentos (9-10) dejan testimonio público.</span>
           </p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function ZeroNegativeGuarantee({
             Cero testimonios malos. Garantizado.
           </h3>
           <p className="text-gray-600 mb-4">
-            Con el sistema NPS-First, solo tus clientes más felices (promotores 9-10) 
+            Con el filtro inteligente, solo tus clientes más felices (puntuación 9-10) 
             dejan testimonio público. Los demás te dan feedback privado.
           </p>
           
@@ -88,7 +88,7 @@ export default function ZeroNegativeGuarantee({
       <div className="mt-6 pt-6 border-t border-green-200">
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-white/50 rounded-lg p-4">
-            <p className="text-sm font-medium text-gray-500 mb-2">❌ Sin filtrado NPS</p>
+            <p className="text-sm font-medium text-gray-500 mb-2">❌ Sin filtro de satisfacción</p>
             <ul className="space-y-1 text-sm text-gray-600">
               <li className="flex items-center space-x-2">
                 <AlertTriangle className="h-4 w-4 text-red-400" />
@@ -109,11 +109,11 @@ export default function ZeroNegativeGuarantee({
             <ul className="space-y-1 text-sm text-gray-600">
               <li className="flex items-center space-x-2">
                 <Check className="h-4 w-4 text-green-500" />
-                <span>Filtras con NPS primero</span>
+                <span>Filtras por satisfacción primero</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Check className="h-4 w-4 text-green-500" />
-                <span>Solo promotores dan testimonio</span>
+                <span>Solo clientes contentos dan testimonio</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Check className="h-4 w-4 text-green-500" />
@@ -134,7 +134,7 @@ export function ZeroNegativeBadge() {
       <Shield className="h-5 w-5" />
       <span className="font-semibold">Cero testimonios malos</span>
       <span className="text-green-200">|</span>
-      <span className="text-sm text-green-100">Garantizado por NPS</span>
+      <span className="text-sm text-green-100">Garantizado por filtro de satisfacción</span>
     </div>
   )
 }

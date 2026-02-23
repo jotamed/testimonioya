@@ -200,7 +200,7 @@ export function EmptyDetractors() {
           <span className="text-3xl">🎉</span>
         </div>
       }
-      title="¡Sin detractores!"
+      title="¡Sin clientes insatisfechos!"
       description="No tienes clientes insatisfechos pendientes de atender. ¡Buen trabajo!"
     />
   )
