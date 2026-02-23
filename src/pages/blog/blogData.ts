@@ -16,6 +16,220 @@ export interface BlogArticle {
 
 export const articles: BlogArticle[] = [
   {
+    slug: 'testimonios-landing-page-conversion',
+    title: 'Testimonios en landing page: dónde colocarlos para maximizar conversión',
+    description: 'Guía completa sobre cómo usar testimonios en landing page: mejores posiciones, formatos que convierten más y errores que matan la conversión.',
+    keyword: 'testimonios landing page',
+    date: '2026-02-23',
+    readTime: '8 min',
+    visual: {
+      gradient: 'from-cyan-400 via-blue-500 to-indigo-600',
+      icon: '🎯'
+    },
+    content: `## Por qué los testimonios en landing page pueden duplicar tu conversión
+
+Una landing page sin testimonios es como un vendedor mudo. Puede tener el mejor producto del mundo, pero si no muestra que otros clientes ya lo han comprado y están encantados, la desconfianza mata la venta.
+
+Los datos lo confirman: según un estudio de ConversionXL, **añadir testimonios en landing page puede aumentar la conversión entre un 34% y un 270%**, dependiendo del sector y la implementación.
+
+¿Por qué funciona? Porque reduce el riesgo percibido. Comprar online siempre genera ansiedad: "¿funcionará? ¿es fiable? ¿me estafarán?" Los **testimonios en landing page** responden esas preguntas antes de que el visitante se las haga.
+
+## El error del 90% de landing pages con testimonios
+
+La mayoría de landing pages tienen testimonios. Pero los tienen MAL:
+
+- **Escondidos al final** de la página (donde nadie llega)
+- **Testimonios genéricos** ("Excelente servicio 5/5" no convence a nadie)
+- **Sin foto ni nombre** (parecen inventados)
+- **Todos iguales** (3 tarjetas idénticas en fila)
+- **Lejos del CTA** (no influyen en el momento de decisión)
+
+El problema no es tener testimonios. Es tenerlos en el lugar equivocado, con el formato equivocado, diciendo lo equivocado.
+
+## Dónde colocar testimonios en landing page (las 5 posiciones clave)
+
+### 1. Justo antes del primer CTA (above the fold)
+
+La primera llamada a acción de tu landing page es crítica. El visitante acaba de leer tu propuesta de valor y está decidiendo si hacer clic o irse.
+
+**Coloca 1-2 testimonios cortos justo encima del botón.** Testimonios que hablen del beneficio principal. No hace falta un carrusel elaborado; una frase contundente con nombre y foto basta.
+
+**Ejemplo:** Si vendes un CRM, un testimonio que diga "Cerré un 40% más de ventas en 3 meses usando [producto]" justo antes del "Prueba gratis" es devastador.
+
+### 2. Junto a cada sección de beneficios
+
+Tu landing page lista 3-4 beneficios clave. Cada beneficio es una promesa. Y cada promesa necesita prueba.
+
+**Estructura ideal:**
+- Beneficio 1: "Aumenta tus ventas"
+  → Testimonio de alguien que aumentó ventas
+- Beneficio 2: "Ahorra tiempo"
+  → Testimonio de alguien que ahorró tiempo
+- Beneficio 3: "Fácil de usar"
+  → Testimonio sobre lo fácil que fue
+
+Cada **testimonio en landing page** refuerza exactamente la promesa que acabas de hacer. No testimonios random; testimonios estratégicos.
+
+### 3. En la sección de "Cómo funciona"
+
+Cuando explicas cómo funciona tu producto, el visitante piensa: "¿de verdad es tan fácil?" Ahí necesitas un testimonio que valide la simplicidad.
+
+Un testimonio tipo "Lo configuré en 10 minutos sin ayuda" después de tu sección "3 pasos sencillos" es oro.
+
+### 4. Junto al pricing (crítico)
+
+El precio es el mayor punto de fricción. Justo cuando el visitante ve "49€/mes", su cerebro dispara alarmas: "¿vale la pena? ¿es caro?"
+
+**Coloca testimonios que hablen de ROI o valor:** "Recuperé la inversión en la primera semana" o "Antes gastaba 300€/mes en [alternativa], ahora gasto 49€ y tengo más funciones".
+
+### 5. Antes del CTA final (bottom of page)
+
+Al final de tu landing page hay un último CTA. El visitante que llegó hasta aquí está interesado pero no convencido del todo. Necesita un empujón final.
+
+Aquí funciona bien un **testimonio largo en formato vídeo** o un **Wall of Love embebido**: "Mira a toda esta gente que ya confió y le fue genial. ¿A qué esperas?"
+
+## Los 4 formatos de testimonios que mejor convierten
+
+### 1. Testimonio corto + nombre + foto (básico pero efectivo)
+
+**Cuándo usarlo:** Above the fold, junto a CTAs
+**Longitud:** 1-2 frases (máximo 30 palabras)
+**Ejemplo:** "Tripliqué mis leads en 2 meses. No pensaba que fuera tan rápido." — Laura M., Consultora Marketing
+
+Lo mínimo indispensable. Funciona si la frase es contundente y el nombre + foto son reales (nada de stock photos).
+
+### 2. Testimonio con antes/después (storytelling)
+
+**Cuándo usarlo:** Junto a beneficios, en sección de casos de uso
+**Estructura:** Problema → Solución → Resultado
+**Ejemplo:** "Antes perdía 5 horas semanales organizando testimonios manualmente. Con TestimonioYa lo automaticé. Ahora dedico ese tiempo a vender."
+
+El formato de transformación es el más persuasivo. El visitante se identifica con el "antes" y desea el "después".
+
+### 3. Testimonio en vídeo (máxima credibilidad)
+
+**Cuándo usarlo:** Bottom of page, sección "Casos de éxito"
+**Duración ideal:** 30-60 segundos
+**Por qué funciona:** Es casi imposible falsificar un vídeo. La autenticidad es máxima.
+
+Según Wyzowl, los testimonios en vídeo convierten un **25% más** que los escritos. El problema: son más difíciles de conseguir. Pero si tienes 2-3 buenos, úsalos prominentemente en tu landing page.
+
+### 4. Números y estadísticas (social proof cuantificado)
+
+**Cuándo usarlo:** Header, junto a pricing, sección de confianza
+**Ejemplos:**
+- "4.8/5 estrellas de media (127 reseñas)"
+- "Más de 1.200 negocios confían en nosotros"
+- "El 94% de nuestros clientes nos recomendaría"
+
+Los números transmiten escala y validación masiva. Úsalos si tienes volumen.
+
+## Anatomía del testimonio perfecto para landing page
+
+No todos los testimonios funcionan igual. Los mejores tienen estos 5 elementos:
+
+### 1. Especificidad > Generalidad
+
+❌ "Muy buen producto, lo recomiendo"
+✅ "Reduje mi tiempo de gestión de 8 horas a 2 horas semanales"
+
+Los números y detalles concretos son creíbles. Las generalidades no.
+
+### 2. Identidad verificable
+
+- **Nombre completo** (o al menos nombre + inicial)
+- **Foto real** (nada de avatares o stock photos)
+- **Cargo/empresa** (para B2B) o **ciudad/rol** (para B2C)
+
+Cuanta más información real, más creíble.
+
+### 3. Enfoque en el resultado, no en el producto
+
+❌ "La interfaz es muy bonita y fácil de usar"
+✅ "Gracias a la interfaz intuitiva, mi equipo se adaptó en 1 día sin formación"
+
+Al visitante le importa lo que VA A CONSEGUIR, no las características.
+
+### 4. Menciona la objeción que supera
+
+Si tu producto es caro, testimonios sobre ROI. Si parece complicado, testimonios sobre facilidad. Si es nuevo, testimonios sobre resultados rápidos.
+
+Identifica la mayor objeción de tu buyer persona y busca testimonios que la desmientan.
+
+### 5. Usa su lenguaje (no el tuyo)
+
+Un testimonio escrito por tu equipo de marketing se nota. Deja que el cliente hable con sus propias palabras, aunque no sea perfecto gramaticalmente. La autenticidad convence más que la perfección.
+
+## Errores que matan la conversión (evítalos)
+
+### ❌ Error 1: Testimonios inventados o stock photos
+
+Se nota. Siempre se nota. Y cuando alguien sospecha que un testimonio es falso, automáticamente desconfía de todo lo demás en tu landing page. Además, en muchos países (incluida España) es ILEGAL.
+
+### ❌ Error 2: Todos los testimonios dicen lo mismo
+
+Si tus 5 testimonios dicen variaciones de "excelente servicio", estás desperdiciando espacio. Cada testimonio debe cubrir un ángulo diferente: precio, facilidad, resultados, soporte, velocidad.
+
+### ❌ Error 3: Testimonios demasiado largos
+
+Un párrafo de 200 palabras nadie lo lee. Edita los testimonios para dejar solo la esencia. Guarda los testimonios largos para casos de estudio aparte.
+
+### ❌ Error 4: Sin testimonios en móvil
+
+Más del 60% de tu tráfico viene de móvil. Si tus testimonios desaparecen en responsive o quedan ilegibles, estás perdiendo conversiones. Asegúrate de que se ven bien en pantallas pequeñas.
+
+### ❌ Error 5: Testimonios desactualizados
+
+Testimonios de hace 3 años restan credibilidad. Si tu producto ha cambiado mucho, actualiza los testimonios. Lo ideal: añadir nuevos cada mes para mostrar que sigues teniendo clientes contentos.
+
+## Cómo hacer A/B testing con testimonios en landing page
+
+No adivines. Testea. Estas son variaciones que puedes probar:
+
+**Posición:**
+- Versión A: Testimonios solo al final
+- Versión B: Testimonios distribuidos (arriba, medio, abajo)
+
+**Formato:**
+- Versión A: Solo texto
+- Versión B: Texto + vídeo
+
+**Cantidad:**
+- Versión A: 3 testimonios
+- Versión B: 10 testimonios (Wall of Love embebido)
+
+**Tipo:**
+- Versión A: Testimonios genéricos
+- Versión B: Testimonios segmentados por buyer persona
+
+Mide la diferencia en conversión y duplica lo que funciona.
+
+## Checklist: tu landing page está lista si...
+
+Antes de lanzar tu landing page, verifica:
+
+- ✅ Hay al menos 1 testimonio visible above the fold (sin scroll)
+- ✅ Cada beneficio clave tiene un testimonio que lo valida
+- ✅ Los testimonios tienen nombre, foto y empresa/rol
+- ✅ Hay al menos 1 testimonio junto al pricing
+- ✅ Se ven bien en móvil
+- ✅ Ningún testimonio es genérico ("muy bueno" no cuenta)
+- ✅ Idealmente, hay al menos 1 testimonio en vídeo
+- ✅ Los testimonios son de los últimos 6-12 meses
+
+Si cumples 7 de 8, estás en el top 10% de landing pages.
+
+---
+
+## Recoge y muestra testimonios sin esfuerzo con TestimonioYa
+
+TestimonioYa te da todo lo que necesitas para llenar tu landing page de **testimonios que convierten**: recolección automática con NPS, widgets embebibles listos para copiar y pegar, soporte para texto, audio y vídeo, y un Wall of Love que se actualiza solo.
+
+Deja de perder conversiones por falta de prueba social.
+
+[Empieza gratis en 30 segundos →](/register)`
+  },
+  {
     slug: 'como-conseguir-testimonios-clientes-web',
     title: 'Cómo conseguir testimonios de clientes para tu web',
     description: 'Aprende las mejores estrategias para conseguir testimonios de clientes para tu web. Guía práctica con técnicas que funcionan en 2026.',
